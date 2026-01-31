@@ -1,0 +1,2 @@
+cc -O -c hack.mon.c
+ld -X -i -o hack /lib/crt0.o ../rnd.o *.o -ltermlib -lc

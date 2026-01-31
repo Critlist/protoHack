@@ -1,0 +1,178 @@
+"hack.c", line 19: warning: illegal pointer combination
+"hack.c", line 19: illegal pointer subtraction
+"hack.c", line 54: warning: tmp unused in function done
+"hack.c", line 282: warning: illegal combination of pointer and integer
+"hack.c", line 283: warning: illegal combination of pointer and integer
+"hack.c", line 364: warning: illegal combination of pointer and integer
+"hack.cmd.c", line 213: warning: illegal structure pointer combination
+"hack.cmd.c", line 216: warning: illegal combination of pointer and integer
+"hack.cmd.c", line 260: warning: illegal combination of pointer and integer
+"hack.cmd.c", line 584: warning: illegal pointer combination
+"hack.cmd.c", line 584: illegal pointer subtraction
+"hack.cmd.c", line 603: warning: illegal pointer combination
+"hack.cmd.c", line 603: illegal pointer subtraction
+"hack.cmd.c", line 740: warning: illegal pointer combination
+"hack.cmd.c", line 771: warning: illegal pointer combination
+"hack.cmd.c", line 771: illegal pointer subtraction
+"hack.cmd.c", line 808: warning: illegal pointer combination
+"hack.cmdsub.c", line 112: warning: illegal structure pointer combination
+"hack.cmdsub.c", line 113: warning: illegal combination of pointer and integer
+"hack.cmdsub.c", line 121: warning: illegal combination of pointer and integer
+"hack.cmdsub.c", line 153: warning: illegal structure pointer combination
+"hack.cmdsub.c", line 283: warning: illegal combination of pointer and integer
+"hack.cmdsub.c", line 305: warning: illegal pointer combination
+"hack.cmdsub.c", line 305: illegal pointer subtraction
+"hack.cmdsub.c", line 345: warning: foo unused in function dosave
+"hack.cmdsub.c", line 346: warning: bar unused in function dosave
+"hack.fight.c", line 142: warning: illegal combination of pointer and integer
+"hack.fight.c", line 174: warning: illegal combination of pointer and integer
+"hack.files.c", line 92: warning: illegal structure pointer combination
+"hack.files.c", line 92: warning: illegal structure pointer combination
+"hack.files.c", line 92: warning: illegal structure pointer combination
+"hack.files.c", line 119: warning: illegal combination of pointer and integer
+"hack.files.c", line 125: warning: illegal combination of pointer and integer
+"hack.files.c", line 130: warning: illegal combination of pointer and integer
+"hack.files.c", line 146: warning: illegal combination of pointer and integer
+"hack.files.c", line 155: warning: illegal combination of pointer and integer
+"hack.files.c", line 163: warning: illegal combination of pointer and integer
+"hack.files.c", line 171: warning: illegal combination of pointer and integer
+"hack.levl.c", line 63: warning: illegal pointer combination
+"hack.levl.c", line 63: illegal pointer subtraction
+"hack.main.c", line 52: warning: illegal combination of pointer and integer
+"hack.main.c", line 80: warning: illegal combination of pointer and integer
+"hack.main.c", line 94: warning: illegal combination of pointer and integer
+"hack.main.c", line 127: warning: illegal combination of pointer and integer
+"hack.main.c", line 131: warning: illegal combination of pointer and integer
+"hack.main.c", line 136: warning: illegal combination of pointer and integer
+"hack.mon.c", line 38: lvalue required
+"hack.mon.c", line 38: warning: illegal combination of pointer and integer
+"hack.mon.c", line 275: warning: illegal combination of pointer and integer
+"hack.mon.c", line 405: warning: odir set but not used in function inrange
+"hack.mon.c", line 436: warning: illegal pointer combination
+"hack.mon.c", line 436: illegal pointer subtraction
+"hack.mon.c", line 437: warning: illegal pointer combination
+"hack.mon.c", line 437: illegal pointer subtraction
+"hack.mon.c", line 562: warning: illegal combination of pointer and integer
+"hack.mon.c", line 579: warning: illegal pointer combination
+"hack.mon.c", line 580: warning: illegal pointer combination
+"hack.mon.c", line 581: warning: & before array or function: ignored
+"hack.mon.c", line 617: warning: illegal combination of pointer and integer
+"hack.mon.c", line 659: warning: illegal pointer combination
+"hack.mon.c", line 659: illegal pointer subtraction
+"hack.move.c", line 61: warning: illegal structure pointer combination
+"hack.move.c", line 179: warning: illegal structure pointer combination
+"hack.screen.c", line 50: warning: illegal pointer combination
+"hack.screen.c", line 50: illegal pointer subtraction
+"hack.screen.c", line 111: warning: illegal structure pointer combination
+"hack.screen.c", line 122: warning: illegal structure pointer combination
+"hack.screen.c", line 151: warning: illegal structure pointer combination
+"hack.screen.c", line 310: warning: illegal combination of pointer and integer
+"hack.screen.c", line 318: warning: illegal combination of pointer and integer
+"hack.screen.c", line 318: warning: illegal combination of pointer and integer
+"hack.screen.c", line 319: warning: illegal combination of pointer and integer
+"hack.screen.c", line 321: warning: illegal combination of pointer and integer
+"hack.screen.c", line 322: warning: illegal combination of pointer and integer
+"hack.screen.c", line 323: warning: illegal combination of pointer and integer
+"hack.screen.c", line 304: warning: tp unused in function startup
+"hack.see.c", line 14: warning: struct/union or struct/union pointer required
+"hack.see.c", line 14: warning: struct/union or struct/union pointer required
+"hack.see.c", line 15: warning: struct/union or struct/union pointer required
+"hack.see.c", line 15: warning: struct/union or struct/union pointer required
+"hack.see.c", line 39: warning: struct/union or struct/union pointer required
+"hack.see.c", line 41: warning: struct/union or struct/union pointer required
+"hack.see.c", line 60: warning: illegal structure pointer combination
+"hack.see.c", line 132: warning: illegal structure pointer combination
+_mon defined( "./hack.vars"(159) ), but never used
+chdir returns value which is always ignored
+fclose returns value which is always ignored
+fflush returns value which is always ignored
+fputs, arg. 1 used inconsistently	"/usr/lib/llib-lc"(70)  ::  "hack.screen.c"(32)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(104)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(87)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(88)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(89)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(90)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(106)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(107)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(91)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(96)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(108)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(110)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(112)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(116)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(122)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(134)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(137)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(150)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(152)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(158)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(160)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(166)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(168)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(174)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(49)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(69)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(72)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(75)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(79)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(85)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.files.c"(105)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(74)
+fread, arg. 1 used inconsistently	"/usr/lib/llib-lc"(71)  ::  "hack.main.c"(93)
+fread returns value which is sometimes ignored
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.fight.c"(166)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.files.c"(65)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.files.c"(68)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.files.c"(73)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.files.c"(78)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.files.c"(83)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.files.c"(88)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.mon.c"(16)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.move.c"(175)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.obj.c"(118)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.obj.c"(215)
+free, arg. 1 used inconsistently	"/usr/lib/llib-lc"(61)  ::  "hack.obj.c"(220)
+fscanf returns value which is always ignored
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(382)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(383)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(384)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(385)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(57)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(58)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(422)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(364)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(372)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(375)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(377)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(60)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(61)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(64)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(72)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(77)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(82)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(87)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(380)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(55)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(374)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.files.c"(56)
+fwrite, arg. 1 used inconsistently	"/usr/lib/llib-lc"(74)  ::  "hack.cmdsub.c"(423)
+fwrite returns value which is always ignored
+getlev value is used, but none returned
+gtty returns value which is always ignored
+hitu returns value which is sometimes ignored
+m_move returns value which is sometimes ignored
+maker returns value which is sometimes ignored
+malloc, arg. 1 used inconsistently	"/usr/lib/llib-lc"(59)  ::  "hack.c"(282)
+malloc value used inconsistently	"/usr/lib/llib-lc"(59)  ::  "hack.c"(282)
+malloc value used inconsistently	"/usr/lib/llib-lc"(59)  ::  "hack.main.c"(80)
+mktrap returns value which is sometimes ignored
+pline, arg. 1 used inconsistently	"hack.screen.c"(346)  ::  "hack.cmd.c"(515)
+setuid returns value which is always ignored
+signal returns value which is always ignored
+sprintf returns value which is always ignored
+stty returns value which is always ignored
+unlink returns value which is sometimes ignored
+wait, arg. 1 used inconsistently	"/usr/lib/llib-lc"(56)  ::  "hack.cmd.c"(42)
+wait, arg. 1 used inconsistently	"/usr/lib/llib-lc"(56)  ::  "hack.cmd.c"(72)
+wait returns value which is always ignored
+write returns value which is always ignored
