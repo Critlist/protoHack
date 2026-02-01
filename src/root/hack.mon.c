@@ -1,4 +1,4 @@
-#include <sgtty.h>
+#include "../compat.h"
 #include "hack.h"
 extern char mregen[],WCLEV[],NOBLUE[],RUST[],CRUSH[],NOCOLD[],IT[],It[];
 extern struct permonst vbat;
@@ -16,7 +16,7 @@ char *kmsg[4]= {
 	"You have defeated %s%s!"
 };
 
-movemon()
+void movemon(void)
 {
 	register struct monst *mtmp;
 
@@ -25,8 +25,7 @@ movemon()
 		if(mtmp->mspeed==MFAST) dochug(mtmp);
 	}
 }
-justswld(mtmp)
-register struct monst *mtmp;
+void justswld(struct monst *mtmp)
 {
 	register char tx,ty;
 
@@ -39,9 +38,7 @@ register struct monst *mtmp;
 	else k1("%s%s engulfs you!",mtmp->data->mname);
 	hits= -1;
 }
-youswld(mtmp,dam,die)
-register struct monst *mtmp;
-register dam,die;
+void youswld(struct monst *mtmp, int dam, int die)
 {
 	u.uhp-=dam;
 	if(u.uswldtim++ == die) u.uhp= -1;
@@ -51,11 +48,10 @@ register dam,die;
 #endif
 	hits= -1;
 }
-dochug(mtmp)
-register struct monst *mtmp;
+void dochug(struct monst *mtmp)
 {
 	register struct permonst *mdat;
-	register tmp;
+	register int tmp;
 	char mdix,mdiy;
 	struct stole *stmp;
 
@@ -101,7 +97,7 @@ abs(mtmp->my-u.uy)>1) && m_move(mtmp) && mdat->mmove<=12)
 				k1(CRUSH,mtmp->data->mname);
 				youswld(mtmp,rnd(6),7);
 				break;
-			default: 
+			default:
 				k1("%s%s digests you!",mtmp->data->mname);
 				youswld(mtmp,d(2,4),12);
 				break;
@@ -112,7 +108,8 @@ abs(mtmp->my-u.uy)>1) && m_move(mtmp) && mdat->mmove<=12)
 	mdiy=abs(mtmp->my-u.uy);
 	if(mdat->mlet!='a' &&  mdix<2 && mdiy<2) {
 #ifndef SMALL
-		if(flags.flush) ioctl(0,TIOCFLUSH,0);
+		/* Original 1982: ioctl(0,TIOCFLUSH,0); */
+		if(flags.flush) tcflush(0, TCIFLUSH);  /* Modern: POSIX termios */
 #endif
 		hits=0;
 		nomul(0);
@@ -312,7 +309,7 @@ k1("You are frozen by %s%ss juices.",mdat->mname);
 		case 'Q': hitu(3,rnd(2),mdat->mname);
 			hitu(3,rnd(2),mdat->mname);
 			break;
-		case 'R': 
+		case 'R':
 			hitu(5,0,mdat->mname);
 			if(!mtmp->mcan && hits && uarm && uarm->otyp!=2 &&
 (!uarm->minus || uarm->otyp-uarm->spe!=1)) {
@@ -369,7 +366,7 @@ k1("You are frozen by %s%ss juices.",mdat->mname);
 		case 'y':
 			if(mtmp->mcan) break;
 			delmon(mtmp);
-			if(levl[mtmp->mx][mtmp->my].cansee) 
+			if(levl[mtmp->mx][mtmp->my].cansee)
 				newsym(mtmp->mx,mtmp->my);
 			if(!u.ublind) {
 				pline("A yellow light blinds you!");
@@ -391,8 +388,7 @@ k1("You are frozen by %s%ss juices.",mdat->mname);
 /* extra movement for fast monsters */
 	}
 }
-mhit(name)
-register char *name;
+void mhit(char *name)
 {
 	if(hits<1) pline("bad mhit");
 	else if(hits==1) k1("%s%s hits!",name);
@@ -402,8 +398,7 @@ register char *name;
 	}
 	hits= -1;
 }
-inrange(mtmp)
-register struct monst *mtmp;
+void inrange(struct monst *mtmp)
 {
 	register char tx,ty;
 	int zx,zy;
@@ -423,10 +418,9 @@ register struct monst *mtmp;
 		dy=ty;
 	}
 }
-m_move(mtmp)
-register struct monst *mtmp;
+int m_move(struct monst *mtmp)
 {
-	register nix,niy,omx,omy;
+	register int nix,niy,omx,omy;
 	char dx,dy;
 
 	if(u.uswallow) return(1);
@@ -476,18 +470,16 @@ levl[nix][niy].typ==DOOR))) {
 		atl(mtmp->mx,mtmp->my,mtmp->data->mlet);
 	return(1);
 }
-r_free(x,y)
-register x,y;
+int r_free(int x, int y)
 {
 	if(levl[x][y].typ<DOOR || g_at(x,y,fmon) || (x==u.ux && y==u.uy)) return(0);
 	else return(1);
 }
-mnexto(mtmp)
+void mnexto(struct monst *mtmp)
 /* make monster mtmp next to you.  Next to you is in an ever
 incresing square if it doesn't find room.  */
-struct monst *mtmp;
 {
-	register x,y;
+	register int x,y;
 	struct {
 		char zx,zy;
 	} foo[25],*tfoo;
@@ -524,14 +516,13 @@ struct monst *mtmp;
 	if(levl[mtmp->mx][mtmp->my].cansee && ((!mtmp->invis) || u.ucinvis))
 		atl(mtmp->mx,mtmp->my,mtmp->data->mlet);
 }
-test(x,y)
+int test(int x, int y)
 {
 	if(x<1 || x>78 || y<1 || y>20) return(0);
 	if(g_at(x,y,fmon) || levl[x][y].typ<DOOR) return(0);
 	return(1);
 }
-poisoned(string)
-register char *string;
+void poisoned(char *string)
 {
 	k1("%s%s was poisoned!",string);
 	if(u.upres) {
@@ -552,11 +543,10 @@ register char *string;
 		break;
 	}
 }
-steal(mtmp)
-struct monst *mtmp;
+void steal(struct monst *mtmp)
 {
 	register struct obj *otmp,*ot1;
-	register tmp;
+	register int tmp;
 	struct stole *stmp;
 
 	for(otmp=invent,tmp=0;otmp;otmp=otmp->nobj,tmp++) ;
@@ -607,11 +597,10 @@ struct monst *mtmp;
 	stmp->nstole=fstole;
 	fstole=stmp;
 }
-killed(mtmp)
-register struct monst *mtmp;
+void killed(struct monst *mtmp)
 {
 	register struct gen *gtmp;
-	register tmp;
+	register int tmp;
 	struct stole *stmp;
 	struct obj *otmp;
 
@@ -696,7 +685,7 @@ register struct monst *mtmp;
 		u.uswldtim=u.uswallow=0;
 		docrt();
 	}
-	if(u.uexp<10*pow(u.ulevel-1)) return;
+	if(u.uexp<10*hack_pow(u.ulevel-1)) return;  /* Original 1982: pow() — renamed for math.h conflict */
 	if(u.ulevel>13) return;
 	pline(WCLEV,++u.ulevel);
 	tmp=rnd(10);
@@ -705,19 +694,17 @@ register struct monst *mtmp;
 	u.uhp+=tmp;
 	flags.botl|=(HP|HPM|ULV);
 }
-kludge(str,arg)
-register char *str,*arg;
+void kludge(char *str, char *arg)
 {
 	if(u.ublind) pline(str,*str=='%'?IT:It);
 	else pline(str,arg);
 }
-k1(str,arg)
-register char *str,*arg;
+void k1(char *str, char *arg)
 {
 	if(u.ublind) pline(str,nul,*str=='%'?IT:It);
 	else pline(str,*str=='%'?"The ":"the ",arg);
 }
-rescham()
+void rescham(void)
 {	/* force all chameleons to become normal */
 	register struct monst *mtmp;
 
@@ -727,10 +714,8 @@ rescham()
 			newcham(mtmp,&mon[6][6]);
 		}
 }
-newcham(mtmp,mdat)
+void newcham(struct monst *mtmp, struct permonst *mdat)
 /* make a chameleon look like a new monster */
-register struct monst *mtmp;
-register struct permonst *mdat;
 {
 	register float mp;
 
@@ -757,11 +742,10 @@ register struct permonst *mdat;
 	if(levl[mtmp->mx][mtmp->my].cansee)
 		pmon(mtmp);
 }
-makemon(ptr)
-register struct permonst *ptr;
+int makemon(struct permonst *ptr)
 {
 	register struct monst *mtmp;
-	register tmp;
+	register int tmp;
 	int foo;
 
 	mtmp=alloc(sizeof(struct monst));
@@ -793,9 +777,7 @@ register struct permonst *ptr;
 	}
 	return(0);
 }
-hitu(mlev,dam,name)
-register mlev,dam;
-register char *name;
+int hitu(int mlev, int dam, char *name)
 {
 	char tmp;
 
@@ -815,11 +797,10 @@ register char *name;
 	if(name) hits++;
 	return(1);
 }
-rloc(mtmp)
-struct monst *mtmp;
+void rloc(struct monst *mtmp)
 {
-	register tmp;
-	register tx,ty;
+	register int tmp;
+	register int tx,ty;
 
 	if(mtmp==u.ustuck) u.ustuck=u.uswallow=u.uswldtim=0;
 	if(levl[mtmp->mx][mtmp->my].scrsym==mtmp->data->mlet)

@@ -2,6 +2,8 @@
 /* Original 1982: int done1(),done2(); */
 /* Now provided by compat.h includes and prototypes below */
 
+#include <stdio.h>  /* Modern: needed for FILE * in prototypes below */
+
 #define LOCKNUM 2
 #define MAGIC
 
@@ -255,4 +257,36 @@ int check(int);
 #endif
 #ifdef MAGIC
 void fooexit(int);
+#endif
+
+/* hack.lev.c — savelev/mkobj have different signatures in mklev.c */
+#ifndef MKLEV_BINARY
+void savelev(FILE *fp);
+int getlev(FILE *fp);
+void mklev(void);
+void mkobj(int let);
+#endif
+
+/* hack.mon.c — makemon has different signature in mklev.c */
+#ifndef MKLEV_BINARY
+void movemon(void);
+void justswld(struct monst *);
+void youswld(struct monst *, int, int);
+void dochug(struct monst *);
+void mhit(char *);
+void inrange(struct monst *);
+int m_move(struct monst *);
+int r_free(int, int);
+void mnexto(struct monst *);
+int test(int, int);
+void poisoned(char *);
+void steal(struct monst *);
+void killed(struct monst *);
+void kludge(char *, char *);
+void k1(char *, char *);
+void rescham(void);
+void newcham(struct monst *, struct permonst *);
+int makemon(struct permonst *);
+int hitu(int, int, char *);
+void rloc(struct monst *);
 #endif

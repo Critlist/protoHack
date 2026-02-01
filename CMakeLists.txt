@@ -85,6 +85,7 @@ target_include_directories(mklev-root PRIVATE
 
 target_compile_definitions(mklev-root PRIVATE
     HACKDIR="${CMAKE_BINARY_DIR}/hackdir"
+    MKLEV_BINARY  # mklev has its own savelev()/mkobj() with different signatures
 )
 
 target_compile_options(mklev-root PRIVATE
@@ -118,10 +119,10 @@ add_custom_target(setup_hackdir ALL
 
     # Copy game data files from original
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/hack/news
+        ${CMAKE_CURRENT_SOURCE_DIR}/original/news
         ${CMAKE_BINARY_DIR}/hackdir/news
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/hack/moves
+        ${CMAKE_CURRENT_SOURCE_DIR}/original/moves
         ${CMAKE_BINARY_DIR}/hackdir/moves
 
     COMMENT "Setting up hackdir (READ_ME steps 2-5)"

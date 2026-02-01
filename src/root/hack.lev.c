@@ -1,6 +1,5 @@
+#include "../compat.h"
 #include "hack.h"
-#include <signal.h>
-#include <stdio.h>
 
 /* Note that lint hates this (Moral: don't lint it) */
 #define bwrite(fp,loc,num) fwrite(loc,1,num,fp)
@@ -8,8 +7,7 @@
 
 extern char nul[],mregen[],READ[];
 
-savelev(fp)
-register FILE *fp;
+void savelev(FILE *fp)
 {
 	register struct monst *mtmp;
 	register struct gen *gtmp;
@@ -55,11 +53,14 @@ register FILE *fp;
 		mfree(otmp);
 	}
 	bwrite(fp,nul,sizeof(struct obj));
-	fstole=(struct stole *)fobj=(struct obj *)fgold=(struct gen*)fmon=
- (struct monst *)ftrap=0;
+	/* Original 1982: fstole=(struct stole *)fobj=(struct obj *)fgold=(struct gen*)fmon=(struct monst *)ftrap=0; */
+	ftrap=0;
+	fmon=0;
+	fgold=0;
+	fobj=0;
+	fstole=0;
 }
-getlev(fp)
-register FILE *fp;
+int getlev(FILE *fp)
 {
 	struct monst mbuf;
 	struct gen gbuf;
@@ -176,8 +177,8 @@ register FILE *fp;
 	if(ferror(fp)) pline("error reading file %d",fp);
 	return(0);
 }
-extern errno;
-mklev()
+/* Original 1982: extern errno; — now provided by <errno.h> in compat.h */
+void mklev(void)
 {	/* cause temp file in lock to contain a new level... */
 	int foo;
 
@@ -188,8 +189,8 @@ mklev()
 	sprintf(buf+2,"%d",dlevel);
 	switch(fork()){
 	case 0:
-		execl("./mklev","mklev",lock,buf,buf+2,0);
-		execl("mklev","mklev",lock,buf,buf+2,0);
+		execl("./mklev","mklev",lock,buf,buf+2,(char *)NULL);
+		execl("mklev","mklev",lock,buf,buf+2,(char *)NULL);
 		panic("No mklev\n");
 		break;
 	case -1:
@@ -207,8 +208,7 @@ mklev()
 		break;
 	}
 }
-mkobj(let)
-register let;
+void mkobj(int let)
 {
 	register struct obj *otmp;
 
