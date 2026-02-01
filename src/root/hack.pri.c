@@ -15,8 +15,7 @@ static void xputs(char *s)
 {
 	if(s) tputs(s,1,hack_putc);
 }
-cm(x,y)
-register x,y;
+static void cmov(int x, int y)
 {
 	if(!CM) panic("Cm %d %d->%d %d\n",curx,cury,x,y);
 	xputs(tgoto(CM,x-1,y-1));
@@ -24,7 +23,6 @@ register x,y;
 	curx = x;
 }
 #else
-#define cm(x,y) printf("\033[%d;%dH",cury=y,curx=x);
 char *CE="\033[K";
 char *HO="\033[H";
 char *CL="\033[H\033[J";
@@ -34,6 +32,12 @@ char *UP="\033M";
 static void xputs(char *s)
 {
 	if(s) fputs(s,stdout);
+}
+static void cmov(int x, int y)
+{
+	printf("\033[%d;%dH",y,x);
+	cury = y;
+	curx = x;
 }
 #endif
 
@@ -50,10 +54,15 @@ curs(x,y)
 register x,y;
 {
 	if(y==cury && x==curx) return;	/* do nothing, gracefulx */
-	if(abs(cury-y)<=3 && abs(curx-x)<=3) nocm(x,y);/* too close */
 #ifndef VTONL
+	if(!ND && (curx!=x || x<=3)) {
+		cmov(x,y);
+		return;
+	}
+	if(abs(cury-y)<=3 && abs(curx-x)<=3) nocm(x,y);/* too close */
 	else if (x<=3 && abs(cury-y)<=3 || (!CM && x<abs(curx-x))) {
 #else
+	if(abs(cury-y)<=3 && abs(curx-x)<=3) nocm(x,y);/* too close */
 	else if(x<=3 && abs(cury-y)<=3) {
 #endif
 		putchar('\r');/* return first */
@@ -67,7 +76,7 @@ register x,y;
 #ifndef VTONL
 	else if(!CM) nocm(x,y);
 #endif
-	else cm(x,y);
+	else cmov(x,y);
 }
 swallowed()
 {
@@ -147,7 +156,9 @@ register x,y;
 	register struct rm *crm;
 
 	if(!mapok(x,y)) return;
-	(crm= &levl[x][y])->scrsym=ch;
+	crm= &levl[x][y];
+	if(crm->seen && crm->scrsym==ch) return;
+	crm->scrsym=ch;
 	crm->new=1;
 	on(x,y);
 }
@@ -227,18 +238,33 @@ prl(x,y)
 {
 	register struct rm *room;
 	register struct monst *mtmp;
+	register struct obj *otmp;
+	register struct gen *gtmp;
 
 	if(!mapok(x,y)) return;
+	if(x==u.ux && y==u.uy && !u.uinvis) {
+		pru();
+		return;
+	}
 	room= &levl[x][y];
 	room->cansee=1;
 	if((!room->typ) || (room->typ<DOOR && levl[u.ux][u.uy].typ==CORR))
 		return;
 	if((mtmp=g_at(x,y,fmon)) && ((!mtmp->invis) || u.ucinvis))
 		atl(x,y,mtmp->data->mlet);
-	else if(!room->seen) {
-		room->new=1;
+	else if(otmp=g_at(x,y,fobj))
+		atl(x,y,otmp->olet);
+	else if(gtmp=g_at(x,y,fgold))
+		atl(x,y,'$');
+	else if((gtmp=g_at(x,y,ftrap)) && (gtmp->gflag&SEEN))
+		atl(x,y,'^');
+	else if(!room->seen || room->scrsym==' ') {
+		/* Modern: refresh unseen tiles to avoid stale symbols on modern terminals */
+		room->new=room->seen=1;
+		newsym(x,y);
 		on(x,y);
 	}
+	room->seen=1;
 }
 newsym(x,y)
 register x,y;
@@ -434,21 +460,34 @@ nocm(x,y)
 	/* go x,y without cm (indirectly) */
 register x,y;
 {
-	while (curx < x) {
-		xputs(ND);
-		curx++;
+	if(cury > y) {
+		if(UP) {
+			while(cury > y) {
+				xputs(UP);
+				cury--;
+			}
+		} else if(HO) {
+			home();
+			curs(x,y);
+			return;
+		}
+	} else if(cury < y) {
+		while(cury < y) {
+			putchar('\n');
+			cury++;
+			curx=1; /* Modern: newline returns to column 1 with ONLCR */
+		}
 	}
-	while (curx > x) {
-		xputs(BC);
-		curx--;
-	}
-	while (cury > y) {
-		xputs(UP);
-		cury--;
-	}
-	while(cury<y) {
-		putchar('\n');
-		cury++;
+	if(curx < x) {
+		while(curx < x) {
+			xputs(ND);
+			curx++;
+		}
+	} else if(curx > x) {
+		while(curx > x) {
+			xputs(BC);
+			curx--;
+		}
 	}
 }
 bot()
