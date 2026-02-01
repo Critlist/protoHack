@@ -55,13 +55,14 @@
 #define WANN 4
 #define RINN 8
 
+/* Modern: use 16-bit bitfields to preserve 1982 struct rm size (3520-byte levels) */
 struct rm {
-	int scrsym:7;
-	int typ:3;
-	int new:1;
-	int seen:1;
-	int lit:1;
-	int cansee:1;
+	unsigned short scrsym:7;
+	unsigned short typ:3;
+	unsigned short new:1;
+	unsigned short seen:1;
+	unsigned short lit:1;
+	unsigned short cansee:1;
 };
 extern struct rm levl[80][22];
 

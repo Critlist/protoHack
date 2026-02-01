@@ -50,6 +50,7 @@ target_include_directories(hack-root PRIVATE
 # READ_ME step 7b: compile -UMAGIC to disable gid==42 magic mode check
 target_compile_definitions(hack-root PRIVATE
     HACKDIR="${CMAKE_BINARY_DIR}/hackdir"
+    VTONL  # Modern: force ANSI cursor control to bypass termcap quirks
 )
 
 # K&R vintage code: suppress warnings, don't break the build
@@ -65,9 +66,14 @@ target_compile_options(hack-root PRIVATE
     -Wno-incompatible-pointer-types
     -Wno-misleading-indentation
     -Wno-error=return-mismatch
+    -fno-pie  # Modern: keep stable data addresses between hack-root and mklev-root
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
     $<$<CONFIG:Debug>:-O0 -g3>
     $<$<CONFIG:Release>:-O2>
+)
+
+target_link_options(hack-root PRIVATE
+    -no-pie  # Modern: keep stable data addresses between hack-root and mklev-root
 )
 
 target_link_libraries(hack-root ${CURSES_LIBRARIES} crypt) # crypt: domagic() uses crypt() for wizard password
@@ -97,9 +103,14 @@ target_compile_options(mklev-root PRIVATE
     -Wno-int-conversion
     -Wno-incompatible-pointer-types
     -Wno-error=return-mismatch
+    -fno-pie  # Modern: keep stable data addresses between hack-root and mklev-root
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
     $<$<CONFIG:Debug>:-O0 -g3>
     $<$<CONFIG:Release>:-O2>
+)
+
+target_link_options(mklev-root PRIVATE
+    -no-pie  # Modern: keep stable data addresses between hack-root and mklev-root
 )
 
 # =========================================================================

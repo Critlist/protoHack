@@ -1,30 +1,50 @@
 #include "hack.h"
 #include <stdio.h>
 /* Modern: termcap prototypes for tgetent/tgetstr/tgetnum/tgetflag */
+#ifndef VTONL
 #include <termcap.h>
+/* Modern: termios for termcap ospeed */
+#include "../compat.h"
+#endif
 #ifndef VTONL
 char tbuf[8192];	/* Modern: expand termcap buffer for longer modern entries */
 char *HO, *CL, *CE, *UP, *CM, *ND, *BC;
+/* Modern: use tputs() so termcap padding ($<..>) isn't printed literally */
+static int hack_putc(int c) { return putchar(c); }
+static void xputs(char *s)
+{
+	if(s) tputs(s,1,hack_putc);
+}
 cm(x,y)
 register x,y;
 {
 	if(!CM) panic("Cm %d %d->%d %d\n",curx,cury,x,y);
-	fputs(tgoto(CM,x-1,y-1),stdout);
+	xputs(tgoto(CM,x-1,y-1));
 	cury = y;
 	curx = x;
 }
 #else
 #define cm(x,y) printf("\033[%d;%dH",cury=y,curx=x);
-char CE[]="\033[K";
-char HO[]="\033[H";
-char CL[]="\033[H\033[J";
-char BC[]="\b";
-char ND[]="\033[C";
-char UP[]="\033M";
+char *CE="\033[K";
+char *HO="\033[H";
+char *CL="\033[H\033[J";
+char *BC="\b";
+char *ND="\033[C";
+char *UP="\033M";
+static void xputs(char *s)
+{
+	if(s) fputs(s,stdout);
+}
 #endif
 
 extern char MORE[],HUNG[],WEAK[],FAINT[],BLANK[];
 int curs();
+
+/* Modern: guard against out-of-bounds screen updates on large terminals */
+static int mapok(int x, int y)
+{
+	return(x>=0 && x<80 && y>=0 && y<22);
+}
 
 curs(x,y)
 register x,y;
@@ -40,7 +60,7 @@ register x,y;
 		curx=1;
 		nocm(x,y);
 	} else if(HO && x<=3 && y<=3) {
-		fputs(HO,stdout);
+		xputs(HO);
 		curx=cury=1;
 		nocm(x,y);
 	}
@@ -75,6 +95,12 @@ register char *nam;
 	tbufptr=tbuf;
 	if(!nam) nam="vt100";
 	if(tgetent(tptr,nam)<1) panic("Unknown terminal type!\n");
+	/* Modern: set termcap ospeed from termios for padding calculations */
+	{
+		struct termios ttyp;
+
+		if(tcgetattr(0,&ttyp)==0) ospeed = cfgetospeed(&ttyp);
+	}
 	if(!(BC=tgetstr(tmp,&tbufptr))) {	
 		if(!tgetflag(tmp+2)) panic("Terminal must backspace.");
 		else BC=tbufptr;
@@ -105,14 +131,14 @@ char *str;
 }
 cls()
 {
-	fputs(CL,stdout);
+	xputs(CL);
 	curx=cury=1;
 	flags.topl=0;
 }
 home()
 {
 	if(!HO) curs(1,1);
-	else fputs(HO,stdout);
+	else xputs(HO);
 	curx=cury=1;
 }
 atl(x,y,ch)
@@ -120,6 +146,7 @@ register x,y;
 {
 	register struct rm *crm;
 
+	if(!mapok(x,y)) return;
 	(crm= &levl[x][y])->scrsym=ch;
 	crm->new=1;
 	on(x,y);
@@ -127,6 +154,7 @@ register x,y;
 on(x,y)
 register x,y;
 {
+	if(!mapok(x,y)) return;
 	if(flags.dscr) {
 		if(x<scrlx) scrlx=x;
 		else if(x>scrhx) scrhx=x;
@@ -143,6 +171,7 @@ register x,y;
 char ch;
 {
 	if(!ch) return;
+	if(!mapok(x,y)) return; /* Modern: guard screen output to map bounds */
 	y+=2;
 	curs(x,y);
 	putchar(ch);
@@ -175,15 +204,31 @@ docrt()
 }
 pru()
 {
+	/* Modern: track last displayed @ to keep redraws in sync on modern terminals */
+	static char pudx = -1;
+	static char pudy = -1;
+	static char pudis = 0;
+
+	if(!mapok(u.ux,u.uy)) return;
+	if(pudis && (pudx!=u.ux || pudy!=u.uy) && mapok(pudx,pudy))
+		newsym(pudx,pudy);
 	if(!u.ublind) levl[u.ux][u.uy].cansee=1;
-	if(u.uinvis) prl(u.ux,u.uy);
-	else if(levl[u.ux][u.uy].scrsym!='@') atl(u.ux,u.uy,'@');
+	if(u.uinvis) {
+		prl(u.ux,u.uy);
+		pudis=0;
+	} else if(levl[u.ux][u.uy].scrsym!='@') {
+		atl(u.ux,u.uy,'@');
+		pudis=1;
+		pudx=u.ux;
+		pudy=u.uy;
+	}
 }
 prl(x,y)
 {
 	register struct rm *room;
 	register struct monst *mtmp;
 
+	if(!mapok(x,y)) return;
 	room= &levl[x][y];
 	room->cansee=1;
 	if((!room->typ) || (room->typ<DOOR && levl[u.ux][u.uy].typ==CORR))
@@ -319,7 +364,7 @@ register char *line,*arg1,*arg2,*arg3,*arg4;
 	if(flags.botl) bot();
 	if(cury==1) putchar('\r');
 	else home();
-	fputs(CE,stdout);
+	xputs(CE);
 #ifndef SMALL
 	if(line==0) {
 		if(!ptr) ptr="No message.";
@@ -390,15 +435,15 @@ nocm(x,y)
 register x,y;
 {
 	while (curx < x) {
-		fputs(ND,stdout);
+		xputs(ND);
 		curx++;
 	}
 	while (curx > x) {
-		fputs(BC,stdout);
+		xputs(BC);
 		curx--;
 	}
 	while (cury > y) {
-		fputs(UP,stdout);
+		xputs(UP);
 		cury--;
 	}
 	while(cury<y) {

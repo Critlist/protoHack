@@ -1087,6 +1087,7 @@ void cbin(void)
 
 	tcgetattr(0,&ttyp);
 	ttyp.c_lflag &= ~(ICANON|ECHO);
+	ttyp.c_oflag |= OPOST|ONLCR; /* Modern: keep CRLF in raw mode for screen positioning */
 	ttyp.c_cc[VMIN] = 1;
 	ttyp.c_cc[VTIME] = 0;
 	tcsetattr(0,TCSADRAIN,&ttyp);
