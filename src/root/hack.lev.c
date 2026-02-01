@@ -98,18 +98,33 @@ int getlev(FILE *fp)
 	unsigned short lver=0;
 	struct permonst *saved_monbegin=0;
 	ptrdiff_t differ=0;
+	int legacy=0;
 
 	if(fp==0) return(1);
 	if(fread(lmagic,1,4,fp)!=4) return(1);
-	if(memcmp(lmagic,LEVEL_MAGIC,4)) return(1);
-	mread(fp,&lver,sizeof(lver));
-	if(lver!=LEVEL_VERSION) return(1);
-	mread(fp,&saved_monbegin,sizeof(saved_monbegin));
-	/* Modern: adjust permonst pointers across runs via saved monbase */
-	if(saved_monbegin) differ=(char *)&mon[0][0] - (char *)saved_monbegin;
-	else differ=0;
-	if(fread(levl,1,sizeof(levl),fp)!=sizeof(levl)) return(1);
-	mread(fp,&omoves,sizeof(omoves));
+	if(memcmp(lmagic,LEVEL_MAGIC,4)) {
+		legacy=1;
+		if(fseek(fp,0,SEEK_SET)!=0) return(1);
+	}
+	if(legacy) {
+		unsigned short omoves16=0;
+
+		if(fread(levl,1,3520,fp)!=3520) return(1);
+		mread(fp,&omoves16,2);
+		omoves=omoves16;
+		if(omoves) omoves=0; /* Modern: legacy levels may have stale pointers */
+		saved_monbegin=0;
+		differ=0;
+	} else {
+		mread(fp,&lver,sizeof(lver));
+		if(lver!=LEVEL_VERSION) return(1);
+		mread(fp,&saved_monbegin,sizeof(saved_monbegin));
+		/* Modern: adjust permonst pointers across runs via saved monbase */
+		if(saved_monbegin) differ=(char *)&mon[0][0] - (char *)saved_monbegin;
+		else differ=0;
+		if(fread(levl,1,sizeof(levl),fp)!=sizeof(levl)) return(1);
+		mread(fp,&omoves,sizeof(omoves));
+	}
 	mread(fp,&xupstair,1);
 	mread(fp,&yupstair,1);
 	mread(fp,&xdnstair,1);

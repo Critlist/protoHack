@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/ioctl.h> /* Modern: terminal size queries (SIGWINCH) */
 
 #include <stdarg.h>   /* Modern: for variadic functions (panic, pline, etc.) */
 #include <termios.h>  /* Modern: replaces V7 <sgtty.h> */

@@ -406,18 +406,20 @@ static void write_save_header(FILE *fp)
 	sw_u32(fp,(uint32_t)SAVE_ENDIANTAG);
 }
 
+static int save_header_error=0;
 static int read_save_header(FILE *fp)
 {
 	char magic[4];
 	uint16_t version=0;
 	uint32_t endtag=0;
 
-	if(!read_exact(fp,magic,4)) return 0;
-	if(memcmp(magic,SAVE_MAGIC,4)!=0) return 0;
-	if(!sr_u16(fp,&version)) return 0;
-	if(!sr_u32(fp,&endtag)) return 0;
-	if(version!=SAVE_VERSION) return 0;
-	if(endtag!=SAVE_ENDIANTAG) return 0;
+	save_header_error=0;
+	if(!read_exact(fp,magic,4)) { save_header_error=4; return 0; }
+	if(memcmp(magic,SAVE_MAGIC,4)!=0) { save_header_error=1; return 0; }
+	if(!sr_u16(fp,&version)) { save_header_error=4; return 0; }
+	if(!sr_u32(fp,&endtag)) { save_header_error=4; return 0; }
+	if(version!=SAVE_VERSION) { save_header_error=2; return 0; }
+	if(endtag!=SAVE_ENDIANTAG) { save_header_error=3; return 0; }
 	return 1;
 }
 
@@ -506,7 +508,14 @@ void dorecover(FILE *fp)
 
 	unlink(SAVEF);
 	if(!read_save_header(fp)) {
-		pline("Save file header invalid.");
+		if(save_header_error==1)
+			pline("Save file is from an old format and cannot be loaded safely.");
+		else if(save_header_error==2)
+			pline("Save file version mismatch.");
+		else if(save_header_error==3)
+			pline("Save file endianness mismatch.");
+		else
+			pline("Save file header invalid.");
 		fclose(fp);
 		return;
 	}

@@ -859,6 +859,7 @@ void done(char *st1)
  printf("You were level %d with a maximum of %d hit points when you %s.\n",
  u.ulevel,u.uhpmax,st1);
 	rec_locked=modern_lock_record();
+	if(!rec_locked) puts("Warning: record file lock unavailable.");
 	if(!(rfile=fopen(recfile,READ))) puts("No record file");
 	else {
 		putchar('\n');
@@ -1084,7 +1085,7 @@ void cbout(void)
 {
 	struct termios ttyp;
 
-	tcgetattr(0,&ttyp);
+	if(tcgetattr(0,&ttyp)!=0) return; /* Modern: tolerate missing tty */
 	ttyp.c_lflag |= ICANON|ECHO;
 	ttyp.c_oflag |= OPOST|ONLCR;
 	tcsetattr(0,TCSADRAIN,&ttyp);
@@ -1093,7 +1094,7 @@ void cbin(void)
 {
 	struct termios ttyp;
 
-	tcgetattr(0,&ttyp);
+	if(tcgetattr(0,&ttyp)!=0) return; /* Modern: tolerate missing tty */
 	ttyp.c_lflag &= ~(ICANON|ECHO);
 	ttyp.c_oflag |= OPOST|ONLCR; /* Modern: keep CRLF in raw mode for screen positioning */
 	ttyp.c_cc[VMIN] = 1;

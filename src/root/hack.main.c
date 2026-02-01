@@ -9,6 +9,7 @@ char lock[11] = "alock";	/* long enough for login name */
 #ifdef SIGWINCH
 /* Modern: defer redraw until safe point in main loop */
 static volatile int resize_pending=0;
+static int resize_warned=0;
 void handle_resize(int signum)
 {
 	(void)signum;
@@ -17,9 +18,27 @@ void handle_resize(int signum)
 }
 static void check_resize(void)
 {
+	struct winsize ws;
+
 	if(!resize_pending) return;
-	docrt();
 	resize_pending=0;
+	if(ioctl(0,TIOCGWINSZ,&ws)==0) {
+		if(ws.ws_col<80 || ws.ws_row<24) {
+			if(!resize_warned) {
+				cls();
+				printf("\n\nTERMINAL TOO SMALL!\n");
+				printf("Current: %dx%d, Required: 80x24\n",
+					(int)ws.ws_col,(int)ws.ws_row);
+				printf("Resize and press any key...\n");
+				fflush(stdout);
+				getchar();
+				resize_warned=1;
+			}
+			return;
+		}
+	}
+	resize_warned=0;
+	docrt();
 }
 #endif
 #ifdef LOCKNUM
@@ -97,7 +116,7 @@ int main(void)
 #endif
 		signal(SIGINT,done1);
 		signal(SIGQUIT,done2);
-		signal(SIGTERM,fooexit); /* Original 1982: signal(15,...) */
+		signal(SIGTERM,hangup); /* Modern: save on terminate */
 		signal(SIGHUP,hangup); /* Modern: save on hangup */
 #ifdef SIGWINCH
 		signal(SIGWINCH,handle_resize);
@@ -112,7 +131,7 @@ int main(void)
 	} else {
 #ifdef MAGIC
 		signal(SIGINT,done1);
-		signal(SIGTERM,fooexit); /* Original 1982: signal(15,...) */
+		signal(SIGTERM,hangup); /* Modern: save on terminate */
 		signal(SIGQUIT,domagic);
 #else
 		signal(SIGINT,done1);
