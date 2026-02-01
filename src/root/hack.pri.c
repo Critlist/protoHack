@@ -375,6 +375,10 @@ register char *line,*arg1,*arg2,*arg3,*arg4;
 	static char *ptr=0,pbuf[60];
 #endif
 
+	/* DEBUG: log cursor state and message to stderr */
+	fprintf(stderr, "pline: curx=%d cury=%d topl=%d dscr=%d botl=%d msg=%.40s\n",
+		curx, cury, flags.topl, flags.dscr, flags.botl, line ? line : "(null)");
+
 	if(flags.topl==2) {
 		curs(savx,1);
 		fputs(MORE,stdout);

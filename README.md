@@ -27,7 +27,7 @@ Hack almost 20 years ago." Andries Brouwer's near-total rewrite as Hack 1.0
 (1984) became the version the world knew, and Fenlason's original source
 largely dropped out of the historical record.
 
-It resurfaced in 2024 when Brian Harvey, who had been Computer Director at
+It resurfaced in 2025 when Brian Harvey, who had been Computer Director at
 Lincoln-Sudbury Regional High School during Hack's development, provided his
 preserved copy of the school's PDP-11 backups to Dan Stormont for the
 [Snap!Hack](https://github.com/Sustainable-Games/snaphack) educational

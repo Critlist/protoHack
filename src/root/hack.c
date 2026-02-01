@@ -860,8 +860,11 @@ void done(char *st1)
 	if(!(rfile=fopen(recfile,READ))) puts("No record file");
 	else {
 		putchar('\n');
+		/* Modern: zero-init so unread entries have safe defaults */
+		memset(rec, 0, sizeof(rec));
+		buf[0] = '\0';
 		for(t1=rec;t1<&rec[10];t1++) {
- fscanf(rfile,"%d %u %[^,],%[^\n]",&t1->level,&t1->points,buf,t1->death);
+ if(fscanf(rfile,"%d %u %[^,],%[^\n]",&t1->level,&t1->points,buf,t1->death) < 4) break;
 			t1->str=alloc(strlen(buf)+1);
 			strcpy(t1->str,buf);
 		}
@@ -891,6 +894,7 @@ void done(char *st1)
 		}
 		puts("Number  Points   Name");
 		for(t1=rec,tmp=1;t1<&rec[10];tmp++,t1++) {
+			if(!t1->str) continue;  /* Modern: skip unread entries */
 			printf("%2d    %6u  %s ",tmp,t1->points,t1->str);
 			if(!strcmp(ESCAPED,t1->death))
 				puts("escaped the dungeon");
