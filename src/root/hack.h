@@ -290,3 +290,12 @@ int makemon(struct permonst *);
 int hitu(int, int, char *);
 void rloc(struct monst *);
 #endif
+
+/* hack.do.c */
+void rhack(char);
+void were(struct obj *);
+void drink1(struct obj *);
+void read1(struct obj *);
+#ifndef SMALL
+void set1(char *);
+#endif

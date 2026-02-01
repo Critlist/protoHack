@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <signal.h>
+#include "../compat.h"
 #include "hack.h"
 
 extern char nul[],NOTHIN[],IDENT[],WAND[],EMPTY[],RUST[],CURSED[];
@@ -7,12 +6,11 @@ extern char DONTH[];
 /* rhack.  The procedure that blew the C optimizer.   (That's why it is
 in three parts now) */
 
-rhack(cmd)
-register char cmd;
+void rhack(char cmd)
 {
 	register struct obj *otmp;
 	register struct monst *mtmp;
-	register num;
+	register int num;
 	char zx,zy;
 	char *foo;
 
@@ -33,7 +31,7 @@ register char cmd;
 	switch(cmd) {
 #ifdef MAGIC
 	case '':
-		domagic();
+		domagic(0);  /* Modern: prototype requires int param */
 		flags.move=0;
 		return;
 #endif
@@ -85,7 +83,7 @@ register char cmd;
 		useup(otmp);
 		break;
 	case 'Q':
-		done1();
+		done1(0);  /* Modern: prototype requires int param */
 		flags.move=multi=0;
 		break;
 	case 'q':
@@ -119,7 +117,8 @@ register char cmd;
 			cbout();/* so return works in cr3 */
 			cls();
 			fflush(stdout);
-			execl("/usr/bin/cr3","cr3","moves",0);
+			/* Original 1982: execl("/usr/bin/cr3","cr3","moves",0); */
+		execl("/usr/bin/cr3","cr3","moves",(char *)NULL);  /* Modern: 64-bit NULL */
 		}
 		cbin();	/* guess why */
 		getret();
@@ -136,8 +135,9 @@ register char cmd;
 			fflush(stdout);
 			setuid(getuid());
 			chdir(getenv("HOME"));
-			if(foo=getenv("SHELL")) execl(foo,foo,0);
-			execl("/bin/sh","sh",0);
+			/* Original 1982: execl(foo,foo,0); / execl("/bin/sh","sh",0); */
+			if(foo=getenv("SHELL")) execl(foo,foo,(char *)NULL);  /* Modern: 64-bit NULL */
+			execl("/bin/sh","sh",(char *)NULL);  /* Modern: 64-bit NULL */
 			pline("sh: cannot execute.");
 			exit(1);
 			break;
@@ -567,18 +567,16 @@ register char cmd;
 		multi=flags.move=0;
 	}
 }
-were(otmp)
-register struct obj *otmp;
+void were(struct obj *otmp)
 {
 	strcpy(buf,"You were wearing ");
 	doname(otmp,&buf[17]);
 	pline(buf);
 }
-drink1(otmp)
-register struct obj *otmp;
+void drink1(struct obj *otmp)
 {
 	register struct monst *mtmp;
-	register num;
+	register int num;
 
 	switch(otmp->otyp){
 	case 0: pline("You feel great!");
@@ -717,10 +715,9 @@ register struct obj *otmp;
 	}
 	useup(otmp);
 }
-read1(otmp)
-register struct obj *otmp;
+void read1(struct obj *otmp)
 {
-	register num;
+	register int num;
 	register struct monst *mtmp;
 	struct permonst *mptmp;
 	struct gen *gtmp;
@@ -861,15 +858,18 @@ register struct obj *otmp;
 		pline("You found a map!");
 		{
 			struct rm *foo;
+			/* Modern: &levl[0][0] for type-safe pointer arithmetic (levl
+			   decays to struct rm (*)[22], not struct rm *) */
+			struct rm *base = &levl[0][0];
 
-			for(foo=levl;foo<&levl[79][21];foo++) {
+			for(foo=base;foo<&levl[79][21];foo++) {
 				if(foo->typ==SDOOR) {
 					foo->typ=DOOR;
 					foo->scrsym='+';
 					foo->new=1;
-					on((foo-levl)%80,(foo-levl)/80);
+					on((int)((foo-base)%80),(int)((foo-base)/80));
 				} else if((foo->typ==CORR || foo->typ==WALL ||
-foo->typ==DOOR) && !foo->seen) foo->new=1,on((foo-levl)%80,(foo-levl)/80);
+foo->typ==DOOR) && !foo->seen) foo->new=1,on((int)((foo-base)%80),(int)((foo-base)/80));
 			}
 		}
 		if(!levl[xupstair][yupstair].seen)
@@ -901,10 +901,9 @@ foo->typ==DOOR) && !foo->seen) foo->new=1,on((foo-levl)%80,(foo-levl)/80);
 	useup(otmp);
 }
 #ifndef SMALL
-set1(str)
-register char *str;
+void set1(char *str)
 {
-	register num;
+	register int num;
 
 	if(!strncmp(str,"no",2)) {
 		num=0;
