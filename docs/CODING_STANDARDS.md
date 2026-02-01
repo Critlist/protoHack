@@ -42,11 +42,14 @@ For most changes (shorthand, preferred for typical work):
 
 ### Examples of Code Requiring Documentation
 
+- **New functions or logic** not present in original codebase
+- **Bug fixes** that change behavior or add conditions (not just syntax fixes)
 - **Compatibility shims** for modern systems (termios replacing sgtty, etc.)
-- **Bug fixes** that add new logic (not just syntax fixes)
-- **New functions** not present in original codebase
+- **Compatibility renames** to avoid library conflicts (e.g., `pow` → `hack_pow`)
+- **Defensive checks** — bounds checks, null guards, resource cleanup not in original
+- **Data structure or algorithm changes** (e.g., pointer arithmetic corrections)
 - **Path changes** (HACKDIR replacing hardcoded `/usr/lib/games/hack`)
-- **Added includes** for modern headers not in original
+- **Added includes** for modern headers if they enable non-original behavior
 
 ### Examples of Code NOT Requiring Documentation
 

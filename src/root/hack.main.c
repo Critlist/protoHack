@@ -82,7 +82,7 @@ int main(void)
 		cls();
 		fflush(stdout);
 		if(fork()) wait(0);
-		else execl("/bin/cat","cat","news",(char *)NULL);
+		else execl("/bin/cat","cat","news",(char *)NULL); /* Modern: execl() list terminator for 64-bit safety */
 		cbin();
 		getret();
 	} else {

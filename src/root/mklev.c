@@ -538,7 +538,7 @@ void panic(char *str, ...)
 	}
 #endif
 	sprintf(nul,"%d",getpid()+2+(rand()%12));
-	execl("./mklev",args[0],tfile,tspe,args[3],nul,(char *)NULL);
+	execl("./mklev",args[0],tfile,tspe,args[3],nul,(char *)NULL); /* Modern: execl() list terminator for 64-bit safety */
 }
 void makemon(void)
 {
@@ -682,7 +682,7 @@ void makecor(int nx, int ny)
 			fclose(tfoo);
 #endif
 			sprintf(nul,"%d",getpid()+2+(rand()%12));
-			execl("./mklev",args[0],tfile,tspe,args[3],nul,(char *)NULL);
+			execl("./mklev",args[0],tfile,tspe,args[3],nul,(char *)NULL); /* Modern: execl() list terminator for 64-bit safety */
 		}
 	}
 	if(dy && dix>diy) {
@@ -761,7 +761,7 @@ int mkmim(int num)
 {
 	register struct monst *mtmp;
 
-	mtmp=(struct monst *)malloc(sizeof(struct monst));
+	mtmp=(struct monst *)malloc(sizeof(struct monst)); /* Modern: explicit malloc cast to match restored K&R intent */
 	mtmp->nmon=fmon;
 	fmon=mtmp;
 	if(!num) {
