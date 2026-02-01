@@ -314,6 +314,8 @@ void miss(char *, struct monst *);
 int findit(void);
 void dosave(void);
 void dorecover(FILE *fp);
+void hangup(int);
+void handle_resize(int);
 #endif
 void buzz(int, int, int, int, int);
 void zhit(struct monst *, int);

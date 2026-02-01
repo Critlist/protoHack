@@ -6,6 +6,22 @@
 
 char lock[11] = "alock";	/* long enough for login name */
 /* note that lock is also used for temp file names */
+#ifdef SIGWINCH
+/* Modern: defer redraw until safe point in main loop */
+static volatile int resize_pending=0;
+void handle_resize(int signum)
+{
+	(void)signum;
+	resize_pending=1;
+	signal(SIGWINCH,handle_resize);
+}
+static void check_resize(void)
+{
+	if(!resize_pending) return;
+	docrt();
+	resize_pending=0;
+}
+#endif
 #ifdef LOCKNUM
 #if 0
 /* ORIGINAL 1982 CODE - preserved for reference */
@@ -79,8 +95,13 @@ int main(void)
 #else	/* no locks */
 		strcpy(lock,getlogin());/* you might want to make this pid */
 #endif
+		signal(SIGINT,done1);
 		signal(SIGQUIT,done2);
 		signal(SIGTERM,fooexit); /* Original 1982: signal(15,...) */
+		signal(SIGHUP,hangup); /* Modern: save on hangup */
+#ifdef SIGWINCH
+		signal(SIGWINCH,handle_resize);
+#endif
 		startup(getenv("TERM"));
 		cls();
 		fflush(stdout);
@@ -90,10 +111,16 @@ int main(void)
 		getret();
 	} else {
 #ifdef MAGIC
+		signal(SIGINT,done1);
 		signal(SIGTERM,fooexit); /* Original 1982: signal(15,...) */
 		signal(SIGQUIT,domagic);
 #else
+		signal(SIGINT,done1);
 		signal(SIGQUIT,done2);
+#endif
+		signal(SIGHUP,hangup); /* Modern: save on hangup */
+#ifdef SIGWINCH
+		signal(SIGWINCH,handle_resize);
 #endif
 		cbin();
 		startup(getenv("TERM"));
@@ -157,6 +184,9 @@ uwep->known=1;
 		flags.move=flags.one=1;
 #else
 		flags.move=1;
+#ifdef SIGWINCH
+		check_resize();
+#endif
 #endif
 		glo(1);
 		mklev();

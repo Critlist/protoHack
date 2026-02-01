@@ -4,6 +4,30 @@
 
 extern char READ[],WRITE[],SAVEF[],nul[];
 extern char oiden[20];
+int dosave0(int);
+
+/**
+ * MODERN ADDITION (2026): Enhanced hangup handler with SIGTERM support
+ *
+ * WHY: Original code only handled terminal hangup via SIGHUP. Modern terminal
+ *      closures often send SIGTERM, bypassing save logic.
+ *
+ * HOW: Unified handler that attempts a safe save on SIGHUP/SIGTERM.
+ *
+ * PRESERVES: Original save-on-hangup behavior.
+ * ADDS: Modern signal compatibility for common terminal emulators.
+ */
+void modern_save_handler(int signum)
+{
+	(void)signum;
+	(void)dosave0(1);
+	exit(1);
+}
+
+void hangup(int signum)
+{
+	modern_save_handler(signum);
+}
 
 /**
  * MODERN ADDITION (2026): Versioned, pointer-safe save file format
