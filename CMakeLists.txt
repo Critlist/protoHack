@@ -134,7 +134,10 @@ add_custom_command(TARGET mklev-root POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:mklev-root>
         ${CMAKE_BINARY_DIR}/mklev
-    COMMENT "Copying mklev to build root (hack exec's ./mklev)"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:mklev-root>
+        ${CMAKE_BINARY_DIR}/hackdir/mklev
+    COMMENT "Copying mklev to build root and hackdir (hack exec's ./mklev)"
 )
 
 add_dependencies(hack-root setup_hackdir mklev-root)

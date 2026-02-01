@@ -1,7 +1,9 @@
 #include "hack.h"
 #include <stdio.h>
+/* Modern: termcap prototypes for tgetent/tgetstr/tgetnum/tgetflag */
+#include <termcap.h>
 #ifndef VTONL
-char tbuf[100];	/* this may not be big enough... */
+char tbuf[8192];	/* Modern: expand termcap buffer for longer modern entries */
 char *HO, *CL, *CE, *UP, *CM, *ND, *BC;
 cm(x,y)
 register x,y;
@@ -69,7 +71,7 @@ register char *nam;
 	char *tp;
 	char *tmp="bcbscoliclceuposcmhond";
 
-	tptr=alloc(512);
+	tptr=alloc(2048); /* Modern: larger termcap entry buffer for modern systems */
 	tbufptr=tbuf;
 	if(!nam) nam="vt100";
 	if(tgetent(tptr,nam)<1) panic("Unknown terminal type!\n");
@@ -87,7 +89,7 @@ register char *nam;
 	CM=tgetstr(tmp+16,&tbufptr);
 	HO=tgetstr(tmp+18,&tbufptr); 
 	if(!(ND=tgetstr(tmp+20,&tbufptr))) panic("Hack needs ND\n");;
-	if(tbufptr>&tbuf[99]) pline("Too big...");
+	if(tbufptr>&tbuf[8191]) pline("Too big...");
 	mfree(tptr);
 }
 #endif

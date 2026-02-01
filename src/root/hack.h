@@ -84,7 +84,7 @@ struct monst {
 	char mhp,orig_hp;
 };
 extern struct monst *fmon;
-struct monst *bhit(); /* TODO: add proper prototype when hack.do.c is converted */
+struct monst *bhit(int, int, int);
 
 struct stole {
 	struct stole *nstole;
@@ -299,3 +299,31 @@ void read1(struct obj *);
 #ifndef SMALL
 void set1(char *);
 #endif
+
+/* hack.do1.c */
+void ringoff(struct obj *);
+void hit(char *, struct monst *);
+void miss(char *, struct monst *);
+#ifndef SMALL
+int findit(void);
+void dosave(void);
+void dorecover(FILE *fp);
+#endif
+void buzz(int, int, int, int, int);
+void zhit(struct monst *, int);
+void dosearch(void);
+void loseone(struct obj *, int, int);
+int getdir(void);
+void chwepon(char *);
+void litroom(void);
+void pluslvl(void);
+void nothin(struct obj *);
+void lesshungry(int);
+void plusone(struct obj *);
+void minusone(struct obj *);
+void doinv(char *);
+void dodown(void);
+void doup(void);
+void docall(struct obj *);
+void more(void);
+void dodr1(struct obj *);

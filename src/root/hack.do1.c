@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include "hack.h"
+#include "../compat.h"
 
 extern char NOTHIN[],MMIS[],WAND[],WCLEV[],SAVEF[],ESCAPED[],CURSED[];
 extern char READ[],WRITE[],MORE[],WEARI[],NOCOLD[];
@@ -16,14 +17,12 @@ char *fl[]= {
 	"death ray"
 };
 
-FILE *fopen();
-struct monst *bhit();
+/* Original 1982: FILE *fopen(); — now provided by <stdio.h> */
 /* More various user do commands */
 
-ringoff(obj)
-register struct obj *obj;
+void ringoff(register struct obj *obj)
 {
-	register tmp;
+	register int tmp;
 
 	if(obj->otyp<13 && ((uleft && obj->otyp==uleft->otyp) || (uright &&
 obj->otyp==uright->otyp))) return;
@@ -98,22 +97,18 @@ obj->otyp==uright->otyp))) return;
 		break;
 	}
 }
-hit(str,mon)
-register char *str;
-register struct monst *mon;
+void hit(register char *str, register struct monst *mon)
 {
 	if(!levl[mon->mx][mon->my].cansee) pline("The %s hits it.",str);
 	else pline("The %s hits the %s.",str,mon->data->mname);
 }
-miss(str,mon)
-register char *str;
-register struct monst *mon;
+void miss(register char *str, register struct monst *mon)
 {
 	if(!levl[mon->mx][mon->my].cansee) pline("The %s misses it.",str);
 	else pline("The %s misses the %s.",str,mon->data->mname);
 }
 #ifndef SMALL
-findit()
+int findit(void)
 {
 	char num;
 	register char zx,zy;
@@ -156,12 +151,11 @@ findit()
 	return(num);
 }
 #endif
-struct monst *
-bhit(ddx,ddy,range)
+struct monst *bhit(int ddx, int ddy, int range)
 {			/* sets global variables dx and dy to end location */
 			/* (KLUDGE) */
 	register struct monst *mtmp;
-	register x,y;
+	register int x,y;
 
 	if(u.uswallow) return(u.ustuck);
 	x=u.ux;
@@ -184,8 +178,7 @@ bhit(ddx,ddy,range)
 	dy=y;
 	return(0);
 }
-buzz(type,sx,sy,dx,dy)
-register sx,sy;
+void buzz(int type, int sx, int sy, int dx, int dy)
 {
 	struct rm *lev;
 	char range,let;
@@ -249,9 +242,7 @@ register sx,sy;
 		}
 	}
 }
-zhit(mon,type)
-register struct monst *mon;
-register type;
+void zhit(register struct monst *mon, register int type)
 {
 	register char tmp;
 
@@ -272,7 +263,7 @@ register type;
 		break;
 	}
 }
-dosearch()
+void dosearch(void)
 {
 	char x,y;
 	struct gen *tgen;
@@ -298,9 +289,9 @@ dosearch()
 			}
 }
 #ifndef SMALL
-dosave()
+void dosave(void)
 {
-	register tmp;
+	register int tmp;
 	struct obj *otmp;
 	char **foo;
 	int bar;
@@ -393,10 +384,9 @@ dosave()
 	cbout();
 	exit(1);
 }
-dorecover(fp)
-register FILE *fp;
+void dorecover(register FILE *fp)
 {
-	register tmp;
+	register int tmp;
 	register FILE *nfp;
 	struct obj tmpo,*otmp;
 	int bar;
@@ -456,8 +446,7 @@ register FILE *fp;
 	docrt();
 }
 #endif
-loseone(obj,x,y)
-register struct obj *obj;
+void loseone(register struct obj *obj, int x, int y)
 {
 	register struct obj *otmp,*ot1;
 
@@ -487,7 +476,7 @@ register struct obj *obj;
 		obj->oy=y;
 	}
 }
-getdir()
+int getdir(void)
 {
 	register char foo;
 
@@ -497,14 +486,13 @@ getdir()
 	flags.topl=1;
 	return(movecm(foo));
 }
-chwepon(color)
-register char *color;
+void chwepon(register char *color)
 {
 	pline("Your %s glows %s.",wepnam[uwep->otyp],color);
 }
-litroom()
+void litroom(void)
 {
-	register num,zx,zy;
+	register int num,zx,zy;
 
 	if(levl[u.ux][u.uy].typ==CORR) {
 		pline("The corridor glows briefly.");
@@ -532,20 +520,19 @@ litroom()
 			if(!levl[zx][zy].cansee) prl(zx,zy);
 		}
 }
-pluslvl()
+void pluslvl(void)
 {
-	register num;
+	register int num;
 
 	pline("You feel more experienced.");
 	num=rnd(10);
 	u.uhpmax+=num;
 	u.uhp+=num;
-	u.uexp=(10*pow(u.ulevel-1))+1;
+	u.uexp=(10*hack_pow(u.ulevel-1))+1; /* Original 1982: pow() — renamed for math.h conflict */
 	pline(WCLEV,++u.ulevel);
 	flags.botl|=(HP|HPM|ULV|UEX);
 }
-nothin(obj) /* strange feeling from potions and scrolls */
-register struct obj *obj;
+void nothin(register struct obj *obj) /* strange feeling from potions and scrolls */
 {
 	pline("A strange feeling passes over you.");
 	if(obj->olet=='?') {
@@ -555,8 +542,7 @@ register struct obj *obj;
 		docall(obj);
 	useup(obj);
 }
-lesshungry(num)
-register num;
+void lesshungry(int num)
 {
 	register unsigned newhunger;
 
@@ -577,23 +563,20 @@ register num;
 	}
 	u.uhunger=newhunger;
 }
-plusone(obj)
-register struct obj *obj;
+void plusone(register struct obj *obj)
 {
 	obj->cursed=0;
 	if(obj->minus) {
 		if(!--obj->spe) obj->minus=0;
 	} else obj->spe++;
 }
-minusone(obj)
-register struct obj *obj;
+void minusone(register struct obj *obj)
 {
 	if(obj->minus) obj->spe++;
 	else if(obj->spe) obj->spe--;
 	else obj->minus=obj->spe=1;
 }
-doinv(str)
-register char *str;
+void doinv(register char *str)
 {
 	register struct obj *otmp=invent;
 	register char ilet='a';
@@ -629,7 +612,7 @@ register char *str;
 	}
 #endif
 }
-dodown()
+void dodown(void)
 {
 	register FILE *fp;
 
@@ -651,7 +634,7 @@ dodown()
 	u.ux=xupstair;
 	u.uy=yupstair;
 }
-doup()
+void doup(void)
 {
 	register FILE *fp;
 
@@ -667,8 +650,7 @@ doup()
 	u.ux=xdnstair;
 	u.uy=ydnstair;
 }
-docall(obj)
-register struct obj *obj;
+void docall(register struct obj *obj)
 {
 	register char *str;
 	register char **str1;
@@ -693,7 +675,7 @@ register struct obj *obj;
 	if(*str1) mfree(*str1);
 	*str1=str;
 }
-more()
+void more(void)
 {
 	curs(savx,1);
 	puts(MORE);
@@ -701,8 +683,7 @@ more()
 	fflush(stdout);
 	while(getchar()!=' ') ;
 }
-dodr1(obj)
-register struct obj *obj;
+void dodr1(register struct obj *obj)
 {
 	register struct obj *otmp;
 
