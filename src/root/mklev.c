@@ -3,6 +3,10 @@
 #include "hack.h"
 #include "../compat.h"
 
+/* Modern: level file header for versioned save format */
+#define LEVEL_MAGIC "FLEV"
+#define LEVEL_VERSION 1
+
 #define MAZX (2*rnd(37)+1)
 #define MAZY (2*rnd(8)+1)
 
@@ -558,10 +562,16 @@ void savelev(void)
 	register struct monst *mtmp;
 	register struct gen *gtmp;
 	register struct obj *otmp;
+	unsigned short lver=LEVEL_VERSION;
+	struct permonst *monbegin=0;
+	unsigned tmpmoves=0;
 
 	if((fd=fopen(tfile,"w"))==0) panic("Cannot create %s\n",tfile);
-	bwrite(fd,levl,3520);
-	bwrite(fd,nul,2);
+	bwrite(fd,LEVEL_MAGIC,4);
+	bwrite(fd,&lver,sizeof(lver));
+	bwrite(fd,&monbegin,sizeof(monbegin));
+	bwrite(fd,levl,sizeof(levl));
+	bwrite(fd,&tmpmoves,sizeof(tmpmoves));
 	bwrite(fd,&xupstair,1);
 	bwrite(fd,&yupstair,1);
 	bwrite(fd,&xdnstair,1);
@@ -798,3 +808,6 @@ int mkmim(int num)
 	}
 	return(0);
 }
+/* Modern: level file header for versioned save format */
+#define LEVEL_MAGIC "FLEV"
+#define LEVEL_VERSION 1

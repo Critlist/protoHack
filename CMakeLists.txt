@@ -32,9 +32,11 @@ set(HACK_ROOT_SOURCES
     src/root/hack.do.c
     src/root/hack.do1.c
     src/root/hack.lev.c
+    src/root/hack.lock.c
     src/root/hack.main.c
     src/root/hack.mon.c
     src/root/hack.pri.c
+    src/root/hack.save.c
     src/root/rnd.c
 )
 

@@ -7,8 +7,11 @@
 char lock[11] = "alock";	/* long enough for login name */
 /* note that lock is also used for temp file names */
 #ifdef LOCKNUM
+#if 0
+/* ORIGINAL 1982 CODE - preserved for reference */
 char safelock[] = "rtmp";
 char perm[] = "perm";
+#endif
 #endif
 
 extern char BLANK[],HUNG[],WEAK[],FAINT[];
@@ -295,7 +298,8 @@ void getret(void)
 void leave(int signum) /* Modern: signal handlers require int param */
 {
 	(void)signum;
-	unlink(safelock);
+	/* Modern: release flock()-based game lock on exit */
+	modern_unlock_game();
 	exit(1);
 }
 void lockcheck(void)
@@ -306,8 +310,10 @@ void lockcheck(void)
 	signal(SIGQUIT,leave);
 	signal(SIGINT,leave);
 
-	if (link(perm,safelock) == -1) {
-		puts("Try again an a minute.");
+	/* Modern: clean up stale locks and use flock()-based locking */
+	modern_cleanup_locks();
+	if(!modern_lock_game()) {
+		puts("Try again in a minute.");
 		exit(2);
 	}
 	getlock();
@@ -317,10 +323,9 @@ void lockcheck(void)
 		int pid;
 
 		pid=getpid();
-		write(fd,&pid,2);
+		write(fd,&pid,sizeof(pid));
 		close(fd);
 	}
-	unlink(safelock);
 }
 void getlock(void)
 {
@@ -333,7 +338,6 @@ void getlock(void)
 			close(fd);
 			return;
 		} else if(i==LOCKNUM-1) {
-			unlink(safelock);
 			puts("Too many hacks running now.");
 			exit(0);
 		}
@@ -345,7 +349,7 @@ int check(int fd)
 	register int i;
 	int pid;
 
-	read(fd,&pid,2);
+	read(fd,&pid,sizeof(pid));
 	if(kill(pid,16) == -1 && errno==3) {
 		unlink(lock);
 		i=1;

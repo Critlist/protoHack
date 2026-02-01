@@ -1,5 +1,11 @@
 #include "../compat.h"
 #include "hack.h"
+#include <stdint.h>
+#include <stddef.h>
+
+/* Modern: level file header for versioned save format */
+#define LEVEL_MAGIC "FLEV"
+#define LEVEL_VERSION 1
 
 /* Note that lint hates this (Moral: don't lint it) */
 #define bwrite(fp,loc,num) fwrite(loc,1,num,fp)
@@ -13,10 +19,15 @@ void savelev(FILE *fp)
 	register struct gen *gtmp;
 	register struct obj *otmp;
 	struct stole *stmp;
+	unsigned short lver=LEVEL_VERSION;
+	struct permonst *monbegin=&mon[0][0];
 
 	if(fp==0) panic("Bad save\n");
-	bwrite(fp,levl,3520);
-	bwrite(fp,&moves,2);
+	bwrite(fp,LEVEL_MAGIC,4);
+	bwrite(fp,&lver,sizeof(lver));
+	bwrite(fp,&monbegin,sizeof(monbegin));
+	bwrite(fp,levl,sizeof(levl));
+	bwrite(fp,&moves,sizeof(moves));
 	bwrite(fp,&xupstair,1);
 	bwrite(fp,&yupstair,1);
 	bwrite(fp,&xdnstair,1);
@@ -83,9 +94,22 @@ int getlev(FILE *fp)
 	struct stole sbuf;
 	register unsigned tmoves;
 	unsigned omoves;
+	char lmagic[4];
+	unsigned short lver=0;
+	struct permonst *saved_monbegin=0;
+	ptrdiff_t differ=0;
 
-	if(fp==0 || fread(levl,1,3520,fp)!=3520) return(1);
-	mread(fp,&omoves,2);
+	if(fp==0) return(1);
+	if(fread(lmagic,1,4,fp)!=4) return(1);
+	if(memcmp(lmagic,LEVEL_MAGIC,4)) return(1);
+	mread(fp,&lver,sizeof(lver));
+	if(lver!=LEVEL_VERSION) return(1);
+	mread(fp,&saved_monbegin,sizeof(saved_monbegin));
+	/* Modern: adjust permonst pointers across runs via saved monbase */
+	if(saved_monbegin) differ=(char *)&mon[0][0] - (char *)saved_monbegin;
+	else differ=0;
+	if(fread(levl,1,sizeof(levl),fp)!=sizeof(levl)) return(1);
+	mread(fp,&omoves,sizeof(omoves));
 	mread(fp,&xupstair,1);
 	mread(fp,&yupstair,1);
 	mread(fp,&xdnstair,1);
@@ -93,7 +117,9 @@ int getlev(FILE *fp)
 	mread(fp,&sbuf,sizeof(struct stole));
 	while(sbuf.smon) {
 		mread(fp,&mbuf,sizeof(struct monst));
-		if(!mbuf.data->mlet) {
+		if(saved_monbegin && mbuf.data)
+			mbuf.data=(struct permonst *)((char *)mbuf.data + differ);
+		if(!mbuf.data || !mbuf.data->mlet) {
 			if(sbuf.sgold) {
 				gbuf.ngen=fgold;
 				gbuf.gflag=sbuf.sgold+d(dlevel,30);
@@ -134,7 +160,9 @@ int getlev(FILE *fp)
 	mread(fp,&mbuf,sizeof(struct monst));
 	while(mbuf.mx){
 		if(omoves) {
-			if(mbuf.data->mlet) {
+			if(saved_monbegin && mbuf.data)
+				mbuf.data=(struct permonst *)((char *)mbuf.data + differ);
+			if(mbuf.data && mbuf.data->mlet) {
 				if(index(mregen,mbuf.data->mlet))
 					mbuf.mhp+=mbuf.mhp+tmoves;
 				else mbuf.mhp+=tmoves/20;

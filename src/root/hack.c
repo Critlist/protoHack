@@ -799,6 +799,7 @@ void done(char *st1)
 	char *recfile="record";
 	FILE *rfile;
 	register int flg;
+	int rec_locked=0;
 
 #ifdef MAGIC
 	if(flags.magic && *st1=='d'){
@@ -857,6 +858,7 @@ void done(char *st1)
 	printf("and %u pieces of gold, after %u moves.\n",u.ugold,moves);
  printf("You were level %d with a maximum of %d hit points when you %s.\n",
  u.ulevel,u.uhpmax,st1);
+	rec_locked=modern_lock_record();
 	if(!(rfile=fopen(recfile,READ))) puts("No record file");
 	else {
 		putchar('\n');
@@ -908,7 +910,9 @@ void done(char *st1)
 		}
 		fclose(rfile);
 	}
+	if(rec_locked) modern_unlock_record();
 #endif
+	modern_unlock_game();
 	exit(0);
 }
 void setsee(void)
@@ -1173,6 +1177,7 @@ void done2(int signum) /* Modern: signal handlers require int param */
 	cbout();
 	cls();
 	puts("Bye!\n\n");
+	modern_unlock_game();
 	exit(3);
 }
 void gobj(struct obj *obj)

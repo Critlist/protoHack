@@ -254,6 +254,11 @@ void glo(int);
 void leave(int);
 void lockcheck(void);
 void getlock(void);
+int modern_lock_game(void);
+void modern_unlock_game(void);
+int modern_lock_record(void);
+void modern_unlock_record(void);
+void modern_cleanup_locks(void);
 int check(int);
 #endif
 #ifdef MAGIC

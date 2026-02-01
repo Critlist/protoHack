@@ -289,6 +289,8 @@ void dosearch(void)
 			}
 }
 #ifndef SMALL
+#if 0
+/* ORIGINAL 1982 CODE - preserved for reference */
 void dosave(void)
 {
 	register int tmp;
@@ -445,6 +447,7 @@ void dorecover(register FILE *fp)
 	fclose(fp);
 	docrt();
 }
+#endif
 #endif
 void loseone(register struct obj *obj, int x, int y)
 {
