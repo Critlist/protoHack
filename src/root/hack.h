@@ -26,7 +26,6 @@
 #define startup(x) ;
 #endif
 
-#define cl_end() fputs(CE,stdout)
 #define mfree(ptr) free(ptr)
 
 #define MNORM 0	/* used in both */
@@ -234,6 +233,7 @@ void losexp(void);
 void useup(struct obj *);
 void cbout(void);
 void cbin(void);
+void cl_end(void);
 void setan(char *, char *);
 void prinv(struct obj *);
 int weight(struct obj *);

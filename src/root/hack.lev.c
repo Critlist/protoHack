@@ -21,7 +21,9 @@ void savelev(FILE *fp)
 	bwrite(fp,&yupstair,1);
 	bwrite(fp,&xdnstair,1);
 	bwrite(fp,&ydnstair,1);
-	for(stmp=fstole;stmp;stmp=stmp->nstole) {
+	for(stmp=fstole;stmp;) {
+		struct stole *stnext=stmp->nstole; /* Modern: cache next before free */
+
 		bwrite(fp,stmp,sizeof(struct stole));
 		bwrite(fp,stmp->smon,sizeof(struct monst));
 		delmon(stmp->smon);
@@ -31,26 +33,39 @@ void savelev(FILE *fp)
 		}
 		bwrite(fp,nul,sizeof(struct obj));
 		mfree(stmp);
+		stmp=stnext;
 	}
 	bwrite(fp,nul,sizeof(struct stole));
-	for(mtmp=fmon;mtmp;mtmp=mtmp->nmon) {
+	for(mtmp=fmon;mtmp;) {
+		struct monst *mnext=mtmp->nmon; /* Modern: cache next before free */
+
 		bwrite(fp,mtmp,sizeof(struct monst));
 		mfree(mtmp);
+		mtmp=mnext;
 	}
 	bwrite(fp,nul,sizeof(struct monst));
-	for(gtmp=fgold;gtmp;gtmp=gtmp->ngen) {
+	for(gtmp=fgold;gtmp;) {
+		struct gen *gnext=gtmp->ngen; /* Modern: cache next before free */
+
 		bwrite(fp,gtmp,sizeof(struct gen));
 		mfree(gtmp);
+		gtmp=gnext;
 	}
 	bwrite(fp,nul,sizeof(struct gen));
-	for(gtmp=ftrap;gtmp;gtmp=gtmp->ngen) {
+	for(gtmp=ftrap;gtmp;) {
+		struct gen *gnext=gtmp->ngen; /* Modern: cache next before free */
+
 		bwrite(fp,gtmp,sizeof(struct gen));
 		mfree(gtmp);
+		gtmp=gnext;
 	}
 	bwrite(fp,nul,sizeof(struct gen));
-	for(otmp=fobj;otmp;otmp=otmp->nobj) {
+	for(otmp=fobj;otmp;) {
+		struct obj *onext=otmp->nobj; /* Modern: cache next before free */
+
 		bwrite(fp,otmp,sizeof(struct obj));
 		mfree(otmp);
+		otmp=onext;
 	}
 	bwrite(fp,nul,sizeof(struct obj));
 	/* Original 1982: fstole=(struct stole *)fobj=(struct obj *)fgold=(struct gen*)fmon=(struct monst *)ftrap=0; */

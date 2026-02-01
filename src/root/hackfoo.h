@@ -20,7 +20,6 @@ int done1(),done2();	/* various ways of quitting */
 #define ARMNUM 6 /* ac 3-8 */
 #define GEMNUM 15
 
-#define cl_end() fputs(CE,stdout)
 #define mfree(ptr) free(ptr)
 
 #define MNORM 0	/* used in both */
