@@ -7,6 +7,9 @@
 
 #define NONUM
 
+/* Modern: explicit signedness for direction arrays */
+typedef signed char schar;
+
 #define WALL 1	/* Level location types */
 #define SDOOR 2
 #define DOOR 3
@@ -22,7 +25,6 @@
 #define ARMNUM 6 /* ac 3-8 */
 #define GEMNUM 15
 
-#define cl_end()		fputs(CE,stdout)
 #define mfree(ptr)		free((char *)ptr)
 #define bwrite(fp,loc,num)	fwrite((char *)loc,1,num,fp)
 #define mread(fp,loc,num)	fread((char *)loc,1,num,fp)
@@ -263,7 +265,8 @@ extern char CE[];
 extern char *CE;
 #endif
 
-extern char vowels[],IT[],It[],dirs[]; /* hack.c */
+extern char vowels[],IT[],It[]; /* hack.c */
+extern schar dirs[];
 
 /* hack.cmd.c */
 extern char CURSED[],EMPTY[],NOTHIN[],WAND[],RUST[],IDENT[];
@@ -275,10 +278,9 @@ extern char *fl[],NOCOLD[],WCLEV[],MORE[],WEARI[];
 extern char HIT[],NOBLUE[];
 
 /* hack.mon.c */
-extern char CRUSH[],hits,mregen[],*hnu[],dirs[];
+extern char CRUSH[],hits,mregen[],*hnu[];
 
 /* hack.move.c */
-int prl(),nosee();
 extern char WARROW[],DONTF[],WDART[];
 
 /* hack.obj.c */
@@ -291,12 +293,66 @@ extern char HO[],CL[],CE[],ND[],BC[],UP[];
 extern char *HO,*CL,*CE,*ND,*BC,*UP,*CM;
 #endif
 extern char HUNG[],WEAK[],FAINT[],BLANK[];
+void cl_end(void);
+void curs(int x, int y);
+#ifndef SMALL
+void cm(int x, int y);
+#endif
+void atl(struct lev *loc, char ch);
+void on(struct lev *loc);
+void at(int x, int y, char ch);
+void docrt(void);
+void pru(void);
+void prl(struct lev *loc);
+void newsym(struct lev *loc);
+void nosee(struct lev *loc);
+void prustr(void);
+void pmon(struct monst *mon);
+void nscr(void);
+void nocm(int x, int y);
+void bot(void);
+#ifndef VTONL
+void startup(char *nam);
+#endif
+void cls(void);
+void home(void);
+void pline(const char *line, ...);
 
 /* hack.files */
 extern char READ[],WRITE[],ESCAPED[];
 
 
 extern char QUIT[];
+
+/* hack.c */
+int hack_pow(int num);
+int parse(void);
+void done(char *st1);
+void nomul(int nval);
+void cbout(void);
+void cbin(void);
+void setan(char *str, char *buf);
+void getlin(char *str);
+void ndaminc(void);
+void shufl(char *base[], int num);
+char *alloc(int num);
+void getret(void);
+void kludge(char *str, char *arg);
+void k1(char *str, char *arg);
+void panic(char *str, ...);
+void getxy(int *x, int *y, int loc);
+int getdir(void);
+int near(struct lev *loc1, struct lev *loc2, int range);
+#ifndef SMALL
+void set1(char *str);
+#endif
+
+/* hack.lock.c */
+int modern_lock_game(void);
+void modern_unlock_game(void);
+int modern_lock_record(void);
+void modern_unlock_record(void);
+void modern_cleanup_locks(void);
 
 /* large */
 #ifndef SMALL

@@ -223,7 +223,7 @@ pluslvl()
 	num=rnd(10);
 	u.uhpmax+=num;
 	u.uhp+=num;
-	u.uexp=(10*pow(u.ulevel-1))+1;
+	u.uexp=(10*hack_pow(u.ulevel-1))+1;
 	pline(WCLEV,++u.ulevel);
 	flags.botl|=(HP|HPM|ULV|UEX);
 }

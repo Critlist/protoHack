@@ -25,7 +25,7 @@ losexp()
 	num=rnd(10);
 	u.uhp-=num;
 	u.uhpmax-=num;
-	if(u.ulevel>1) u.uexp=15*pow(u.ulevel-1);
+	if(u.ulevel>1) u.uexp=15*hack_pow(u.ulevel-1);
 	else u.uexp=5;
 	
 	flags.botl|=(HP|HPM|ULV|UEX);
