@@ -85,7 +85,7 @@ The restoration converts K&R C (1978-era function definitions, implicit
 types, V7 Unix system calls) to ANSI C with POSIX equivalents. All original
 logic, bugs, and behavior are preserved as faithfully as possible.
 
-### src/root/ (early development build)
+### src/root/ (USENIX tape submission)
 
 | File | Status | Notes |
 |------|--------|-------|
@@ -100,12 +100,14 @@ logic, bugs, and behavior are preserved as faithfully as possible.
 | hack.mon.c | Not started | Monster behavior |
 | hack.lev.c | Not started | Level file I/O, exec's mklev |
 
-### src/exp1/ (USENIX tape submission)
+### src/exp1/ (experimental development branch)
 
-Not started. Will be ported after root is complete. This is the version
-Fenlason refactored into 12 files with shared headers; likely the build
-that was submitted for the USENIX 82-1 distribution tape. Root is the
-earlier working copy — what we'd call an alpha or beta build today.
+Not started. Will be ported after root is complete. This is a post-release
+refactoring that split the code into 12 files with shared headers. Root is
+the version that was submitted for the USENIX 82-1 distribution tape — it
+has the README with install steps, matching file counts, and packaging
+documentation. exp1 is an ongoing development branch that was never
+formally packaged or distributed.
 
 ## How It Works
 

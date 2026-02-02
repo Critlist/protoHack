@@ -108,12 +108,13 @@ The goal is to make it easy for future developers to:
 
 ### Project-Specific Notes
 
-- **Two versions**: `src/root/` (export version) and `src/exp1/` (refactored
-  version) are ported independently
-- **Originals untouched**: `hack/` directory is never modified
+- **Two versions**: `src/root/` (USENIX tape submission — the release) and
+  `src/exp1/` (experimental development branch) are ported independently
+- **Originals untouched**: `original/` directory is never modified
 - **compat.h**: Shared BSD-to-POSIX shim header lives in `src/`
-- **mklev**: Remains a separate binary (original PDP-11 memory constraint
-  design) — do not merge into the main hack binary
+- **mklev in root**: Remains a separate binary (original PDP-11 memory
+  constraint design) — do not merge into the main hack binary. exp1's mklev
+  is already integrated as a function within the single binary.
 
 ### Existing Documented Additions
 

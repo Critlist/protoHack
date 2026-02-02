@@ -1,29 +1,34 @@
-# EXP1 Conversion Plan — Fenlason Hack "Release" Version
+# EXP1 Conversion Plan — Fenlason Hack Experimental Branch
 
 ## Overview
 
 Convert the 12 source files + 2 headers + hack.vars of Fenlason's exp1
-(the version submitted to the USENIX distribution tapes) from K&R C
+(the experimental development branch, post-release refactoring) from K&R C
 to compilable ANSI C on modern Linux/gcc.
 
 **Source**: `original/exp/exp1/` (5,545 lines across 15 files)
-**Target**: `src/release/` (new directory alongside existing `src/root/`)
+**Target**: `src/exp1/` (new directory alongside existing `src/root/`)
 **Shared**: `src/compat.h` (BSD→POSIX shim, reused)
 
-The existing `src/root/` (hack-root, mklev-root) is untouched. The new
-`src/release/` produces a single `hack-release` binary. Shell wrappers
-select which version to launch.
+The existing `src/root/` (hack-root, mklev-root — the USENIX tape
+submission, i.e. the release version) is untouched. The new `src/exp1/`
+produces a single `hack-exp1` binary. Shell wrappers select which version
+to launch.
 
-**Documentation precision**: Only use the label "USENIX 82-1" if the tree
-explicitly proves that designation. Otherwise refer to it as "USENIX tape
-submission" or "exp1 submission."
+**Historical note**: root/ is now understood to be the USENIX tape
+submission (the release). Evidence: root/ has the README with install
+steps, file counts matching its contents, and packaging documentation.
+exp1/ lacks a README, has more files than root's README references, and
+shows development noise (lint output, unfinished structure). The naming
+"exp" (experiment) was correct all along. Brian Harvey likely archived the
+entire working directory when preserving the school's PDP-11 backups.
 
 ---
 
 ## Critical Architectural Difference: Single Binary
 
 Unlike hack-root (which exec's a separate `mklev` binary due to PDP-11
-memory constraints), the release version compiles as a **single binary**.
+memory constraints), the exp1 version compiles as a **single binary**.
 `mklev()` is a function inside `hack.levl.c` called directly from
 `main()`. The original makefile confirms:
 
@@ -33,9 +38,9 @@ ld -X -i -o hack /lib/crt0.o ../rnd.o *.o -ltermlib -lc
 
 This means:
 
-- No separate mklev-release binary needed
-- All 12 .c files + rnd.c link into one executable: `hack-release`
-- hackdir-release/ still needed for level files, record, news, moves
+- No separate mklev-exp1 binary needed
+- All 12 .c files + rnd.c link into one executable: `hack-exp1`
+- hackdir-exp1/ still needed for level files, record, news, moves
 
 ---
 
@@ -96,7 +101,7 @@ warning V7 `lint` produced. Key findings:
 
 ### record (215 bytes)
 
-High score file template — copy into hackdir-release/.
+High score file template — copy into hackdir-exp1/
 
 ### tags (2.9KB)
 
@@ -108,7 +113,7 @@ High score file template — copy into hackdir-release/.
 
 ### Phase 1: Headers & Globals (Build Foundation)
 
-#### 1A. `hack.h` → `src/release/hack.h`
+#### 1A. `hack.h` → `src/exp1/hack.h`
 
 **What it does**: Master header. Struct definitions (lev, permonst, monst,
 stole, gen, obj, flag, you), all bit-packing macros, bwrite/mread, cl_end,
@@ -131,7 +136,7 @@ mfree, extern declarations, game constants.
 - hackfoo.h: `obj->quanmin&0200` (bare — operator precedence risk)
 - Use hack.h version.
 
-#### 1B. `hack.vars` → `src/release/hack.vars`
+#### 1B. `hack.vars` → `src/exp1/hack.vars`
 
 **What it does**: All global variable definitions. Monster table, string
 constants, escape sequences.
@@ -150,7 +155,7 @@ constants, escape sequences.
 
 ### Phase 2: Core Utilities
 
-#### 2A. `hack.c` → `src/release/hack.c` (370 lines, ~21 functions)
+#### 2A. `hack.c` → `src/exp1/hack.c` (370 lines, ~21 functions)
 
 **What it does**: Core utility procedures. Parser, game-over, terminal
 mode switching, string helpers, memory allocation, panic handler.
@@ -194,7 +199,7 @@ mode switching, string helpers, memory allocation, panic handler.
 **index() calls** (5 instances, lines 70/136/219/354/365): Handled by
 compat.h `#define index strchr`.
 
-#### 2B. `hack.screen.c` → `src/release/hack.screen.c` (393 lines, ~20 functions)
+#### 2B. `hack.screen.c` → `src/exp1/hack.screen.c` (393 lines, ~20 functions)
 
 **What it does**: All display operations. Cursor movement, character
 drawing, screen redraw, status bar, terminal init, message line.
@@ -243,7 +248,7 @@ the non-VTONL path (`char *CE,*HO,...,xbuf[45];`).
 `hack.main.c` refactors don't get redone later when modern locking is
 introduced.
 
-#### 3A. `hack.main.c` → `src/release/hack.main.c` (239 lines)
+#### 3A. `hack.main.c` → `src/exp1/hack.main.c` (239 lines)
 
 **What it does**: `main()` function — initialization, save restoration,
 game loop. `#include "hack.vars"` pulls in all globals.
@@ -262,7 +267,7 @@ game loop. `#include "hack.vars"` pulls in all globals.
 **Key difference from hack-root**: No `execl()` to mklev. `mklev()` called
 directly as a function (line 150). No `fork()`. Simpler conversion.
 
-#### 3B. `hack.levl.c` → `src/release/hack.levl.c` (541 lines, ~15 functions)
+#### 3B. `hack.levl.c` → `src/exp1/hack.levl.c` (541 lines, ~15 functions)
 
 **What it does**: Level generation, room creation, maze generation,
 object/monster/trap placement. Equivalent of hack-root's separate `mklev`
@@ -374,39 +379,39 @@ Command subroutines. Equipment, leveling, hunger, save game.
 
 ### Phase 5: Build Integration
 
-#### 5A. CMakeLists.txt — Add hack-release target
+#### 5A. CMakeLists.txt — Add hack-exp1 target
 
 Append to existing CMakeLists.txt (hack-root/mklev-root targets unchanged):
 
 ```cmake
-# --- hack-release (USENIX tape submission, single binary) ---
-add_executable(hack-release
-    src/release/hack.c
-    src/release/hack.cmd.c
-    src/release/hack.cmdsub.c
-    src/release/hack.fight.c
-    src/release/hack.files.c
-    src/release/hack.levl.c
-    src/release/hack.main.c
-    src/release/hack.mon.c
-    src/release/hack.move.c
-    src/release/hack.obj.c
-    src/release/hack.screen.c
-    src/release/hack.see.c
-    src/release/hack.save.c
-    src/release/hack.lock.c
+# --- hack-exp1 (experimental branch, single binary) ---
+add_executable(hack-exp1
+    src/exp1/hack.c
+    src/exp1/hack.cmd.c
+    src/exp1/hack.cmdsub.c
+    src/exp1/hack.fight.c
+    src/exp1/hack.files.c
+    src/exp1/hack.levl.c
+    src/exp1/hack.main.c
+    src/exp1/hack.mon.c
+    src/exp1/hack.move.c
+    src/exp1/hack.obj.c
+    src/exp1/hack.screen.c
+    src/exp1/hack.see.c
+    src/exp1/hack.save.c
+    src/exp1/hack.lock.c
     src/root/rnd.c              # shared random number generator
 )
-target_include_directories(hack-release PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/release
+target_include_directories(hack-exp1 PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/exp1
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CURSES_INCLUDE_DIR}
 )
-target_compile_definitions(hack-release PRIVATE
-    HACKDIR="${CMAKE_BINARY_DIR}/hackdir-release"
+target_compile_definitions(hack-exp1 PRIVATE
+    HACKDIR="${CMAKE_BINARY_DIR}/hackdir-exp1"
     VTONL
 )
-target_link_libraries(hack-release ${CURSES_LIBRARIES} crypt)
+target_link_libraries(hack-exp1 ${CURSES_LIBRARIES} crypt)
 ```
 
 **Linking pitfalls**:
@@ -414,26 +419,26 @@ target_link_libraries(hack-release ${CURSES_LIBRARIES} crypt)
 - Do not hardcode `-lcrypt`; probe it and link only if found.
 - Termcap symbols may require `tinfo` on some distros; probe and link as needed.
 
-#### 5B. hackdir setup target for release
+#### 5B. hackdir setup target for exp1
 
 Separate from existing hackdir (hack-root's `hackdir/` is untouched):
 
 ```cmake
-add_custom_target(setup_hackdir_release ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/hackdir-release
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/hackdir-release/save
-    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/hackdir-release/perm
+add_custom_target(setup_hackdir_exp1 ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/hackdir-exp1
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/hackdir-exp1/save
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/hackdir-exp1/perm
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/original/exp/exp1/record
-        ${CMAKE_BINARY_DIR}/hackdir-release/record
+        ${CMAKE_BINARY_DIR}/hackdir-exp1/record
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/original/news
-        ${CMAKE_BINARY_DIR}/hackdir-release/news
+        ${CMAKE_BINARY_DIR}/hackdir-exp1/news
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/original/moves
-        ${CMAKE_BINARY_DIR}/hackdir-release/moves
+        ${CMAKE_BINARY_DIR}/hackdir-exp1/moves
 )
-add_dependencies(hack-release setup_hackdir_release)
+add_dependencies(hack-exp1 setup_hackdir_exp1)
 ```
 
 ---
@@ -455,7 +460,7 @@ add_dependencies(hack-release setup_hackdir_release)
 | 11 | hackfoo.h | all | Duplicate header, unused | Preserve as artifact |
 | 12 | hack.h/hackfoo.h | 155 | gminus macro parens differ | Use hack.h version |
 | 13 | hack.vars | 19-20 | "unsigned chars will screw up" comment | Note: signed char |
-| 14 | bugs/bugs1 | all | 1982 build log and lint output | Preserve in src/release/ |
+| 14 | bugs/bugs1 | all | 1982 build log and lint output | Preserve in src/exp1/ |
 
 ---
 
@@ -484,14 +489,14 @@ Phase 4: Game logic (+ Phase 6 modern logic applied inline)
   4F. hack.obj.c     (objects)
   4G. hack.cmd.c     (commands — largest, execl fixes)
   4H. hack.cmdsub.c  (command helpers, save)
-  4I. hack.save.c    (6C: new file — versioned save, adapted to release structs)
+  4I. hack.save.c    (6C: new file — versioned save, adapted to exp1 structs)
   4J. hack.lock.c    (6D: new file — flock() locking, copied from hack-root)
   >>> Should compile, link, and be playable
 
 Phase 5: Build integration (hack-root untouched)
-  5A. hack-release CMake target (appended to CMakeLists.txt)
-  5B. hackdir-release/ setup target
-  >>> Both hack-root and hack-release build independently
+  5A. hack-exp1 CMake target (appended to CMakeLists.txt)
+  5B. hackdir-exp1/ setup target
+  >>> Both hack-root and hack-exp1 build independently
 
 Phase 6 is integrated into Phases 2-4 (documented separately for reference):
   6A in 2B: hack.screen.c — mapok, cl_end, pru tracking, prl refresh, nocm ONLCR
@@ -511,10 +516,10 @@ Phase 6 is integrated into Phases 2-4 (documented separately for reference):
 The hack-root version accumulated several modern additions beyond K&R→ANSI
 conversion during its restoration. These are functional improvements needed
 for the game to run correctly on modern 64-bit Linux with large terminals,
-modern terminal emulators, and POSIX signal semantics. The release version
+modern terminal emulators, and POSIX signal semantics. The exp1 version
 needs equivalent logic, adapted to its different file structure.
 
-### File Mapping (hack-root → release)
+### File Mapping (hack-root → exp1)
 
 | hack-root File | Release Equivalent | Scope |
 |----------------|-------------------|-------|
@@ -547,7 +552,7 @@ static int mapok(int x, int y)
 }
 ```
 
-**Where needed in release**: `atl()`, `on()`, `at()`, `pru()`, `prl()`,
+**Where needed in exp1**: `atl()`, `on()`, `at()`, `pru()`, `prl()`,
 `docrt()` — same functions exist in `hack.screen.c` at similar line ranges.
 Add mapok() and insert guard checks at the same positions as hack-root.
 
@@ -569,7 +574,7 @@ void cl_end(void)
 }
 ```
 
-**Where needed in release**: `hack.h` defines `#define cl_end() fputs(CE,stdout)`.
+**Where needed in exp1**: `hack.h` defines `#define cl_end() fputs(CE,stdout)`.
 Remove macro, add `void cl_end(void)` prototype to hack.h, implement in
 hack.screen.c. `pline()` in hack.screen.c already calls `cl_end()`.
 
@@ -585,7 +590,7 @@ static char pudy = -1;
 static char pudis = 0;
 ```
 
-**Where needed in release**: `pru()` in hack.screen.c (line ~97). The
+**Where needed in exp1**: `pru()` in hack.screen.c (line ~97). The
 original is only 5 lines; expand with the same tracking logic as hack-root.
 
 #### prl() unseen tile refresh
@@ -602,7 +607,7 @@ else if(!room->seen || room->scrsym==' ') {
 }
 ```
 
-**Where needed in release**: End of `prl()` in hack.screen.c (line ~114).
+**Where needed in exp1**: End of `prl()` in hack.screen.c (line ~114).
 
 #### nocm() ONLCR column tracking
 
@@ -613,7 +618,7 @@ movement:
 curx=1; /* Modern: newline returns to column 1 with ONLCR */
 ```
 
-**Where needed in release**: `nocm()` in hack.screen.c (line ~210), inside
+**Where needed in exp1**: `nocm()` in hack.screen.c (line ~210), inside
 the `cury < y` loop after `putchar('\n')`.
 
 #### tputs() wrapper for termcap padding
@@ -627,8 +632,8 @@ static int hack_putc(int c) { return putchar(c); }
 static void xputs(char *s) { if(s) tputs(s,1,hack_putc); }
 ```
 
-**Where needed in release**: Only matters under `#ifndef VTONL`. Since we
-compile with VTONL, the release `xputs()` uses `fputs()` (which is correct
+**Where needed in exp1**: Only matters under `#ifndef VTONL`. Since we
+compile with VTONL, the exp1 `xputs()` uses `fputs()` (which is correct
 for literal ANSI escapes). Include the tputs path in the `#ifndef VTONL`
 block for completeness, matching hack-root.
 
@@ -672,8 +677,8 @@ for(stmp=fstole;stmp;) {
 }
 ```
 
-**Where needed in release**: `savelev()` in `hack.files.c` (line ~130).
-The release savelev has the same linked-list-free pattern as hack-root. Add
+**Where needed in exp1**: `savelev()` in `hack.files.c` (line ~130).
+The exp1 savelev has the same linked-list-free pattern as hack-root. Add
 level magic header, monbegin pointer write, sizeof-based writes, and
 cache-next-before-free for all five linked list loops (fstole, fmon,
 fgold, ftrap, fobj).
@@ -699,11 +704,11 @@ int getlev(FILE *fp)
     if(!mbuf.data || !mbuf.data->mlet) { /* null-safe check */ }
 ```
 
-**Where needed in release**: `getlev()` in `hack.files.c` (line ~147).
+**Where needed in exp1**: `getlev()` in `hack.files.c` (line ~147).
 Same pattern — add magic check, monbegin read, pointer relocation,
 null guards on `mbuf.data` before dereferencing `mbuf.data->mlet`.
 
-**Note on release's getlev**: The original has no return value per the
+**Note on exp1's getlev**: The original has no return value per the
 1982 lint output ("getlev value is used, but none returned"). hack-root
 fixed this to return int. Release needs the same fix.
 
@@ -728,20 +733,20 @@ using fixed-width integers. It includes:
 - **dorecover()**: Full restore with error diagnostics
 - **hangup()/modern_save_handler()**: SIGHUP/SIGTERM save handlers
 
-**What changes for release**: The release version's struct layouts differ
-from hack-root (release has `struct you` with different fields, `struct flag`
+**What changes for exp1**: The exp1 version's struct layouts differ
+from hack-root (exp1 has `struct you` with different fields, `struct flag`
 with different bitfields). The serializers must be adapted:
 
-- `save_you()/load_you()`: Map to release's `struct you` fields
-- `save_flags()/load_flags()`: Map to release's `struct flag` fields
-- `save_obj()/load_obj()`: Map to release's `struct obj` fields
-- String arrays: Release uses same potcol/scrnam/wannam/rinnam names
+- `save_you()/load_you()`: Map to exp1's `struct you` fields
+- `save_flags()/load_flags()`: Map to exp1's `struct flag` fields
+- `save_obj()/load_obj()`: Map to exp1's `struct obj` fields
+- String arrays: exp1 uses same potcol/scrnam/wannam/rinnam names
 
-**dosave() in hack.cmdsub.c**: The original release `dosave()` (line ~400
+**dosave() in hack.cmdsub.c**: The original exp1 `dosave()` (line ~400
 of hack.cmdsub.c) is a thin wrapper. Keep it calling into `dosave0()` in
 the new hack.save.c, same as hack-root.
 
-**File list for CMake**: Add `src/release/hack.save.c` to hack-release
+**File list for CMake**: Add `src/exp1/hack.save.c` to hack-exp1
 sources in Phase 5A.
 
 ---
@@ -762,9 +767,9 @@ modern filesystems and leave stale locks after crashes.
 - `modern_unlock_record()` — release record lock
 - `modern_cleanup_locks()` — probe and release stale locks
 
-**What changes for release**: The lock system is filesystem-only, no
+**What changes for exp1**: The lock system is filesystem-only, no
 struct dependencies. Can be copied directly from hack-root to
-`src/release/hack.lock.c` with no changes.
+`src/exp1/hack.lock.c` with no changes.
 
 **Integration points**:
 
@@ -803,7 +808,7 @@ signal(SIGTERM,hangup); /* Modern: save on terminate */
 signal(SIGHUP,hangup);  /* Modern: save on hangup */
 ```
 
-**Where needed in release**: All signal setup points in hack.main.c
+**Where needed in exp1**: All signal setup points in hack.main.c
 (both the lock-file path and the restore path). Replace the original
 `signal(15,fooexit)` / bare SIGTERM handling.
 
@@ -836,8 +841,8 @@ static void check_resize(void) {
 #endif
 ```
 
-**Where needed in release**: Top of hack.main.c (before main), with
-`check_resize()` called in the game loop. The release game loop is
+**Where needed in exp1**: Top of hack.main.c (before main), with
+`check_resize()` called in the game loop. The exp1 game loop is
 in hack.main.c around line 150-230. Insert `check_resize()` at the
 same position as hack-root (inside the `#else` / `flags.move=1` block).
 
@@ -859,7 +864,7 @@ test harness or redirected I/O):
 if(tcgetattr(0,&ttyp)!=0) return; /* Modern: tolerate missing tty */
 ```
 
-**Where needed in release**: `cbout()` and `cbin()` in hack.c (lines
+**Where needed in exp1**: `cbout()` and `cbin()` in hack.c (lines
 198-215 of original). Apply same guard after the termios conversion.
 
 #### OPOST|ONLCR in raw mode
@@ -871,7 +876,7 @@ newlines produce carriage returns for screen positioning:
 ttyp.c_oflag |= OPOST|ONLCR; /* Modern: keep CRLF in raw mode for screen positioning */
 ```
 
-**Where needed in release**: `cbin()` in hack.c, after clearing ICANON/ECHO.
+**Where needed in exp1**: `cbin()` in hack.c, after clearing ICANON/ECHO.
 
 #### tcflush() for input flushing
 
@@ -881,8 +886,8 @@ hack-root replaced the V7 `ioctl(0,TIOCFLUSH,...)` with POSIX `tcflush()`:
 if(flags.flush) tcflush(0, TCIFLUSH); /* Modern: POSIX termios */
 ```
 
-**Where needed in release**: `movemon()` in hack.mon.c (around line 112
-of hack-root, equivalent position in release). The original uses
+**Where needed in exp1**: `movemon()` in hack.mon.c (around line 112
+of hack-root, equivalent position in exp1). The original uses
 `ioctl(0,TIOCFLUSH,&in)` — replace with `tcflush(0, TCIFLUSH)`.
 
 #### Record file locking and error handling in done()
@@ -897,23 +902,23 @@ if(rec_locked) modern_unlock_record();
 modern_unlock_game();
 ```
 
-**Where needed in release**: `done()` in hack.c (lines 48-143 of original).
+**Where needed in exp1**: `done()` in hack.c (lines 48-143 of original).
 
 ---
 
 ### 6G. Architectural Note: What Does NOT Port
 
-Some hack-root modern additions are **not needed** in release due to
+Some hack-root modern additions are **not needed** in exp1 due to
 architectural differences:
 
-| hack-root Feature | Why Not Needed in Release |
+| hack-root Feature | Why Not Needed in exp1 |
 |-------------------|--------------------------|
-| `-fno-pie` / `-no-pie` compiler flags | hack-root needs stable addresses between hack-root and mklev-root (two binaries sharing data via exec+level files). Release is a single binary. |
-| `execl("./mklev",...)` in hack.lev.c | Release calls `mklev()` directly as a function. No fork/exec. |
-| `mklev.c` versioned level header | Release's mklev logic is in hack.levl.c, writes via hack.files.c's savelev(). One set of level I/O code. |
-| `mklev.c sig_abort()` wrapper | Release doesn't run mklev as a separate process with separate signal handlers. |
-| `hack.do1.c` (partially converted) | Release has no hack.do1.c — that functionality is in hack.cmd.c and hack.cmdsub.c. |
-| `&levl[0][0]` pointer arithmetic fix in hack.do.c | Release's equivalent code is in hack.cmd.c — investigate if same pattern exists. |
+| `-fno-pie` / `-no-pie` compiler flags | hack-root needs stable addresses between hack-root and mklev-root (two binaries sharing data via exec+level files). exp1 is a single binary. |
+| `execl("./mklev",...)` in hack.lev.c | exp1 calls `mklev()` directly as a function. No fork/exec. |
+| `mklev.c` versioned level header | exp1's mklev logic is in hack.levl.c, writes via hack.files.c's savelev(). One set of level I/O code. |
+| `mklev.c sig_abort()` wrapper | exp1 doesn't run mklev as a separate process with separate signal handlers. |
+| `hack.do1.c` (partially converted) | exp1 has no hack.do1.c — that functionality is in hack.cmd.c and hack.cmdsub.c. |
+| `&levl[0][0]` pointer arithmetic fix in hack.do.c | exp1's equivalent code is in hack.cmd.c — investigate if same pattern exists. |
 
 ---
 
@@ -962,11 +967,11 @@ but should be applied file-by-file, not as a separate pass:
 
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build 2>&1 | tee warnings-release.log
+cmake --build build 2>&1 | tee warnings-exp1.log
 ```
 
-- Both `hack-root` and `hack-release` binaries produced
-- hackdir/ and hackdir-release/ created with runtime files
+- Both `hack-root` and `hack-exp1` binaries produced
+- hackdir/ and hackdir-exp1/ created with runtime files
 - Review warning counts for each target
 
 **Order**: First reach a clean compile and playable run (no versioned levels
@@ -974,7 +979,7 @@ or modern save system). After that baseline is stable, layer in Phase 6B/6C
 and re-verify. This keeps risk isolated and avoids masking core conversion
 errors.
 
-### Runtime (hack-release)
+### Runtime (hack-exp1)
 
 - Game starts, level displays, status bar renders
 - Movement (hjklyubn) works
@@ -993,7 +998,7 @@ errors.
 - Terminate save (SIGTERM): `kill <pid>` produces save file
 - Versioned levels: descend stairs, ascend back — level data preserved correctly
 - Save/restore: save game, restart, restore — all state intact (inventory, position, monsters)
-- Record locking: two simultaneous hack-release instances don't corrupt record file
+- Record locking: two simultaneous hack-exp1 instances don't corrupt record file
 - Game locking: second instance gets "Try again in a minute" message
 - Screen bounds: large terminal doesn't crash on out-of-bounds screen writes
 - Missing CE: if CE unavailable, pline() still clears message line (space fallback)
