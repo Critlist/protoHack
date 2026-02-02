@@ -1,8 +1,9 @@
+/* Original 1982: char *index(),*getlogin(),*getenv(); */
+/* Now provided by compat.h includes and macros below */
+/* Original 1982: int done1(),done2(); */
+/* Now provided by prototypes below */
+
 #include <stdio.h>
-#include <signal.h>
-#include <sgtty.h>
-char *index(),*getlogin(),*getenv();
-int done1(),done2();	/* various ways of quitting */
 
 #define NONUM
 
@@ -213,6 +214,8 @@ struct you {
 
 extern struct you u;
 
+#include "compat.h"
+
 extern char *armnam[],*foodnam[],*wepnam[],*pottyp[],*scrtyp[],*traps[];
 extern char *wantyp[],*ringtyp[],*potcol[],*scrnam[],*wannam[],*rinnam[];
 extern char wdam[],oiden[];
@@ -234,7 +237,10 @@ extern int dir;
 
 extern unsigned moves;
 
-extern multi;
+extern int multi;
+
+void done1(int signum);
+void done2(int signum);
 
 extern char buf[],nul[];
 
