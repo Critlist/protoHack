@@ -190,7 +190,7 @@ register struct monst *mtmp;
 		u.uswldtim=u.uswallow=0;
 		docrt();
 	}
-	if(u.uexp<10*pow(u.ulevel-1)) return;
+	if(u.uexp<10*hack_pow(u.ulevel-1)) return;
 	if(u.ulevel>13) return;
 	pline(WCLEV,++u.ulevel);
 	tmp=rnd(10);

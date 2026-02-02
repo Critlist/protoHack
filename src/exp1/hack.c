@@ -2,17 +2,17 @@
 		/* misc procedures */
 
 /* returns 2 to the num */
-pow(num)
-register num;
+/* Modern: rename to avoid libm pow() collision */
+int hack_pow(int num)
 {
-	register tmp=1;
+	register int tmp=1;
 
 	while(num--) tmp*=2;
 	return(tmp);
 }
-parse()
+int parse(void)
 {
-	register foo;
+	register int foo;
 	int x,y;
 
 	flags.move=1;
@@ -45,10 +45,9 @@ parse()
 	flags.mdone=flags.topl=0;
 	return(foo);
 }
-done(st1)
-char *st1;
+void done(char *st1)
 {
-	register x;
+	register int x;
 	register struct obj *otmp;
 #ifndef SMALL
 	struct {
@@ -58,6 +57,7 @@ char *st1;
 	FILE *rfile;
 	char *nbuf,*kbuf; /* names and killers */
 	char xbuf[130];
+	int rec_locked=0;
 #endif
 
 	cbout();
@@ -72,6 +72,11 @@ char *st1;
 #endif
 	signal(SIGINT,SIG_DFL);
 	cls();
+#ifndef SMALL
+	/* Modern: lock record file during read/write */
+	rec_locked=modern_lock_record();
+	if(!rec_locked) puts("Warning: record file lock unavailable.");
+#endif
 #ifndef SMALL
 	if(!uname) uname=getlogin();
 	printf("Goodbye %s...\n\n",uname);
@@ -101,9 +106,10 @@ char *st1;
 	}
 	nbuf=xbuf;
 	kbuf=buf;
+	memset(rec,0,sizeof(rec)); /* Modern: safe defaults for unread entries */
 	for(t1=rec;t1<&rec[10];t1++) {
-		fscanf(rfile,"%d %u %[^,],%[^\n]",&t1->level,&t1->points,
- nbuf,kbuf);
+		if(fscanf(rfile,"%d %u %[^,],%[^\n]",&t1->level,&t1->points,
+ nbuf,kbuf) < 4) break;
 		t1->name=nbuf;
 		t1->death=kbuf;
 		while(*nbuf++) ;
@@ -128,6 +134,7 @@ char *st1;
 	} else rfile=0;
 	puts("Number   Points    Name");
 	for(t1=rec;t1<&rec[10];t1++) {
+		if(!t1->name) continue; /* Modern: skip unread entries */
 		printf("%2d      %6u    %s ",t1-rec,t1->points,t1->name);
 		if(!strncmp("es",t1->death,2)) puts("escaped the dungeon.");
 		else if(!strcmp(QUIT,t1->death))
@@ -138,11 +145,15 @@ char *st1;
  t1->name,t1->death);
 	}
 	if(rfile) fclose(rfile);
+	if(rec_locked) modern_unlock_record();
 #endif
+	/* Modern: release game lock */
+	modern_unlock_game();
 	exit(0);
 }
-done1()
+void done1(int signum)
 {
+	(void)signum;
 	signal(SIGINT,SIG_IGN);
 	pline("Really quit?");
 #ifndef SMALL
@@ -151,10 +162,11 @@ done1()
 	if(getchar()=='y') done(QUIT);
 	signal(SIGINT,done1);
 }
-done2()
+void done2(int signum)
 {
-	register x;
+	register int x;
 
+	(void)signum;
 	signal(SIGINT,SIG_IGN);
 	signal(SIGQUIT,SIG_IGN);
 	for(x=1;x<30;x++) {
@@ -168,10 +180,11 @@ done2()
 	cbout();
 	cls();
 	puts("Bye\r\n\n");
+	/* Modern: release game lock */
+	modern_unlock_game();
 	exit(125);
 }
-nomul(nval)
-register nval;
+void nomul(int nval)
 {
 	if(multi<0) return;
 	if(flags.mv) {
@@ -184,10 +197,7 @@ register nval;
 	multi=nval;
 	flags.mv=0;
 }
-struct gen *
-g_at(loc,ptr)
-register struct lev *loc;
-register struct gen *ptr;
+struct gen *g_at(struct lev *loc, struct gen *ptr)
 {
 	while(ptr) {
 		if(ptr->gloc==loc) return(ptr);
@@ -195,6 +205,20 @@ register struct gen *ptr;
 	}
 	return(0);
 }
+/**
+ * MODERN ADDITION (2025): POSIX termios replaces V7 sgtty
+ *
+ * WHY: V7 sgtty.h/gtty()/stty() do not exist on modern systems
+ *
+ * HOW: tcgetattr/tcsetattr with ICANON/ECHO flags equivalent to
+ *      CBREAK/ECHO/CRMOD
+ *
+ * PRESERVES: Original terminal mode semantics (cbreak for gameplay,
+ *            canonical for normal I/O)
+ * ADDS: POSIX termios compatibility
+ */
+#if 0
+/* ORIGINAL 1982 CODE - preserved for reference */
 cbout()
 {
 	struct sgttyb ttyp;
@@ -213,14 +237,34 @@ cbin()
 	ttyp.sg_flags&=~(ECHO|CRMOD);
 	stty(0,&ttyp);
 }
-setan(str,buf)
-register char *str,*buf;
+#endif
+void cbout(void)
+{
+	struct termios ttyp;
+
+	if(tcgetattr(0,&ttyp)!=0) return; /* Modern: tolerate missing tty */
+	ttyp.c_lflag |= ICANON|ECHO;
+	ttyp.c_oflag |= OPOST|ONLCR;
+	tcsetattr(0,TCSADRAIN,&ttyp);
+}
+void cbin(void)
+{
+	struct termios ttyp;
+
+	if(tcgetattr(0,&ttyp)!=0) return; /* Modern: tolerate missing tty */
+	ttyp.c_lflag &= ~(ICANON|ECHO);
+	ttyp.c_oflag |= OPOST|ONLCR; /* Modern: keep CRLF in raw mode for screen positioning */
+	ttyp.c_cc[VMIN] = 1;
+	ttyp.c_cc[VTIME] = 0;
+	tcsetattr(0,TCSADRAIN,&ttyp);
+}
+void setan(char *str, char *buf)
 {
 	if(index(vowels,*str)) sprintf(buf,"an %s",str);
 	else sprintf(buf,"a %s",str);
 }
-getlin(str)	/* note that this uses writes to get around the buffering on */
-register char *str;	/* the standard output */
+void getlin(char *str)	/* note that this uses writes to get around the buffering on */
+			/* the standard output */
 {			/* also note that only delete will delete chars (BUG) */
 	register char *ostr=str;
 
@@ -245,7 +289,7 @@ register char *str;	/* the standard output */
 		}
 	}
 }
-ndaminc()	/* redo u.udaminc */
+void ndaminc(void)	/* redo u.udaminc */
 {
 	u.udaminc=0;
 	if(uleft && uleft->otyp==14)
@@ -259,9 +303,7 @@ ndaminc()	/* redo u.udaminc */
 	else if(u.ustr>18) u.udaminc+=3;
 	else if(u.ustr>15) u.udaminc++;
 }
-shufl(base,num)
-register char *base[];
-register num;
+void shufl(char *base[], int num)
 {
 	char **tmp,*tmp1;
 	int curnum;
@@ -273,15 +315,14 @@ register num;
 		base[curnum]=tmp1;
 	}
 }
-alloc(num)
-register num;
+char *alloc(int num)
 {
 	register char *val;
 
 	if(!(val=malloc(num))) panic("%d too big\n",num);
 	return(val);
 }
-getret()
+void getret(void)
 {
 	fputs("\n\n--Hit space to continue--",stdout);
 #ifndef SMALL
@@ -289,31 +330,31 @@ getret()
 #endif
 	while(getchar()!=' ') ;
 }
-kludge(str,arg)
-register char *str,*arg;
+void kludge(char *str, char *arg)
 {
 	if(u.ublind) pline(str,*str=='%'?IT:It);
 	else pline(str,arg);
 }
-k1(str,arg)
-register char *str,*arg;
+void k1(char *str, char *arg)
 {
 	if(u.ublind) pline(str,nul,*str=='%'?IT:It);
 	else pline(str,*str=='%'?"The ":"the ",arg);
 }
 /*VARARGS1*/
-panic(str,a1,a2,a3,a4,a5,a6)
-char *str;
+/* Original 1982: panic(str,a1,a2,...) — converted to stdarg */
+void panic(char *str, ...)
 {
+	va_list ap;
+
 	cls();
 	fputs("ERROR:  ",stdout);
-	printf(str,a1,a2,a3,a4,a5,a6);
+	va_start(ap, str);
+	vprintf(str, ap);
+	va_end(ap);
 	cbout();
 	exit(100);
 }
-getxy(x,y,loc)
-register int *x,*y;
-register loc;
+void getxy(int *x, int *y, int loc)
 {
 	register x1;
 
@@ -322,7 +363,7 @@ register loc;
 	*x=x1;
 	*y=loc;
 }
-getdir()
+int getdir(void)
 {
 	register char foo;
 
@@ -334,10 +375,9 @@ getdir()
 	flags.topl=1;
 	return(movecm(foo));
 }
-near(loc1,loc2,range)
-register struct lev *loc1,*loc2;
+int near(struct lev *loc1, struct lev *loc2, int range)
 {
-	register char *tmp;
+	register schar *tmp;
 
 	do {
 		for(tmp=dirs;*tmp;tmp++)
@@ -346,8 +386,7 @@ register struct lev *loc1,*loc2;
 	return(0);
 }
 #ifndef SMALL
-set1(str)
-register char *str;
+void set1(char *str)
 {
 	register num;
 

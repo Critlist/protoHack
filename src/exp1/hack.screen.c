@@ -1,9 +1,31 @@
 #include "hack.h"
 		/* stuff for updating the screen and moving the cursor */
 
+#ifndef VTONL
+/* Modern: termcap prototypes for tgetent/tgetstr/tgetnum/tgetflag */
+#include <termcap.h>
+/* Modern: use tputs() so termcap padding ($<..>) isn't printed literally */
+static int hack_putc(int c) { return putchar(c); }
+static void xputs(char *s)
+{
+	if(s) tputs(s,1,hack_putc);
+}
+#else
+static void xputs(char *s)
+{
+	if(s) fputs(s,stdout);
+}
+#endif
+
 extern char xbuf[];
-curs(x,y)
-register x,y;
+
+/* Modern: guard against out-of-bounds screen updates on large terminals */
+static int mapok(int x, int y)
+{
+	return(x>=0 && x<80 && y>=0 && y<22);
+}
+
+void curs(int x, int y)
 {
 	if(y==cury && x==curx) return;	/* do nothing, gracefulx */
 	if(abs(cury-y)<=3 && abs(curx-x)<=3) nocm(x,y);/* too close */
@@ -16,7 +38,7 @@ register x,y;
 		curx=1;
 		nocm(x,y);
 	} else if(HO && x<=3 && y<=3) {
-		fputs(HO,stdout);
+		xputs(HO);
 		curx=cury=1;
 		nocm(x,y);
 	}
@@ -26,28 +48,29 @@ register x,y;
 	else cm(x,y);
 }
 #ifndef SMALL
-cm(x,y)
-register x,y;
+void cm(int x, int y)
 {
-	fputs(tgoto(CM,x-1,y-1),stdout);
+	xputs(tgoto(CM,x-1,y-1));
 	curx=x;
 	cury=y;
 }
 #endif
-atl(loc,ch)
-register struct lev *loc;
-register char ch;
+void atl(struct lev *loc, char ch)
 {
+	int x,y;
+
+	getxy(&x,&y,loc-levl);
+	if(!mapok(x,y)) return;
 	setscr(loc,ch);
 	on(loc);
 }
-on(loc)
-struct lev *loc;
+void on(struct lev *loc)
 {
 	int x,y;
 
 	setnew(loc);
 	getxy(&x,&y,loc-levl);
+	if(!mapok(x,y)) return;
 	if(flags.dscr) {
 		if(x<scrlx) scrlx=x;
 		else if(x>scrhx) scrhx=x;
@@ -59,17 +82,16 @@ struct lev *loc;
 		scrly=scrhy=y;
 	}
 }
-at(x,y,ch)
-register x,y;
-char ch;
+void at(int x, int y, char ch)
 {
 	if(!ch) return;
+	if(!mapok(x,y)) return;
 	y+=2;
 	curs(x,y);
 	putchar(ch);
 	curx++;
 }
-docrt()
+void docrt(void)
 {
 	register x,y;
 	register struct lev *room;
@@ -78,7 +100,8 @@ docrt()
 	else {
 		cls();
 		for(y=0;y<22;y++)
-			for(x=0;x<80;x++)
+			for(x=0;x<80;x++) {
+				if(!mapok(x,y)) continue;
 				if(getnew((room= &levl[x][y]))) {
 					resnew(room);
 					at(x,y,getscr(room));
@@ -87,6 +110,7 @@ docrt()
 						setscr(room,'.');
 					} else sseen(room);
 				} else if(gseen(room)) at(x,y,getscr(room));
+			}
 		scrlx=80;
 		scrly=22;
 		flags.dscr=scrhx=scrhy=0;
@@ -94,30 +118,58 @@ docrt()
 	flags.botl=1;
 	bot();
 }
-pru()
+void pru(void)
 {
+	/* Modern: track last displayed @ to keep redraws in sync on modern terminals */
+	static char pudx = -1;
+	static char pudy = -1;
+	static char pudis = 0;
+	int x,y;
+
+	getxy(&x,&y,u.uloc-levl);
+	if(!mapok(x,y)) return;
+	if(pudis && (pudx!=x || pudy!=y) && mapok(pudx,pudy))
+		newsym(&levl[pudx][pudy]);
 	setcan(u.uloc);
-	if(u.uinvis) prl(u.uloc);
-	else if(getscr(u.uloc)!='@') atl(u.uloc,'@');
+	if(u.uinvis) {
+		prl(u.uloc);
+		pudis=0;
+	} else if(getscr(u.uloc)!='@') {
+		atl(u.uloc,'@');
+		pudis=1;
+		pudx=x;
+		pudy=y;
+	}
 }
-prl(loc)
-register struct lev *loc;
+void prl(struct lev *loc)
 {
 	register struct monst *mtmp;
+	int x,y;
 
+	getxy(&x,&y,loc-levl);
+	if(!mapok(x,y)) return;
+	if(loc==u.uloc && !u.uinvis) {
+		pru();
+		return;
+	}
 	setcan(loc);
 	if((!gettyp(loc)) || (gettyp(loc)<DOOR && gettyp(u.uloc)==CORR))
 		return;
 	if((mtmp=g_at(loc,fmon)) && ((!ginv(mtmp)) || u.ucinvis))
 		atl(loc,mtmp->data->mlet);
-	else if(!gseen(loc)) on(loc);
+	else if(!gseen(loc) || getscr(loc)==' ') {
+		/* Modern: refresh unseen tiles to avoid stale symbols on modern terminals */
+		setnew(loc);
+		sseen(loc);
+		newsym(loc);
+		on(loc);
+	}
 }
-newsym(loc)
-register struct lev *loc;
+void newsym(struct lev *loc)
 {
 	register struct obj *otmp;
 	register struct gen *gtmp;
-	register tmp;
+	register int tmp;
 
 	if(otmp=g_at(loc,fobj)) tmp=otmp->olet;
 	else if(gtmp=g_at(loc,fgold)) tmp='$';
@@ -142,8 +194,7 @@ register struct lev *loc;
 	}
 	atl(loc,tmp);
 }
-nosee(loc)
-register struct lev *loc;
+void nosee(struct lev *loc)
 {
 	register struct monst *mtmp;
 
@@ -161,7 +212,7 @@ register struct lev *loc;
 		}
 	}
 }
-prustr()
+void prustr(void)
 {
 	if(u.ustr>18) {
 		if(u.ustr>117) fputs("18/00",stdout);
@@ -169,13 +220,12 @@ prustr()
 	} else printf("%-2d   ",u.ustr);
 	curx+=5;
 }
-pmon(mon)
-register struct monst *mon;
+void pmon(struct monst *mon)
 {
 	if((!ginv(mon)) || u.ucinvis)
 		atl(mon->mloc,mon->data->mlet);
 }
-nscr()
+void nscr(void)
 {
 	register int x,y;
 	register struct lev *room;
@@ -198,27 +248,27 @@ nscr()
 	scrly=22;
 }
 /* go x,y without cm (indirectly) */
-nocm(x,y)
-register x,y;
+void nocm(int x, int y)
 {
 	while (curx < x) {
-		fputs(ND,stdout);
+		xputs(ND);
 		curx++;
 	}
 	while (curx > x) {
-		fputs(BC,stdout);
+		xputs(BC);
 		curx--;
 	}
 	while (cury > y) {
-		fputs(UP,stdout);
+		xputs(UP);
 		cury--;
 	}
 	while(cury<y) {
 		putchar('\n');
 		cury++;
+		curx=1; /* Modern: newline returns to column 1 with ONLCR */
 	}
 }
-bot()
+void bot(void)
 {
 	if(flags.botl&ALL) {
 		curs(1,24);
@@ -296,8 +346,7 @@ bot()
 	flags.botl=0;
 }
 #ifndef VTONL
-startup(nam)
-register char *nam;
+void startup(char *nam)
 {
 	char tptr[512];
 	char *tbufptr;
@@ -324,26 +373,26 @@ register char *nam;
 	if(tbufptr>&xbuf[44]) pline("Too big...");
 }
 #endif
-cls()
+void cls(void)
 {
-	fputs(CL,stdout);
+	xputs(CL);
 	curx=cury=1;
 	flags.topl=0;
 }
-home()
+void home(void)
 {
 #ifndef VTONL
 	if(!HO) curs(1,1);
-	else fputs(HO,stdout);
+	else xputs(HO);
 #else
-	fputs(HO,stdout);
+	xputs(HO);
 #endif
 	curx=cury=1;
 }
 /*VARARGS1*/
-pline(line,a1,a2,a3,a4,a5,a6,a7,a8)
-register char *line,*a1,*a2,*a3,*a4,a5,a6,a7,a8;
+void pline(const char *line, ...)
 {
+	va_list ap;
 #ifdef SMALL
 	char pbuf[60];
 #else
@@ -367,7 +416,8 @@ register char *line,*a1,*a2,*a3,*a4,a5,a6,a7,a8;
 	if(flags.botl) bot();
 	if(cury==1) putchar('\r');
 	else home();
-	fputs(CE,stdout);
+	/* Modern: use cl_end() for CE fallback handling */
+	cl_end();
 #ifndef SMALL
 	if(line==0) {
 		if(!ptr) ptr="No message.";
@@ -376,7 +426,9 @@ register char *line,*a1,*a2,*a3,*a4,a5,a6,a7,a8;
 	}
 #endif
 	if(index(line,'%')) {
-		sprintf(pbuf,line,a1,a2,a3,a4,a5,a6,a7,a8);
+		va_start(ap, line);
+		vsnprintf(pbuf,sizeof(pbuf),line,ap);
+		va_end(ap);
 #ifndef SMALL
 		ptr=pbuf;
 #endif
@@ -390,4 +442,21 @@ register char *line,*a1,*a2,*a3,*a4,a5,a6,a7,a8;
 		savx=strlen(line);
 	}
 	curx= ++savx;
+}
+/* Modern: use termcap-aware clear-to-end-of-line with fallback */
+void cl_end(void)
+{
+	if(CE) {
+		xputs(CE);
+		return;
+	}
+	/* Modern: fallback when CE missing (clear to column 80) */
+	{
+		int cx=curx, cy=cury;
+		while(curx<80) {
+			putchar(' ');
+			curx++;
+		}
+		curs(cx,cy);
+	}
 }
