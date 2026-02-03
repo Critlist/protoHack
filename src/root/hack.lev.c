@@ -21,8 +21,17 @@ void savelev(FILE *fp)
 	struct stole *stmp;
 	unsigned short lver=LEVEL_VERSION;
 	struct permonst *monbegin=&mon[0][0];
+	struct {
+		union {
+			struct stole st;
+			struct monst mo;
+			struct gen ge;
+			struct obj ob;
+		} u;
+	} z;
 
 	if(fp==0) panic("Bad save\n");
+	memset(&z,0,sizeof(z));
 	bwrite(fp,LEVEL_MAGIC,4);
 	bwrite(fp,&lver,sizeof(lver));
 	bwrite(fp,&monbegin,sizeof(monbegin));
@@ -44,11 +53,11 @@ void savelev(FILE *fp)
 			mfree(otmp);
 			otmp=onext;
 		}
-		bwrite(fp,nul,sizeof(struct obj));
+		bwrite(fp,&z.u.ob,sizeof(struct obj));
 		mfree(stmp);
 		stmp=stnext;
 	}
-	bwrite(fp,nul,sizeof(struct stole));
+	bwrite(fp,&z.u.st,sizeof(struct stole));
 	for(mtmp=fmon;mtmp;) {
 		struct monst *mnext=mtmp->nmon; /* Modern: cache next before free */
 
@@ -56,7 +65,7 @@ void savelev(FILE *fp)
 		mfree(mtmp);
 		mtmp=mnext;
 	}
-	bwrite(fp,nul,sizeof(struct monst));
+	bwrite(fp,&z.u.mo,sizeof(struct monst));
 	for(gtmp=fgold;gtmp;) {
 		struct gen *gnext=gtmp->ngen; /* Modern: cache next before free */
 
@@ -64,7 +73,7 @@ void savelev(FILE *fp)
 		mfree(gtmp);
 		gtmp=gnext;
 	}
-	bwrite(fp,nul,sizeof(struct gen));
+	bwrite(fp,&z.u.ge,sizeof(struct gen));
 	for(gtmp=ftrap;gtmp;) {
 		struct gen *gnext=gtmp->ngen; /* Modern: cache next before free */
 
@@ -72,7 +81,7 @@ void savelev(FILE *fp)
 		mfree(gtmp);
 		gtmp=gnext;
 	}
-	bwrite(fp,nul,sizeof(struct gen));
+	bwrite(fp,&z.u.ge,sizeof(struct gen));
 	for(otmp=fobj;otmp;) {
 		struct obj *onext=otmp->nobj; /* Modern: cache next before free */
 
@@ -80,7 +89,7 @@ void savelev(FILE *fp)
 		mfree(otmp);
 		otmp=onext;
 	}
-	bwrite(fp,nul,sizeof(struct obj));
+	bwrite(fp,&z.u.ob,sizeof(struct obj));
 	/* Original 1982: fstole=(struct stole *)fobj=(struct obj *)fgold=(struct gen*)fmon=(struct monst *)ftrap=0; */
 	ftrap=0;
 	fmon=0;

@@ -679,9 +679,15 @@ void killed(struct monst *mtmp)
 		if(levl[fobj->ox=mtmp->mx][fobj->oy=mtmp->my].cansee)
 			atl(mtmp->mx,mtmp->my,fobj->olet);
 	}
-	delmon(mtmp);
-	if(levl[mtmp->mx][mtmp->my].scrsym==mtmp->data->mlet)
-		newsym(mtmp->mx,mtmp->my);
+	/* Modern: cache fields before delmon() to avoid use-after-free */
+	{
+		unsigned char mx=mtmp->mx, my=mtmp->my;
+		char mlet=mtmp->data->mlet;
+
+		delmon(mtmp);
+		if(levl[mx][my].scrsym==mlet)
+			newsym(mx,my);
+	}
 	if(u.uswallow) {
 		u.uswldtim=u.uswallow=0;
 		docrt();
