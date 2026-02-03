@@ -258,41 +258,45 @@ static int load_you(FILE *fp)
 	uint8_t v=0;
 	uint32_t w=0;
 
-	if(!sr_u8(fp,&v)) return 0; u.ux=v;
-	if(!sr_u8(fp,&v)) return 0; u.uy=v;
-	if(!sr_u8(fp,&v)) return 0; u.ufast=v;
-	if(!sr_u8(fp,&v)) return 0; u.uconfused=v;
-	if(!sr_u8(fp,&v)) return 0; u.uinvis=v;
-	if(!sr_u8(fp,&v)) return 0; u.ulevel=v;
-	if(!sr_u8(fp,&v)) return 0; u.utrap=v;
-	if(!sr_u8(fp,&v)) return 0; u.upit=v;
-	if(!sr_u8(fp,&v)) return 0; u.umconf=v;
-	if(!sr_u8(fp,&v)) return 0; u.ufireres=v;
-	if(!sr_u8(fp,&v)) return 0; u.ucoldres=v;
-	if(!sr_u8(fp,&v)) return 0; u.uswallow=v;
-	if(!sr_u8(fp,&v)) return 0; u.uswldtim=v;
-	if(!sr_u8(fp,&v)) return 0; u.ucham=v;
-	if(!sr_u8(fp,&v)) return 0; u.uhs=v;
-	if(!sr_u8(fp,&v)) return 0; u.utel=v;
-	if(!sr_u8(fp,&v)) return 0; u.upres=v;
-	if(!sr_u8(fp,&v)) return 0; u.ustelth=v;
-	if(!sr_u8(fp,&v)) return 0; u.uagmon=v;
-	if(!sr_u8(fp,&v)) return 0; u.ufeed=v;
-	if(!sr_u8(fp,&v)) return 0; u.usearch=v;
-	if(!sr_u8(fp,&v)) return 0; u.ucinvis=v;
-	if(!sr_u8(fp,&v)) return 0; u.uregen=v;
-	if(!sr_u8(fp,&v)) return 0; u.ufloat=v;
-	if(!sr_u8(fp,&v)) return 0; u.ustr=v;
-	if(!sr_u8(fp,&v)) return 0; u.ustrmax=v;
-	if(!sr_u8(fp,&v)) return 0; u.udaminc=v;
-	if(!sr_u8(fp,&v)) return 0; u.uhp=v;
-	if(!sr_u8(fp,&v)) return 0; u.uhpmax=v;
-	if(!sr_u8(fp,&v)) return 0; u.uac=v;
-	if(!sr_u32(fp,&w)) return 0; u.ugold=w;
-	if(!sr_u32(fp,&w)) return 0; u.uexp=w;
-	if(!sr_u32(fp,&w)) return 0; u.urexp=w;
-	if(!sr_u32(fp,&w)) return 0; u.uhunger=w;
-	if(!sr_u32(fp,&w)) return 0; u.ublind=w;
+#define RU8(f) do { if(!sr_u8(fp,&v)) return 0; f=v; } while(0)
+#define RU32(f) do { if(!sr_u32(fp,&w)) return 0; f=w; } while(0)
+	RU8(u.ux);
+	RU8(u.uy);
+	RU8(u.ufast);
+	RU8(u.uconfused);
+	RU8(u.uinvis);
+	RU8(u.ulevel);
+	RU8(u.utrap);
+	RU8(u.upit);
+	RU8(u.umconf);
+	RU8(u.ufireres);
+	RU8(u.ucoldres);
+	RU8(u.uswallow);
+	RU8(u.uswldtim);
+	RU8(u.ucham);
+	RU8(u.uhs);
+	RU8(u.utel);
+	RU8(u.upres);
+	RU8(u.ustelth);
+	RU8(u.uagmon);
+	RU8(u.ufeed);
+	RU8(u.usearch);
+	RU8(u.ucinvis);
+	RU8(u.uregen);
+	RU8(u.ufloat);
+	RU8(u.ustr);
+	RU8(u.ustrmax);
+	RU8(u.udaminc);
+	RU8(u.uhp);
+	RU8(u.uhpmax);
+	RU8(u.uac);
+	RU32(u.ugold);
+	RU32(u.uexp);
+	RU32(u.urexp);
+	RU32(u.uhunger);
+	RU32(u.ublind);
+#undef RU8
+#undef RU32
 	u.ustuck=0;
 	return 1;
 }
@@ -314,15 +318,17 @@ static int load_obj(FILE *fp, struct obj *otmp)
 {
 	uint8_t v=0;
 
-	if(!sr_u8(fp,&v)) return 0; otmp->ox=v;
-	if(!sr_u8(fp,&v)) return 0; otmp->oy=v;
-	if(!sr_u8(fp,&v)) return 0; otmp->olet=v;
-	if(!sr_u8(fp,&v)) return 0; otmp->otyp=v;
-	if(!sr_u8(fp,&v)) return 0; otmp->spe=v;
-	if(!sr_u8(fp,&v)) return 0; otmp->quan=v;
-	if(!sr_u8(fp,&v)) return 0; otmp->minus=v;
-	if(!sr_u8(fp,&v)) return 0; otmp->known=v;
-	if(!sr_u8(fp,&v)) return 0; otmp->cursed=v;
+#define RO8(f) do { if(!sr_u8(fp,&v)) return 0; f=v; } while(0)
+	RO8(otmp->ox);
+	RO8(otmp->oy);
+	RO8(otmp->olet);
+	RO8(otmp->otyp);
+	RO8(otmp->spe);
+	RO8(otmp->quan);
+	RO8(otmp->minus);
+	RO8(otmp->known);
+	RO8(otmp->cursed);
+#undef RO8
 	return 1;
 }
 

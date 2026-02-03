@@ -131,7 +131,7 @@ void domove(void)
 		if(multi) multi=0;
 		return;
 	}
-	if(mtmp=g_at(u.ux+dx,u.uy+dy,fmon)) {
+	if((mtmp=g_at(u.ux+dx,u.uy+dy,fmon))) {
 		nomul(0);
 		if(u.ublind) let=amon(mtmp,uwep,0);
 		else if(mtmp->sinv) {
@@ -232,7 +232,7 @@ void domove(void)
 		on(tmpx,tmpy);
 	} else ust->cansee=0;
 	if(!multi) pru();
-	if(gold=g_at(u.ux,u.uy,fgold)) {
+	if((gold=g_at(u.ux,u.uy,fgold))) {
 		if(gold->gflag<2) gold->gflag=2;
 		pline("%u gold pieces.",gold->gflag);
 		u.urexp+=gold->gflag;
@@ -248,7 +248,7 @@ void domove(void)
 		if(flags.mv>1) nomul(0);
 		if(u.uinvis) newsym(u.ux,u.uy);
 	}
-	if(obj=g_at(u.ux,u.uy,fobj)) {
+	if((obj=g_at(u.ux,u.uy,fobj))) {
 		for(otmp=invent,let=0;otmp;otmp=otmp->nobj) let+=weight(otmp);
 		let+=weight(obj);
 		if(let>85) {
@@ -528,7 +528,7 @@ void tellall(void)
 {
 	char *abuf;
 	int ntimes;
-	char tx,ty;
+	unsigned char tx,ty; /* Modern: unsigned char for safe array subscript use */
 	char tcmd;
 	char tbuf[15];
 	char buf[80];
@@ -579,7 +579,7 @@ void tellall(void)
 				doname(stmp->sobj,index(buf,'.'));
 				pline(buf);
 				otmp=stmp->sobj;
-				while(otmp=otmp->nobj) {
+				while((otmp=otmp->nobj)) {
 					strcpy(buf,"and ");
 					doname(otmp,&buf[4]);
 					pline(buf);
@@ -1283,7 +1283,7 @@ int attmon(struct monst *mtmp, struct obj *obj)
 	tmp+=u.udaminc;
 	if(u.uswallow && mtmp->data->mlet=='P' && (tmp-=u.uswldtim)<1) {
 		k1(HIT[rand()%3],mtmp->data->mname);
-		return;
+		return 0; /* Modern: explicit return value for int function */
 	}
 	if(tmp<1) tmp=1;
 	mtmp->mhp-=tmp;

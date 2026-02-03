@@ -1,10 +1,9 @@
 #include "hack.h"
 #include <stdio.h>
+#include "../compat.h"
 /* Modern: termcap prototypes for tgetent/tgetstr/tgetnum/tgetflag */
 #ifndef VTONL
 #include <termcap.h>
-/* Modern: termios for termcap ospeed */
-#include "../compat.h"
 #endif
 #ifndef VTONL
 char tbuf[8192];	/* Modern: expand termcap buffer for longer modern entries */
@@ -42,7 +41,16 @@ static void cmov(int x, int y)
 #endif
 
 extern char MORE[],HUNG[],WEAK[],FAINT[],BLANK[];
-int curs();
+/* Modern: forward declarations for functions called before definition */
+void curs();
+void cls();
+void nocm();
+void on();
+void prl();
+void newsym();
+void pline();
+void nscr();
+void bot();
 
 /* Modern: guard against out-of-bounds screen updates on large terminals */
 static int mapok(int x, int y)
@@ -50,7 +58,7 @@ static int mapok(int x, int y)
 	return(x>=0 && x<80 && y>=0 && y<22);
 }
 
-curs(x,y)
+void curs(x,y)
 register x,y;
 {
 	if(y==cury && x==curx) return;	/* do nothing, gracefulx */
@@ -78,7 +86,7 @@ register x,y;
 #endif
 	else cmov(x,y);
 }
-swallowed()
+void swallowed()
 {
 	cls();
 	curs(u.ux-1,u.uy+1);
@@ -92,7 +100,7 @@ swallowed()
 	curx+=3;
 }
 #ifndef VTONL
-startup(nam)
+void startup(nam)
 register char *nam;
 {
 	register char *tptr;
@@ -129,7 +137,7 @@ register char *nam;
 }
 #endif
 /*VARARGS1*/
-panic(str,a1,a2,a3,a4,a5,a6)
+void panic(str,a1,a2,a3,a4,a5,a6)
 char *str;
 {
 	cls();
@@ -138,19 +146,19 @@ char *str;
 	cbout();
 	exit(100);
 }
-cls()
+void cls()
 {
 	xputs(CL);
 	curx=cury=1;
 	flags.topl=0;
 }
-home()
+void home()
 {
 	if(!HO) curs(1,1);
 	else xputs(HO);
 	curx=cury=1;
 }
-atl(x,y,ch)
+void atl(x,y,ch)
 register x,y;
 {
 	register struct rm *crm;
@@ -162,7 +170,7 @@ register x,y;
 	crm->new=1;
 	on(x,y);
 }
-on(x,y)
+void on(x,y)
 register x,y;
 {
 	if(!mapok(x,y)) return;
@@ -177,7 +185,7 @@ register x,y;
 		scrly=scrhy=y;
 	}
 }
-at(x,y,ch)
+void at(x,y,ch)
 register x,y;
 char ch;
 {
@@ -188,7 +196,7 @@ char ch;
 	putchar(ch);
 	curx++;
 }
-docrt()
+void docrt()
 {
 	register x,y;
 	register struct rm *room;
@@ -213,7 +221,7 @@ docrt()
 	flags.botl=1;
 	bot();
 }
-pru()
+void pru()
 {
 	/* Modern: track last displayed @ to keep redraws in sync on modern terminals */
 	static char pudx = -1;
@@ -234,7 +242,7 @@ pru()
 		pudy=u.uy;
 	}
 }
-prl(x,y)
+void prl(x,y)
 {
 	register struct rm *room;
 	register struct monst *mtmp;
@@ -252,9 +260,9 @@ prl(x,y)
 		return;
 	if((mtmp=g_at(x,y,fmon)) && ((!mtmp->invis) || u.ucinvis))
 		atl(x,y,mtmp->data->mlet);
-	else if(otmp=g_at(x,y,fobj))
+	else if((otmp=g_at(x,y,fobj)))
 		atl(x,y,otmp->olet);
-	else if(gtmp=g_at(x,y,fgold))
+	else if((gtmp=g_at(x,y,fgold)))
 		atl(x,y,'$');
 	else if((gtmp=g_at(x,y,ftrap)) && (gtmp->gflag&SEEN))
 		atl(x,y,'^');
@@ -266,7 +274,7 @@ prl(x,y)
 	}
 	room->seen=1;
 }
-newsym(x,y)
+void newsym(x,y)
 register x,y;
 {
 	register struct obj *otmp;
@@ -275,8 +283,8 @@ register x,y;
 	register tmp;
 
 	room= &levl[x][y];
-	if(otmp=g_at(x,y,fobj)) tmp=otmp->olet;
-	else if(gtmp=g_at(x,y,fgold)) tmp='$';
+	if((otmp=g_at(x,y,fobj))) tmp=otmp->olet;
+	else if((gtmp=g_at(x,y,fgold))) tmp='$';
 	else if((gtmp=g_at(x,y,ftrap)) && (gtmp->gflag&SEEN)) tmp='^';
 	else switch(room->typ) {
 	case SDOOR:
@@ -302,7 +310,7 @@ register x,y;
 	}
 	atl(x,y,tmp);
 }
-nosee(x,y)
+void nosee(x,y)
 register x,y;
 {
 	register struct rm *room;
@@ -323,7 +331,7 @@ register x,y;
 		}
 	}
 }
-prl1(x,y)
+void prl1(x,y)
 register x,y;
 {
 	if(dx) {
@@ -344,7 +352,7 @@ register x,y;
 		prl(x+1,y);
 	}
 }
-nose1(x,y)
+void nose1(x,y)
 register x,y;
 {
 	if(dx) {
@@ -366,7 +374,7 @@ register x,y;
 	}
 }
 /*VARARGS1*/
-pline(line,arg1,arg2,arg3,arg4)
+void pline(line,arg1,arg2,arg3,arg4)
 register char *line,*arg1,*arg2,*arg3,*arg4;
 {
 #ifdef SMALL
@@ -432,14 +440,14 @@ void cl_end(void)
 		curs(cx,cy);
 	}
 }
-losehp(n)
+int losehp(n)
 register n;
 {
 	u.uhp-=n;
 	flags.botl|=HP;
 	return(u.uhp<1);
 }
-prustr()
+void prustr()
 {
 	if(u.ustr>18) {
 		if(u.ustr>117) fputs("18/00",stdout);
@@ -447,13 +455,13 @@ prustr()
 	} else printf("%-2d   ",u.ustr);
 	curx+=5;
 }
-pmon(mon)
+void pmon(mon)
 register struct monst *mon;
 {
 	if((!mon->invis) || u.ucinvis)
 		atl(mon->mx,mon->my,mon->data->mlet);
 }
-nscr()
+void nscr()
 {
 	register x,y;
 	register struct rm *room;
@@ -474,7 +482,7 @@ nscr()
 	scrlx=80;
 	scrly=22;
 }
-nocm(x,y)
+void nocm(x,y)
 	/* go x,y without cm (indirectly) */
 register x,y;
 {
@@ -508,7 +516,7 @@ register x,y;
 		}
 	}
 }
-bot()
+void bot()
 {
 	if(flags.botl&ALL) {
 		curs(1,24);

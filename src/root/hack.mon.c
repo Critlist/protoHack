@@ -27,7 +27,7 @@ void movemon(void)
 }
 void justswld(struct monst *mtmp)
 {
-	register char tx,ty;
+	/* Original 1982: register char tx,ty; — declared but unused in justswld() */
 
 	u.ustuck=mtmp;
 	u.uswallow=flags.botl=1;
@@ -429,7 +429,8 @@ int m_move(struct monst *mtmp)
 			dx=mtmp->mx;
 			dy=mtmp->my;
 			mnexto(mtmp);	/* mnexto doesn't change old position*/
-			if(levl[dx][dy].scrsym=='t') newsym(dx,dy);
+			/* Modern: cast to unsigned char — dx/dy hold position here, not deltas */
+			if(levl[(unsigned char)dx][(unsigned char)dy].scrsym=='t') newsym(dx,dy);
 		} else rloc(mtmp);	/* rloc does */
 		return(1);
 	}
@@ -627,7 +628,7 @@ void killed(struct monst *mtmp)
 	for(stmp=fstole;stmp;stmp=stmp->nstole) {
 		if(stmp->smon==mtmp) {
 			if(stmp->sgold) {
-				if(gtmp=g_at(mtmp->mx,mtmp->my,fgold))
+				if((gtmp=g_at(mtmp->mx,mtmp->my,fgold)))
 					gtmp->gflag+=stmp->sgold+d(dlevel,30);
 				else {
 					gtmp=alloc(sizeof(struct gen));
@@ -661,7 +662,7 @@ void killed(struct monst *mtmp)
 		}
 	}
 	if(!stmp && mtmp->data->mlet=='L') {
-		if(gtmp=g_at(mtmp->mx,mtmp->my,fgold))
+		if((gtmp=g_at(mtmp->mx,mtmp->my,fgold)))
 			gtmp->gflag+=d(dlevel,35);
 		else {
 			gtmp=alloc(sizeof(struct gen));

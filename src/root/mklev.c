@@ -3,6 +3,12 @@
 #include "hack.h"
 #include "../compat.h"
 
+/* Modern: declarations for rnd.c functions (no shared header in original) */
+extern int rn1(int, int);
+extern int rn2(int);
+extern int rnd(int);
+extern int d(int, int);
+
 /* Modern: level file header for versioned save format */
 #define LEVEL_MAGIC "FLEV"
 #define LEVEL_VERSION 1
@@ -46,11 +52,13 @@ void out(char *, ...);
 
 char dlevel;
 char nul[20];	/* contains zeros */
-char nxcor,x,y,dx,dy,tx,ty; /* for corridors and other things... */
+/* Modern: coordinate variables changed to unsigned char for safe array subscript use */
+unsigned char nxcor,x,y,tx,ty; /* for corridors and other things... */
+char dx,dy; /* directional deltas — must stay signed (original 1982 comment) */
 int nroom;
 int rnum;
 
-char xdnstair,xupstair,ydnstair,yupstair;
+unsigned char xdnstair,xupstair,ydnstair,yupstair;
 char *tfile,*tspe,**args;
 
 #ifdef DEBUG
@@ -65,9 +73,9 @@ static void sig_abort(int signum) { (void)signum; abort(); }
 
 int main(int argc, char *argv[])
 {
-	char lowy,lowx;
+	unsigned char lowy,lowx; /* Modern: unsigned char for safe array subscript use */
 	register unsigned tries =0;
-	register struct gen *gtmp;
+	/* Original 1982: register struct gen *gtmp; — unused, suppressed */
 
 #ifdef DEBUG
 	if(getenv("OUT")) {

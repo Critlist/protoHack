@@ -38,9 +38,11 @@ void savelev(FILE *fp)
 		bwrite(fp,stmp,sizeof(struct stole));
 		bwrite(fp,stmp->smon,sizeof(struct monst));
 		delmon(stmp->smon);
-		for(otmp=stmp->sobj;otmp;otmp=otmp->nobj) {
+		for(otmp=stmp->sobj;otmp;) {
+			struct obj *onext=otmp->nobj; /* Modern: cache next before free */
 			bwrite(fp,otmp,sizeof(struct obj));
 			mfree(otmp);
+			otmp=onext;
 		}
 		bwrite(fp,nul,sizeof(struct obj));
 		mfree(stmp);

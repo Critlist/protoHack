@@ -61,13 +61,16 @@ struct obj *fobj=0, *invent, *uwep, *uarm, *uright=0, *uleft=0;
 struct flag flags;
 struct you u;
 
-char curx,cury,savx;
+/* Modern: coordinate variables changed to unsigned char for safe array subscript use */
+unsigned char curx,cury;
+char savx;
 
-char xupstair,yupstair,xdnstair,ydnstair;
-char seelx, seehx, seely, seehy;	/* corners of lit room */
-char scrlx, scrhx, scrly, scrhy;	/* corners of new area on screen */
+unsigned char xupstair,yupstair,xdnstair,ydnstair;
+unsigned char seelx, seehx, seely, seehy;	/* corners of lit room */
+unsigned char scrlx, scrhx, scrly, scrhy;	/* corners of new area on screen */
 char save_cm;
-char dlevel=1,dx,dy;	/* note that if you have unsigned chars, dx and dy will
+char dlevel=1;
+char dx,dy;	/* note that if you have unsigned chars, dx and dy will
 screw up */
 
 unsigned moves=0;
@@ -94,7 +97,7 @@ int main(void)
 	/* Original 1982: signal(-1,1); — V7 idiom: apply to all signals, not portable */
 	/* Original 1982: signal(16,SIG_IGN); — V7 signal 16, not meaningful on POSIX */
 	if(chdir(HACKDIR)<0) { /* Modern: uses HACKDIR define instead of hardcoded path */
-		write(2,"Cannot cd!\n\n",14);
+		write(2,"Cannot cd!\n\n",12); /* Modern: was 14, string is 12 bytes */
 		exit(3);
 	}
  	srand(getpid());
@@ -104,7 +107,7 @@ int main(void)
 	if(sfoo) {
 		do {
 			tmp=sfoo;
-			if(sfoo=index(sfoo,',')) *sfoo++=0;
+			if((sfoo=index(sfoo,','))) *sfoo++=0;
 			set1(tmp);
 		} while(sfoo);
 	}
@@ -144,7 +147,7 @@ int main(void)
 		cbin();
 		startup(getenv("TERM"));
 #ifdef MAGIC
-		if(sfoo=getenv("MAGIC")) {
+		if((sfoo=getenv("MAGIC"))) {
 			lockcheck();
 			while(*sfoo) {
 				switch(*sfoo++) {
@@ -203,9 +206,9 @@ uwep->known=1;
 		flags.move=flags.one=1;
 #else
 		flags.move=1;
-#ifdef SIGWINCH
-		check_resize();
 #endif
+#ifdef SIGWINCH
+		check_resize(); /* Modern: deferred resize check, runs every turn */
 #endif
 		glo(1);
 		mklev();

@@ -11,7 +11,7 @@ void rhack(char cmd)
 	register struct obj *otmp;
 	register struct monst *mtmp;
 	register int num;
-	char zx,zy;
+	unsigned char zx,zy; /* Modern: unsigned char for safe array subscript use */
 	char *foo;
 
 #ifdef MAGIC
@@ -136,7 +136,7 @@ void rhack(char cmd)
 			setuid(getuid());
 			chdir(getenv("HOME"));
 			/* Original 1982: execl(foo,foo,0); / execl("/bin/sh","sh",0); */
-			if(foo=getenv("SHELL")) execl(foo,foo,(char *)NULL);  /* Modern: 64-bit NULL */
+			if((foo=getenv("SHELL"))) execl(foo,foo,(char *)NULL);  /* Modern: 64-bit NULL */
 			execl("/bin/sh","sh",(char *)NULL);  /* Modern: 64-bit NULL */
 			pline("sh: cannot execute.");
 			exit(1);
@@ -181,7 +181,7 @@ void rhack(char cmd)
 		flags.move=multi=0;
 		break;
 	case 'c':
-		if(otmp=getobj("?!=/","call")) docall(otmp);
+		if((otmp=getobj("?!=/","call"))) docall(otmp);
 		flags.move=0;
 		break;
 	case '>':
@@ -312,7 +312,8 @@ void rhack(char cmd)
 				mnexto(fmon);
 				break;
 			}
-			if(!oiden[otmp->otyp]&WANN) {
+			/* Original 1982: !oiden[otmp->otyp]&WANN (precedence bug); intent was !(expr & MASK) */
+			if(!(oiden[otmp->otyp]&WANN)) {
 				u.urexp+=10;
 				oiden[otmp->otyp]|=WANN;
 			}
@@ -321,7 +322,7 @@ void rhack(char cmd)
 		if(!getdir()) return;
 		otmp->spe--;
 		if(otmp->otyp<10) {
-			if(mtmp=bhit(dx,dy,rn1(8,6))) {
+			if((mtmp=bhit(dx,dy,rn1(8,6)))) {
 				if(otmp->otyp==3) {
 					if(rnd(20)<10+mtmp->data->ac) {
 						hit(WAND,mtmp);
@@ -721,8 +722,8 @@ void read1(struct obj *otmp)
 	register struct monst *mtmp;
 	struct permonst *mptmp;
 	struct gen *gtmp;
-	char *foo;
-	char zx,zy;
+	/* Original 1982: char *foo; — declared but unused in read1() */
+	unsigned char zx,zy; /* Modern: unsigned char for safe array subscript use */
 
 #ifndef SMALL
 	pline("As you read the scroll, it disappears.");

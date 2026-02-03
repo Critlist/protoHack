@@ -8,6 +8,9 @@ endif()
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
+# Optional override so packaged builds can use a relative hackdir.
+set(HACKDIR_OVERRIDE "" CACHE STRING "Override compiled-in HACKDIR (default: build dir)")
+
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -15,6 +18,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # --- Find ncurses (provides termcap compatibility) ---
 find_package(Curses REQUIRED)
 message(STATUS "Using ncurses: ${CURSES_LIBRARIES}")
+
+# --- Find crypt (optional on musl; required on glibc) ---
+find_library(CRYPT_LIB crypt)
+if(CRYPT_LIB)
+    message(STATUS "Using crypt: ${CRYPT_LIB}")
+endif()
 
 # =========================================================================
 # Root version — Jay's "export hack" as described in READ_ME
@@ -50,26 +59,28 @@ target_include_directories(hack-root PRIVATE
 
 # READ_ME step 6: "modify hack.main.c to use the new directory"
 # READ_ME step 7b: compile -UMAGIC to disable gid==42 magic mode check
+if(HACKDIR_OVERRIDE)
+    set(_HACKDIR_VALUE "${HACKDIR_OVERRIDE}")
+else()
+    set(_HACKDIR_VALUE "${CMAKE_BINARY_DIR}/hackdir")
+endif()
+
 target_compile_definitions(hack-root PRIVATE
-    HACKDIR="${CMAKE_BINARY_DIR}/hackdir"
+    HACKDIR="${_HACKDIR_VALUE}"
     VTONL  # Modern: force ANSI cursor control to bypass termcap quirks
 )
 
-# K&R vintage code: suppress warnings, don't break the build
+# K&R vintage code: remaining suppressions need proper headers/prototypes to remove
 target_compile_options(hack-root PRIVATE
     -Wall
-    -Wno-deprecated-non-prototype
-    -Wno-parentheses
-    -Wno-unused-variable
-    -Wno-implicit-int
-    -Wno-implicit-function-declaration
-    -Wno-return-type
-    -Wno-int-conversion
-    -Wno-incompatible-pointer-types
-    -Wno-misleading-indentation
-    -Wno-error=return-mismatch
+    -Wno-implicit-int              # K&R 'register x' without type in unconverted files
+    -Wno-implicit-function-declaration  # cross-file calls lacking prototypes in hack.h
+    -Wno-int-conversion            # alloc() returns char* used as struct pointers
+    -Wno-incompatible-pointer-types # g_at() generic pointer casts
     -fno-pie  # Modern: keep stable data addresses between hack-root and mklev-root
+    $<$<C_COMPILER_ID:Clang>:-Wno-deprecated-non-prototype>
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
+    $<$<C_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
     $<$<CONFIG:Debug>:-O0 -g3>
     $<$<CONFIG:Release>:-O2>
 )
@@ -78,7 +89,7 @@ target_link_options(hack-root PRIVATE
     -no-pie  # Modern: keep stable data addresses between hack-root and mklev-root
 )
 
-target_link_libraries(hack-root ${CURSES_LIBRARIES} crypt) # crypt: domagic() uses crypt() for wizard password
+target_link_libraries(hack-root ${CURSES_LIBRARIES} ${CRYPT_LIB}) # crypt: domagic() uses crypt() for wizard password
 
 # mklev — standalone level generator
 add_executable(mklev-root
@@ -92,21 +103,20 @@ target_include_directories(mklev-root PRIVATE
 )
 
 target_compile_definitions(mklev-root PRIVATE
-    HACKDIR="${CMAKE_BINARY_DIR}/hackdir"
+    HACKDIR="${_HACKDIR_VALUE}"
     MKLEV_BINARY  # mklev has its own savelev()/mkobj() with different signatures
 )
 
 target_compile_options(mklev-root PRIVATE
     -Wall
-    -Wno-deprecated-non-prototype
     -Wno-implicit-int
     -Wno-implicit-function-declaration
-    -Wno-return-type
     -Wno-int-conversion
     -Wno-incompatible-pointer-types
-    -Wno-error=return-mismatch
     -fno-pie  # Modern: keep stable data addresses between hack-root and mklev-root
+    $<$<C_COMPILER_ID:Clang>:-Wno-deprecated-non-prototype>
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
+    $<$<C_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
     $<$<CONFIG:Debug>:-O0 -g3>
     $<$<CONFIG:Release>:-O2>
 )

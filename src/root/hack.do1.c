@@ -111,9 +111,9 @@ void miss(register char *str, register struct monst *mon)
 int findit(void)
 {
 	char num;
-	register char zx,zy;
+	register unsigned char zx,zy; /* Modern: unsigned char for safe array subscript use */
 	register struct gen *gtmp,*gt1;
-	char lx,hx,ly,hy;
+	unsigned char lx,hx,ly,hy;
 
 	for(lx=u.ux;(num=levl[lx-1][u.uy].typ) && num!=CORR;lx--) ;
 	for(hx=u.ux;(num=levl[hx+1][u.uy].typ) && num!=CORR;hx++) ;
@@ -126,8 +126,9 @@ int findit(void)
 				levl[zx][zy].typ=DOOR;
 				atl(zx,zy,'+');
 				num++;
-			} else if(gtmp=g_at(zx,zy,ftrap)) {
-				if(!gtmp->gflag&SEEN) {
+			} else if((gtmp=g_at(zx,zy,ftrap))) {
+				/* Original 1982: !gtmp->gflag&SEEN (precedence bug); intent was !(expr & MASK) */
+			if(!(gtmp->gflag&SEEN)) {
 					gtmp->gflag|=SEEN;
 					atl(zx,zy,'^');
 					num++;
@@ -163,7 +164,7 @@ struct monst *bhit(int ddx, int ddy, int range)
 	while(range--) {
 		x+=ddx;
 		y+=ddy;
-		if(mtmp=g_at(x,y,fmon)) {
+		if((mtmp=g_at(x,y,fmon))) {
 			dx=x;
 			dy=y;
 			return(mtmp);
@@ -204,7 +205,7 @@ void buzz(int type, int sx, int sy, int dx, int dy)
 			on(sx,sy);
 			lev->new=1;
 		}
-		if(mon=g_at(sx,sy,fmon)) {
+		if((mon=g_at(sx,sy,fmon))) {
 			if(rnd(20)<14+mon->data->ac) {
 				zhit(mon,type);
 				if(mon->mhp<1) killed(mon);
@@ -265,7 +266,7 @@ void zhit(register struct monst *mon, register int type)
 }
 void dosearch(void)
 {
-	char x,y;
+	unsigned char x,y; /* Modern: unsigned char for safe array subscript use */
 	struct gen *tgen;
 
 	for(x=u.ux-1;x<u.ux+2;x++)
