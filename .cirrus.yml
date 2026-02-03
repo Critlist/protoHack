@@ -1,0 +1,28 @@
+# .cirrus.yml — FreeBSD build sanity for protoHack
+
+freebsd_build_task:
+  name: FreeBSD build (curses sanity)
+  freebsd_instance:
+    image_family: freebsd-14-3
+  env:
+    CIRRUS_CLONE_DEPTH: "1"
+  install_script: |
+    set -euxo pipefail
+    pkg update -f
+    pkg install -y cmake ninja pkgconf ncurses
+  build_script: |
+    set -euxo pipefail
+    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+    cmake --build build --parallel
+  verify_script: |
+    set -euxo pipefail
+    file build/hack-root
+    # Verify a minimal curses link works
+    printf '#include <curses.h>\nint main(){initscr(); endwin(); return 0;}\n' > /tmp/t.c
+    cc /tmp/t.c -lcurses -o /tmp/t
+    /tmp/t
+  always:
+    artifacts:
+      build_logs:
+        path: build/**
+        type: ARCHIVE

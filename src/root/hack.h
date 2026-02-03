@@ -72,7 +72,7 @@ extern struct permonst mon[8][7];
 
 struct monst {
 	struct monst *nmon;
-	char mx,my;
+	unsigned char mx,my; /* Modern: unsigned char for safe array subscript use */
 	int sinv:1;	/* special invisible */
 	int invis:1;	/* invisible */
 	int cham:1;	/* shape-changer */
@@ -81,7 +81,7 @@ struct monst {
 	int mcan:1;	/* has been canceled */
 	int mstuck:1;	/* you are stuck to this */
 	struct permonst *data;
-	char mhp,orig_hp;
+	unsigned char mhp,orig_hp; /* Modern: unsigned char for safe array subscript use */
 };
 extern struct monst *fmon;
 struct monst *bhit(int, int, int);
@@ -95,7 +95,7 @@ struct stole {
 extern struct stole *fstole;
 struct gen {
 	struct gen *ngen;
-	char gx,gy;
+	unsigned char gx,gy; /* Modern: unsigned char for safe array subscript use */
 	unsigned gflag;
 };
 extern struct gen *fgold,*ftrap;
@@ -103,13 +103,14 @@ struct gen *g_at(int, int, struct gen *);
 
 struct obj {
 	struct obj *nobj;
-	char ox,oy,olet;
+	unsigned char ox,oy; /* Modern: unsigned char for safe array subscript use */
+	char olet;
 	int spe:6;
 	int quan:7;
 	int minus:1;
 	int known:1;
 	int cursed:1;
-	char otyp;
+	unsigned char otyp; /* Modern: unsigned char for safe array subscript use */
 };
 extern struct obj *fobj,*invent,*uwep,*uarm,*uleft,*uright;
 struct obj *getobj(char *, char *);
@@ -135,8 +136,8 @@ struct flag {
 extern struct flag flags;
 
 struct you {
-	char ux;
-	char uy;
+	unsigned char ux; /* Modern: unsigned char for safe array subscript use */
+	unsigned char uy;
 	char ufast;
 	char uconfused;
 	char uinvis;
@@ -174,17 +175,20 @@ extern char oiden[];
 extern char mlarge[],wsdam[],wldam[];
 extern char *potcall[], *scrcall[], *wandcall[], *ringcall[];
 
-extern char curx,cury,savx;	/* cursor location on screen */
+/* Modern: coordinate variables changed to unsigned char for safe array subscript use */
+extern unsigned char curx,cury;	/* cursor location on screen */
+extern char savx;
 
-extern char xdnstair, ydnstair, xupstair, yupstair; /* stairs up and down. */
+extern unsigned char xdnstair, ydnstair, xupstair, yupstair; /* stairs up and down. */
 
-extern char seehx,seelx,seehy,seely; /* where to see*/
-extern char scrlx,scrhx,scrly,scrhy;	/* where to update */
+extern unsigned char seehx,seelx,seehy,seely; /* where to see*/
+extern unsigned char scrlx,scrhx,scrly,scrhy;	/* where to update */
 extern char save_cm;
 
 extern char dlevel; /* dungeon level */
 
-extern char dx,dy,tx,ty; /* used by move and makemon (in .mklv) */
+extern char dx,dy; /* directional deltas — must stay signed (original 1982 comment) */
+extern unsigned char tx,ty; /* coordinates used by move and makemon (in .mklv) */
 
 extern unsigned moves;
 
