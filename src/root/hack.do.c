@@ -114,11 +114,19 @@ void rhack(char cmd)
 	case '?':
 		if(fork()) wait(0);
 		else {
+			char *pager;
+
 			cbout();/* so return works in cr3 */
 			cls();
 			fflush(stdout);
-			/* Original 1982: execl("/usr/bin/cr3","cr3","moves",0); */
-		execl("/usr/bin/cr3","cr3","moves",(char *)NULL);  /* Modern: 64-bit NULL */
+			/* Modern: pager fallback chain: $PAGER -> less -> more -> cat */
+			pager=getenv("PAGER");
+			if(pager && *pager) execlp(pager,pager,"moves",(char *)NULL);
+			execlp("less","less","moves",(char *)NULL);
+			execlp("more","more","moves",(char *)NULL);
+			execlp("cat","cat","moves",(char *)NULL);
+			pline("No pager available.");
+			exit(1);
 		}
 		cbin();	/* guess why */
 		getret();

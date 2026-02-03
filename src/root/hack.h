@@ -81,7 +81,7 @@ struct monst {
 	int mcan:1;	/* has been canceled */
 	int mstuck:1;	/* you are stuck to this */
 	struct permonst *data;
-	unsigned char mhp,orig_hp; /* Modern: unsigned char for safe array subscript use */
+	char mhp,orig_hp; /* Original 1982: signed char allows negative during kill checks */
 };
 extern struct monst *fmon;
 struct monst *bhit(int, int, int);

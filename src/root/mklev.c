@@ -573,6 +573,14 @@ void savelev(void)
 	unsigned short lver=LEVEL_VERSION;
 	struct permonst *monbegin=0;
 	unsigned tmpmoves=0;
+	struct {
+		union {
+			struct stole st;
+			struct monst mo;
+			struct gen ge;
+			struct obj ob;
+		} u;
+	} z;
 
 	if((fd=fopen(tfile,"w"))==0) panic("Cannot create %s\n",tfile);
 	bwrite(fd,LEVEL_MAGIC,4);
@@ -584,19 +592,21 @@ void savelev(void)
 	bwrite(fd,&yupstair,1);
 	bwrite(fd,&xdnstair,1);
 	bwrite(fd,&ydnstair,1);
-	bwrite(fd,nul,sizeof(struct stole));
+	/* Modern: zero sentinel sized to struct to avoid overread of nul[] */
+	memset(&z,0,sizeof(z));
+	bwrite(fd,&z.u.st,sizeof(struct stole));
 	for(mtmp=fmon;mtmp;mtmp=mtmp->nmon)
 		bwrite(fd,mtmp,sizeof(struct monst));
-	bwrite(fd,nul,sizeof(struct monst));
+	bwrite(fd,&z.u.mo,sizeof(struct monst));
 	for(gtmp=fgold;gtmp;gtmp=gtmp->ngen)
 		bwrite(fd,gtmp,sizeof(struct gen));
-	bwrite(fd,nul,sizeof(struct gen));
+	bwrite(fd,&z.u.ge,sizeof(struct gen));
 	for(gtmp=ftrap;gtmp;gtmp=gtmp->ngen)
 		bwrite(fd,gtmp,sizeof(struct gen));
-	bwrite(fd,nul,sizeof(struct gen));
+	bwrite(fd,&z.u.ge,sizeof(struct gen));
 	for(otmp=fobj;otmp;otmp=otmp->nobj)
 		bwrite(fd,otmp,sizeof(struct obj));
-	bwrite(fd,nul,sizeof(struct obj));
+	bwrite(fd,&z.u.ob,sizeof(struct obj));
 	fclose(fd);
 	exit(0);
 }

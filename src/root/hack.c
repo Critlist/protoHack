@@ -104,6 +104,13 @@ void domove(void)
 	struct obj *otmp,*obj;
 	char let;
 
+	/* Modern: guard against out-of-bounds access when at map edges */
+	if(u.ux+dx < 0 || u.ux+dx > 79 || u.uy+dy < 0 || u.uy+dy > 21) {
+		flags.mv=multi=0;
+		if(flags.mdone) pru();
+		if(!u.uconfused) flags.move=0;
+		return;
+	}
 	if(u.utrap) {
 		if(u.upit) pline("You are still in a pit.");
 		else pline("You are caught in a beartrap.");
@@ -564,8 +571,8 @@ void tellall(void)
 	case 's': pline("down %d,%d--up %d %d",xdnstair,ydnstair,xupstair,
  yupstair);
 		break;
-	case 'p': pline("daminc=%d blind=%d fast=%d confused=%d swldtim=%d",
- u.udaminc,u.ublind,u.ufast,u.uconfused,u.uswldtim);
+case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
+ u.udaminc,u.ublind,u.ufast,u.uconfused);
 		pline("invis=%d swldtim=%d urexp=%d",u.uinvis,u.uswldtim,
  u.urexp);
 		break;
@@ -1013,8 +1020,10 @@ getobj(char *let, char *word)
 	int foo;
 
 	foo=0;
-	for(otmp=invent;otmp;otmp=otmp->nobj)
-		if(index(let,otmp->olet)) foo++;
+	for(otmp=invent;otmp;otmp=otmp->nobj) {
+		/* Modern: tolerate NULL let for "any item" queries */
+		if(!let || index(let,otmp->olet)) foo++;
+	}
 	if(!invent || (let && *let!=')' && !foo)) {
 		pline("You don't have anything to %s.",word);
 		return(0);
@@ -1029,7 +1038,7 @@ getobj(char *let, char *word)
 			if(!let || foo>1) doinv(let);
 			else {
 				for(otmp=invent;otmp;otmp=otmp->nobj) {
-					if(index(let,otmp->olet)) prinv(otmp);
+					if(!let || index(let,otmp->olet)) prinv(otmp);
 				}
 			}
 		} else {
