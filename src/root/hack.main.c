@@ -342,9 +342,11 @@ void losestr(int num)
 }
 void getret(void)
 {
+	int ch;
+
 	fputs("\n\n--Hit space to continue--",stdout);
 	fflush(stdout);
-	while(getchar()!=' ') ;
+	while((ch=getchar())!=' ' && ch!='\n' && ch!='\r') ;
 }
 #ifdef LOCKNUM
 void leave(int signum) /* Modern: signal handlers require int param */

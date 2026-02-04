@@ -169,66 +169,14 @@ Fenlason Hack (1981-82, Lincoln-Sudbury)    <-- you are here
 
 See `docs/research/` for historical analysis:
 
-- **TIMELINE.md** — Corrected chronology with primary sources (the NetHack
-  Wiki's claim that Hack was inspired by the 1982 USENIX Rogue talk is
-  disproven by *;login:* evidence showing the code was already on the
-  distribution tape before the conference)
+- **TIMELINE.md** — Corrected chronology with primary sources
 - **COMPARISON.md** — Detailed monster table and feature comparison across
   all known Hack variants
 - **login_june-1982.pdf** — The *;login:* issue announcing the USENIX tape
 
 ## License
 
-The licensing of this source is historically ambiguous and may be clarified 
-as new primary sources emerge.
-
-**What we know:**
-
 This source code was created primarily by Jay Fenlason, with additional
-contributions from Kenny Woodland, Mike Thome, and Jon Payne at
-Lincoln-Sudbury Regional High School, 1981-82. It was distributed on the
-USENIX 82-1 tape, which predates modern open-source licensing conventions.
-
-**Current distribution terms:**
-
-Dan Stormont, custodian of the Brian Harvey preservation copy, distributes
-the [original unmodified source](https://github.com/Sustainable-Games/snaphack)
-under **CC-BY-NC-SA 4.0**, described as "the closest modern license to the
-original distribution license."
-
-**What does *not* apply:**
-
-The 3-clause BSD license issued by CWI (Stichting Centrum voor Wiskunde en
-Informatica) covers Andries Brouwer's Hack 1.0 and later; code written at
-CWI Amsterdam beginning in late 1984. That license has no bearing on
-Fenlason's 1982 source, which predates Brouwer's involvement by two
-years.<sup>[1]</sup>
-
-**The open question:**
-
-Jay Fenlason issued a retroactive 3-clause BSD license covering "all code he
-wrote." This statement appears in Brouwer's published
-[Hack history](https://homepages.cwi.nl/~aeb/games/hack/hack.html), where
-it served to clarify the licensing of Jay's contributions as they flowed into
-the Hack 1.0 lineage. Whether Jay intended that license to apply to *this
-specific pre-distribution copy*, preserved independently by Brian Harvey and
-never part of the Brouwer lineage, is an assumption, not a documented
-fact.<sup>[2]</sup>
-
-**In practice:**
-
-This restoration (protoHack) follows the CC-BY-NC-SA 4.0 terms established
-by the current custodian. If future clarification from Jay Fenlason or other
-primary sources resolves the ambiguity, this section will be updated
-accordingly.
-
----
-
-<sup>[1]</sup> Brouwer himself wrote that Hack 1.0.3 "contains very little
-if anything from the original sources." The CWI license covers a near-total
-rewrite, not this code.
-
-<sup>[2]</sup> The 1982 USENIX distribution tapes had no standardized
-licensing. Software was submitted and shared under informal academic norms.
-The concept of an "open-source license" as we understand it today did not
-exist until the late 1980s.
+contributions from Kenny Woodland, Mike Thome, and Jon Payne. It is being
+shared here under a CC-BY-NC-SA 4.0 license, as that is the closest modern
+license to the original distribution license.

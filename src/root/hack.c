@@ -500,6 +500,8 @@ int parse(void)
 	fflush(stdout);
 	while((foo=getchar())>='0' && foo<='9')
 		multi+=10*multi+foo-'0';
+	/* Modern: ignore SIGQUIT control char left in input buffer (Ctrl-\) */
+	if(foo=='\034') return(parse());
 	if(foo== -1) return(parse());	/* interrupted */
 	if(multi) {
 		multi--;
@@ -552,6 +554,8 @@ void tellall(void)
 	cl_end();
 	fflush(stdout);
 	flags.topl=1;
+	/* Modern: clear SIGQUIT char so it doesn't become a stray command */
+	tcflush(0, TCIFLUSH);
 	tcmd=getchar();
 	ntimes=0;
 	while(tcmd>='0' && tcmd<='9') {
@@ -723,6 +727,8 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				curx++;
 			}
 			more();
+			/* Modern: clear stray SIGQUIT/control chars after magic paging */
+			tcflush(0, TCIFLUSH);
 			docrt();
 		}
 		break;
@@ -737,6 +743,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				curx++;
 			}
 			more();
+			tcflush(0, TCIFLUSH);
 			docrt();
 		}
 		break;
@@ -751,6 +758,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				curx++;
 			}
 			more();
+			tcflush(0, TCIFLUSH);
 			docrt();
 		}
 		break;
@@ -767,6 +775,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				curx++;
 			}
 			more();
+			tcflush(0, TCIFLUSH);
 			docrt();
 		}
 		break;

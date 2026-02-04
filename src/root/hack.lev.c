@@ -199,7 +199,8 @@ int getlev(FILE *fp)
 				*fmon=mbuf;
 			}
 		} else {
-			mbuf.data= &mon[mbuf.mhp][mbuf.orig_hp];
+			/* Modern: cast to unsigned char for safe array subscript */
+			mbuf.data= &mon[(unsigned char)mbuf.mhp][(unsigned char)mbuf.orig_hp];
 			if(mbuf.data->mlet) {
 				mbuf.sinv=mbuf.mspeed=mbuf.cham=mbuf.invis=
  mbuf.mcan=0;

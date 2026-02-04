@@ -681,11 +681,13 @@ void docall(register struct obj *obj)
 }
 void more(void)
 {
+	int ch;
+
 	curs(savx,1);
 	puts(MORE);
 	curs(u.ux,u.uy+2);
 	fflush(stdout);
-	while(getchar()!=' ') ;
+	while((ch=getchar())!=' ' && ch!='\n' && ch!='\r') ;
 }
 void dodr1(register struct obj *obj)
 {
