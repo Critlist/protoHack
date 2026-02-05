@@ -7,7 +7,16 @@
 char lock[11] = "alock";	/* long enough for login name */
 /* note that lock is also used for temp file names */
 #ifdef SIGWINCH
-/* Modern: defer redraw until safe point in main loop */
+/* MODERN ADDITION (2026): Terminal resize protection for modern WM events
+ *
+ * WHY: Window resizes corrupt fixed-coordinate rendering on modern terminals.
+ *
+ * HOW: SIGWINCH sets a flag; main loop polls size and forces a redraw or
+ *      blocks with a size warning until 80x24 is restored.
+ *
+ * PRESERVES: Original 80x22 map and display logic.
+ * ADDS: Stable behavior under resize.
+ */
 static volatile int resize_pending=0;
 static int last_cols=0, last_rows=0;
 void handle_resize(int signum)
@@ -125,11 +134,13 @@ char obuf[BUFSIZ];
 char *killer;
 #endif
 
+/* Modern: restore canonical/echoed terminal state on exit */
 static void cleanup_tty(void)
 {
 	cbout();
 }
 
+/* Modern: handle deferred signals in normal flow */
 static int handle_pending(void)
 {
 #ifdef MAGIC
@@ -184,8 +195,8 @@ int main(void)
 #else	/* no locks */
 		strcpy(lock,getlogin());/* you might want to make this pid */
 #endif
-		set_exit_signals();
-		set_quit_signal();
+		set_exit_signals(); /* Modern: signal-safe exit/save dispatch */
+		set_quit_signal(); /* Modern: signal-safe SIGQUIT for non-magic */
 #ifdef SIGWINCH
 		signal(SIGWINCH,handle_resize);
 #endif
@@ -206,11 +217,11 @@ int main(void)
 		getret();
 	} else {
 #ifdef MAGIC
-		set_magic_signal();
-		set_exit_signals();
+		set_magic_signal(); /* Modern: signal-safe magic dispatch */
+		set_exit_signals(); /* Modern: signal-safe exit/save dispatch */
 #else
-		set_exit_signals();
-		set_quit_signal();
+		set_exit_signals(); /* Modern: signal-safe exit/save dispatch */
+		set_quit_signal(); /* Modern: signal-safe SIGQUIT for non-magic */
 #endif
 #ifdef SIGWINCH
 		signal(SIGWINCH,handle_resize);
@@ -243,8 +254,8 @@ int main(void)
 	}
 #else	/*small*/
 	cbin();
-	set_exit_signals();
-	set_quit_signal();
+	set_exit_signals(); /* Modern: signal-safe exit/save dispatch */
+	set_quit_signal(); /* Modern: signal-safe SIGQUIT for non-magic */
 	strcpy(lock,getlogin());
 #endif
 #ifndef SMALL

@@ -154,9 +154,9 @@ void rhack(char cmd)
 			signal(SIGQUIT,SIG_IGN);
 			wait(0);
 			cbin();
-			set_exit_signals();
+			set_exit_signals(); /* Modern: signal-safe exit/save dispatch */
 #ifdef MAGIC
-			if(getgid()==42) set_magic_signal();
+			if(getgid()==42) set_magic_signal(); /* Modern: signal-safe magic dispatch */
 			else set_quit_signal();
 #else
 			set_quit_signal();

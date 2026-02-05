@@ -504,7 +504,7 @@ int parse(void)
 	if(foo=='\034') return(parse());
 	if(foo== -1) {
 		if(errno==EINTR) return(0);
-		request_exit();
+		request_exit(); /* Modern: EOF on input triggers safe exit */
 		return(0);
 	}	/* Modern: EOF means tty vanished */
 	if(multi) {
@@ -518,6 +518,17 @@ int parse(void)
 	flags.mdone=flags.topl=oldux=olduy=0;
 	return(foo);
 }
+/* MODERN ADDITION (2026): Signal-safe exit and quit dispatch
+ *
+ * WHY: Original handlers performed I/O and game logic in signal context,
+ *      which can wedge stdio/tty on modern systems.
+ *
+ * HOW: Handlers only set sig_atomic_t flags; main loop polls and runs
+ *      done1/done2/hangup in normal flow.
+ *
+ * PRESERVES: Original quit/save behavior and prompts.
+ * ADDS: Signal-safe, restartable input handling.
+ */
 static volatile sig_atomic_t want_exit = 0;
 static volatile sig_atomic_t want_hangup = 0;
 static volatile sig_atomic_t want_quit = 0;
@@ -592,6 +603,15 @@ static void sig_quit(int signum)
 	want_quit = 1;
 }
 #ifdef MAGIC
+/* MODERN ADDITION (2026): Signal-safe magic dispatch
+ *
+ * WHY: domagic()/tellall() perform I/O and are unsafe in a handler.
+ *
+ * HOW: SIGQUIT sets a flag; the main loop calls domagic() safely.
+ *
+ * PRESERVES: Wizard key behavior.
+ * ADDS: Safe SIGQUIT handling without tty corruption.
+ */
 static volatile sig_atomic_t want_magic = 0;
 static void sig_magic(int);
 
