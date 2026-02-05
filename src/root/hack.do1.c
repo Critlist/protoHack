@@ -687,7 +687,16 @@ void more(void)
 	puts(MORE);
 	curs(u.ux,u.uy+2);
 	fflush(stdout);
-	while((ch=getchar())!=' ' && ch!='\n' && ch!='\r') ;
+	/* Modern: tolerate EOF/EINTR to avoid infinite wait */
+	for(;;) {
+		ch=getchar();
+		if(ch==' ' || ch=='\n' || ch=='\r') break;
+		if(ch==EOF) {
+			if(errno==EINTR) continue;
+			request_exit();
+			break;
+		}
+	}
 }
 void dodr1(register struct obj *obj)
 {

@@ -388,7 +388,16 @@ register char *line,*arg1,*arg2,*arg3,*arg4;
 		fputs(MORE,stdout);
 		curx+=8;
 		fflush(stdout);
-		while(getchar()!=' ') ;
+		/* Modern: accept Enter/EOF for --More-- to avoid wedges */
+		for(;;) {
+			int ch=getchar();
+			if(ch==' ' || ch=='\n' || ch=='\r') break;
+			if(ch==EOF) {
+				if(errno==EINTR) continue;
+				request_exit();
+				break;
+			}
+		}
 	}
 	else flags.topl=2;
 	if(flags.dscr) {

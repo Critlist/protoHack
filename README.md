@@ -180,3 +180,7 @@ This source code was created primarily by Jay Fenlason, with additional
 contributions from Kenny Woodland, Mike Thome, and Jon Payne. It is being
 shared here under a CC-BY-NC-SA 4.0 license, as that is the closest modern
 license to the original distribution license.
+
+This repository preserves historical source code. Certain identifiers may
+reference third-party intellectual property and are retained solely for
+archival accuracy. No affiliation or endorsement is implied.
