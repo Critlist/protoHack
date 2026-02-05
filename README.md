@@ -1,6 +1,6 @@
 # protoHack
 
-**Restoring Jay Fenlason's original 1982 Hack to run on modern Linux.**
+**Restoring Jay Fenlason's original 1981–1982 Hack to run on modern Linux.**
 
 protoHack applies the same preservation-first philosophy as
 [restoHack](https://github.com/Critlist/restoHack), but to an earlier,
@@ -67,6 +67,12 @@ Lincoln-Sudbury Regional High School:
 - Avoid gameplay or design changes beyond what is required for portability
 - Document provenance and historical context
 
+## What This Is Not
+
+- Not a fork of NetHack
+- Not a gameplay modernization
+- Not a rewrite or reimagining
+
 ## Building
 
 ```sh
@@ -87,8 +93,6 @@ cmake --build build
 cd build
 ./hack
 ```
-
-Expected: the welcome screen with `Hack (JMJ) 1.0.0` and a `--More--` prompt.
 
 ## Static Binary (Release Archive)
 
@@ -210,7 +214,7 @@ See `docs/research/` for historical analysis:
 
 - **TIMELINE.md** — Corrected chronology with primary sources
 - **COMPARISON.md** — Detailed monster table and feature comparison across
-  all known Hack variants
+  all known early Hack variants
 - **login_june-1982.pdf** — The *;login:* issue announcing the USENIX tape
 
 ## License
@@ -222,6 +226,9 @@ It is shared under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
 International License (CC-BY-NC-SA 4.0), as specified by Jay Fenlason when the
 source was archived by the Snap!Hack project. A copy of the license is available at:
 https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+This license choice reflects the terms under which the source was archived
+and is not a new restriction introduced by this project.
 
 This repository preserves historical source code. Certain identifiers may
 reference third-party intellectual property and are retained solely for

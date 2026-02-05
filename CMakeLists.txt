@@ -106,6 +106,9 @@ target_compile_definitions(mklev PRIVATE
     HACKDIR="${_HACKDIR_VALUE}"
     MKLEV_BINARY  # mklev has its own savelev()/mkobj() with different signatures
 )
+# Suppress diagnostics triggered by original K&R-era code patterns.
+# Future work may involve auditing these warnings to better document
+# historical assumptions and portability constraints, not to alter behavior.
 
 target_compile_options(mklev PRIVATE
     -Wall

@@ -1,0 +1,118 @@
+name: Linux CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # Test both compilers to catch different issues
+        compiler: [gcc, clang]
+        # Test both build types
+        build_type: [Debug, Release]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build ${{ matrix.compiler }}
+        sudo apt-get install -y libncurses5-dev libncursesw5-dev
+        if [ "${{ matrix.compiler }}" = "clang" ]; then
+          sudo apt-get install -y clang-tools
+        fi
+
+    - name: Configure CMake (${{ matrix.compiler }}-${{ matrix.build_type }})
+      env:
+        CC: ${{ matrix.compiler }}
+        CXX: ${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
+      run: |
+        cmake -B build-${{ matrix.compiler }}-${{ matrix.build_type }} \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+
+    - name: Build
+      run: |
+        cmake --build build-${{ matrix.compiler }}-${{ matrix.build_type }} --parallel
+
+    - name: Runtime Smoke Test (argv[0] validation)
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+
+        echo "== Runtime smoke tests =="
+        cd "build-${{ matrix.compiler }}-${{ matrix.build_type }}"
+        FULLPATH="$(pwd)/hack"
+
+        # Set up minimal terminal environment to get past initialization
+        export TERM=vt100
+        export HACKDIR=/tmp/hack-test-$$
+        mkdir -p "$HACKDIR"
+
+        run_case() {
+          local label="$1"; shift
+          echo "::group::${label}"
+          echo "\$PWD=$(pwd)"
+          echo "\$0=$1  (argv pattern under test)"
+          echo "TERM=$TERM HACKDIR=$HACKDIR"
+          # We expect the binary to start and then time out quickly.
+          # timeout returns 124 on timeout; anything else we still accept,
+          # but we fail the job if stderr contains our stat error.
+          set +e
+          out="$(
+            TERM=vt100 HACKDIR="$HACKDIR" timeout -k 1s 2s "$@" -? 2>&1 | sed -n '1,40p'
+          )"
+          rc=$?
+          set -e
+
+          echo "$out" | sed 's/^/│ /'
+
+          if echo "$out" | grep -q "Cannot get status of"; then
+            echo "❌ FAILED: detected 'Cannot get status of' in output"
+            exit 1
+          fi
+
+          if [ $rc -eq 124 ]; then
+            echo "✓ Started successfully (timed out as expected)"
+          else
+            echo "✓ Executed with rc=$rc"
+          fi
+          echo "::endgroup::"
+        }
+
+        echo "Testing runtime invocation methods..."
+
+        # Test 1: Direct invocation from CWD
+        run_case "Test 1: ./hack (relative path)" ./hack
+
+        # Test 2: Absolute path
+        run_case "Test 2: absolute path" "$FULLPATH"
+
+        # Test 3: PATH lookup via symlink
+        echo "::group::Prepare PATH symlink"
+        TMPBIN="$(mktemp -d)"
+        ln -sf "$FULLPATH" "$TMPBIN/hack"
+        export PATH="$TMPBIN:$PATH"
+        ls -l "$TMPBIN"
+        echo "::endgroup::"
+        run_case "Test 3: PATH lookup (symlink -> absolute)" hack
+
+        # Test 4: Weird-but-valid path (../ indirection)
+        mkdir -p tdir
+        ( cd tdir; ln -s ../hack hack )
+        run_case "Test 4: ../ style path" ./tdir/hack
+
+        # Test 5: Alternate basename (ensure we only validate, not mutate)
+        ln -sf "$FULLPATH" "$TMPBIN/hack.bin"
+        run_case "Test 5: different basename via PATH" hack.bin
+
+        echo "✅ All runtime smoke tests passed."
