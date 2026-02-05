@@ -502,7 +502,11 @@ int parse(void)
 		multi+=10*multi+foo-'0';
 	/* Modern: ignore SIGQUIT control char left in input buffer (Ctrl-\) */
 	if(foo=='\034') return(parse());
-	if(foo== -1) return(parse());	/* interrupted */
+	if(foo== -1) {
+		if(errno==EINTR) return(0);
+		request_exit();
+		return(0);
+	}	/* Modern: EOF means tty vanished */
 	if(multi) {
 		multi--;
 		save_cm=foo;
@@ -513,6 +517,79 @@ int parse(void)
 	}
 	flags.mdone=flags.topl=oldux=olduy=0;
 	return(foo);
+}
+static volatile sig_atomic_t want_exit = 0;
+static volatile sig_atomic_t want_hangup = 0;
+static volatile sig_atomic_t want_quit = 0;
+static void sig_exit(int);
+static void sig_quit(int);
+
+void set_exit_signals(void)
+{
+	struct sigaction sa;
+
+	memset(&sa,0,sizeof(sa));
+	sa.sa_handler = sig_exit;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sigaction(SIGINT,&sa,(struct sigaction *)0);
+	sigaction(SIGTERM,&sa,(struct sigaction *)0);
+	sigaction(SIGHUP,&sa,(struct sigaction *)0);
+}
+
+void set_quit_signal(void)
+{
+	struct sigaction sa;
+
+	memset(&sa,0,sizeof(sa));
+	sa.sa_handler = sig_quit;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sigaction(SIGQUIT,&sa,(struct sigaction *)0);
+}
+
+int exit_pending(void)
+{
+	if(want_exit) {
+		want_exit=0;
+		return(1);
+	}
+	return(0);
+}
+
+int hangup_pending(void)
+{
+	if(want_hangup) {
+		want_hangup=0;
+		return(1);
+	}
+	return(0);
+}
+
+int quit_pending(void)
+{
+	if(want_quit) {
+		want_quit=0;
+		return(1);
+	}
+	return(0);
+}
+
+void request_exit(void)
+{
+	want_exit = 1;
+}
+
+static void sig_exit(int signum)
+{
+	if(signum==SIGHUP || signum==SIGTERM) want_hangup=1;
+	else want_exit=1;
+}
+
+static void sig_quit(int signum)
+{
+	(void)signum;
+	want_quit = 1;
 }
 #ifdef MAGIC
 static volatile sig_atomic_t want_magic = 0;
@@ -525,7 +602,7 @@ void set_magic_signal(void)
 	memset(&sa,0,sizeof(sa));
 	sa.sa_handler = sig_magic;
 	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
+	sa.sa_flags = 0; /* allow EINTR so magic triggers immediately */
 	sigaction(SIGQUIT,&sa,(struct sigaction *)0);
 }
 
@@ -583,8 +660,6 @@ void tellall(void)
 	cl_end();
 	fflush(stdout);
 	flags.topl=1;
-	/* Modern: clear SIGQUIT char so it doesn't become a stray command */
-	tcflush(0, TCIFLUSH);
 	tcmd=getchar();
 	ntimes=0;
 	while(tcmd>='0' && tcmd<='9') {
@@ -756,8 +831,6 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				curx++;
 			}
 			more();
-			/* Modern: clear stray SIGQUIT/control chars after magic paging */
-			tcflush(0, TCIFLUSH);
 			docrt();
 		}
 		break;
@@ -772,7 +845,6 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				curx++;
 			}
 			more();
-			tcflush(0, TCIFLUSH);
 			docrt();
 		}
 		break;
@@ -787,7 +859,6 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				curx++;
 			}
 			more();
-			tcflush(0, TCIFLUSH);
 			docrt();
 		}
 		break;
@@ -804,7 +875,6 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				curx++;
 			}
 			more();
-			tcflush(0, TCIFLUSH);
 			docrt();
 		}
 		break;

@@ -154,12 +154,12 @@ void rhack(char cmd)
 			signal(SIGQUIT,SIG_IGN);
 			wait(0);
 			cbin();
-			signal(SIGINT,done1);
+			set_exit_signals();
 #ifdef MAGIC
 			if(getgid()==42) set_magic_signal();
-			else signal(SIGQUIT,done2);
+			else set_quit_signal();
 #else
-			signal(SIGQUIT,done2);
+			set_quit_signal();
 #endif
 			docrt();
 			break;

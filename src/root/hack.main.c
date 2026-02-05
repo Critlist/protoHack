@@ -87,6 +87,34 @@ char obuf[BUFSIZ];
 char *killer;
 #endif
 
+static void cleanup_tty(void)
+{
+	cbout();
+}
+
+static int handle_pending(void)
+{
+#ifdef MAGIC
+	if(magic_pending()) {
+		domagic(0);
+		return(1);
+	}
+#endif
+	if(hangup_pending()) {
+		hangup(0);
+		return(1);
+	}
+	if(quit_pending()) {
+		done2(0);
+		return(1);
+	}
+	if(exit_pending()) {
+		done1(0);
+		return(1);
+	}
+	return(0);
+}
+
 int main(void)
 {
 #ifndef SMALL
@@ -101,6 +129,7 @@ int main(void)
 		exit(3);
 	}
  	srand(getpid());
+	atexit(cleanup_tty);
 #ifndef SMALL
 	setbuf(stdout,obuf);
 	sfoo=getenv("HACKOPTS");
@@ -117,10 +146,8 @@ int main(void)
 #else	/* no locks */
 		strcpy(lock,getlogin());/* you might want to make this pid */
 #endif
-		signal(SIGINT,done1);
-		signal(SIGQUIT,done2);
-		signal(SIGTERM,hangup); /* Modern: save on terminate */
-		signal(SIGHUP,hangup); /* Modern: save on hangup */
+		set_exit_signals();
+		set_quit_signal();
 #ifdef SIGWINCH
 		signal(SIGWINCH,handle_resize);
 #endif
@@ -133,14 +160,12 @@ int main(void)
 		getret();
 	} else {
 #ifdef MAGIC
-		signal(SIGINT,done1);
-		signal(SIGTERM,hangup); /* Modern: save on terminate */
 		set_magic_signal();
+		set_exit_signals();
 #else
-		signal(SIGINT,done1);
-		signal(SIGQUIT,done2);
+		set_exit_signals();
+		set_quit_signal();
 #endif
-		signal(SIGHUP,hangup); /* Modern: save on hangup */
 #ifdef SIGWINCH
 		signal(SIGWINCH,handle_resize);
 #endif
@@ -164,10 +189,10 @@ int main(void)
 	}
 #else	/*small*/
 	cbin();
-	signal(SIGQUIT,done2);
+	set_exit_signals();
+	set_quit_signal();
 	strcpy(lock,getlogin());
 #endif
-	signal(SIGINT,done1);
 #ifndef SMALL
 	strcat(SAVEF,getlogin());
 	if((fp=fopen(SAVEF,READ))!=0) {
@@ -288,16 +313,13 @@ uwep->known=1;
 			}
 		}
 		flags.move=1;
-#ifdef MAGIC
-		if(magic_pending()) {
-			domagic(0);
-		}
-#endif
+		if(handle_pending()) continue;
 		if(!multi) {
 			if(flags.dscr) nscr();
 			if(flags.botl) bot();
 			if(flags.mv) flags.mv=0;
 			rhack(parse());
+			if(handle_pending()) continue;
 		} else if(multi<0) {
 			if(!++multi) pline("You can move again.");
 		} else {

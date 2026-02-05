@@ -229,6 +229,12 @@ void tellall(void);
 void set_magic_signal(void);
 int magic_pending(void);
 #endif
+void set_exit_signals(void);
+void set_quit_signal(void);
+int exit_pending(void);
+int hangup_pending(void);
+int quit_pending(void);
+void request_exit(void);
 void done1(int);
 void done(char *);
 void setsee(void);
