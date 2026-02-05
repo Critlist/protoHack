@@ -73,13 +73,13 @@ extern struct permonst mon[8][7];
 struct monst {
 	struct monst *nmon;
 	unsigned char mx,my; /* Modern: unsigned char for safe array subscript use */
-	int sinv:1;	/* special invisible */
-	int invis:1;	/* invisible */
-	int cham:1;	/* shape-changer */
-	int mspeed:2;
-	int mstat:2;
-	int mcan:1;	/* has been canceled */
-	int mstuck:1;	/* you are stuck to this */
+	unsigned int sinv:1;	/* special invisible */
+	unsigned int invis:1;	/* invisible */
+	unsigned int cham:1;	/* shape-changer */
+	unsigned int mspeed:2;
+	unsigned int mstat:2;
+	unsigned int mcan:1;	/* has been canceled */
+	unsigned int mstuck:1;	/* you are stuck to this */
 	struct permonst *data;
 	char mhp,orig_hp; /* Original 1982: signed char allows negative during kill checks */
 };
@@ -107,9 +107,9 @@ struct obj {
 	char olet;
 	int spe:6;
 	int quan:7;
-	int minus:1;
-	int known:1;
-	int cursed:1;
+	unsigned int minus:1;
+	unsigned int known:1;
+	unsigned int cursed:1;
 	unsigned char otyp; /* Modern: unsigned char for safe array subscript use */
 };
 extern struct obj *fobj,*invent,*uwep,*uarm,*uleft,*uright;
@@ -226,6 +226,8 @@ int parse(void);
 #ifdef MAGIC
 void domagic(int);
 void tellall(void);
+void set_magic_signal(void);
+int magic_pending(void);
 #endif
 void done1(int);
 void done(char *);

@@ -156,7 +156,8 @@ void rhack(char cmd)
 			cbin();
 			signal(SIGINT,done1);
 #ifdef MAGIC
-			signal(SIGQUIT,getgid()==42?domagic:done2);
+			if(getgid()==42) set_magic_signal();
+			else signal(SIGQUIT,done2);
 #else
 			signal(SIGQUIT,done2);
 #endif

@@ -135,7 +135,7 @@ int main(void)
 #ifdef MAGIC
 		signal(SIGINT,done1);
 		signal(SIGTERM,hangup); /* Modern: save on terminate */
-		signal(SIGQUIT,domagic);
+		set_magic_signal();
 #else
 		signal(SIGINT,done1);
 		signal(SIGQUIT,done2);
@@ -288,6 +288,11 @@ uwep->known=1;
 			}
 		}
 		flags.move=1;
+#ifdef MAGIC
+		if(magic_pending()) {
+			domagic(0);
+		}
+#endif
 		if(!multi) {
 			if(flags.dscr) nscr();
 			if(flags.botl) bot();

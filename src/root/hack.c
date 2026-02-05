@@ -497,7 +497,7 @@ int parse(void)
 
 	flags.move=1;
 	curs(u.ux,u.uy+2);
-	fflush(stdout);
+	fflush(stdout);/*TODO: Fix double input bug in --More-- flush*/
 	while((foo=getchar())>='0' && foo<='9')
 		multi+=10*multi+foo-'0';
 	/* Modern: ignore SIGQUIT control char left in input buffer (Ctrl-\) */
@@ -515,7 +515,36 @@ int parse(void)
 	return(foo);
 }
 #ifdef MAGIC
-void domagic(int signum) /* Modern: used as signal handler, requires int param */
+static volatile sig_atomic_t want_magic = 0;
+static void sig_magic(int);
+
+void set_magic_signal(void)
+{
+	struct sigaction sa;
+
+	memset(&sa,0,sizeof(sa));
+	sa.sa_handler = sig_magic;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sigaction(SIGQUIT,&sa,(struct sigaction *)0);
+}
+
+int magic_pending(void)
+{
+	if(want_magic) {
+		want_magic=0;
+		return(1);
+	}
+	return(0);
+}
+
+static void sig_magic(int signum)
+{
+	(void)signum;
+	want_magic = 1;
+}
+
+void domagic(int signum) /* Modern: used as signal handler, requires int param  */
 {
 	(void)signum;
 	if(flags.magic) tellall();
@@ -547,7 +576,7 @@ void tellall(void)
 	struct stole *stmp;
 
 #ifdef MAGIC
-	signal(SIGQUIT,domagic);
+	set_magic_signal();
 #endif
 	home();
 	putchar('*');
