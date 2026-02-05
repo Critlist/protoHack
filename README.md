@@ -76,7 +76,7 @@ cmake --build build
 
 Requires: `ncurses`, `crypt` (libxcrypt on modern distros)
 
-Produces: `hack-root` and `mklev-root` in the build directory, plus a
+Produces: `hack` and `mklev` in the build directory, plus a
 `hackdir/` with runtime data files.
 
 ## Status
@@ -112,8 +112,8 @@ formally packaged or distributed.
 ## How It Works
 
 This is a two-binary game, a consequence of PDP-11 memory constraints.
-`hack-root` is the main game. When it needs a new dungeon level, it `exec`s
-`mklev-root` as a separate process to generate the level file, then reads the
+`hack` is the main game. When it needs a new dungeon level, it `exec`s
+`mklev` as a separate process to generate the level file, then reads the
 result back. This architecture is preserved; the binaries are not merged.
 
 A `compat.h` shim handles the BSD-to-POSIX translation: `index` becomes

@@ -10,8 +10,8 @@ This archive contains a prebuilt static Linux binary.
 
 ## Files
 
-- `hack-root` — the game binary
-- `mklev` — level generator (invoked by hack-root)
+- `hack` — the game binary
+- `mklev` — level generator (invoked by hack)
 - `hackdir/` — runtime data (news, moves, record, perm, save/)
 - `run-hack.sh` — launcher
 

@@ -9,7 +9,7 @@ char lock[11] = "alock";	/* long enough for login name */
 #ifdef SIGWINCH
 /* Modern: defer redraw until safe point in main loop */
 static volatile int resize_pending=0;
-static int resize_warned=0;
+static int last_cols=0, last_rows=0;
 void handle_resize(int signum)
 {
 	(void)signum;
@@ -19,26 +19,64 @@ void handle_resize(int signum)
 static void check_resize(void)
 {
 	struct winsize ws;
+	int cols=0, rows=0;
 
 	if(!resize_pending) return;
 	resize_pending=0;
 	if(ioctl(0,TIOCGWINSZ,&ws)==0) {
-		if(ws.ws_col<80 || ws.ws_row<24) {
-			if(!resize_warned) {
-				cls();
-				printf("\n\nTERMINAL TOO SMALL!\n");
-				printf("Current: %dx%d, Required: 80x24\n",
-					(int)ws.ws_col,(int)ws.ws_row);
-				printf("Resize and press any key...\n");
-				fflush(stdout);
-				getchar();
-				resize_warned=1;
+		cols=(int)ws.ws_col;
+		rows=(int)ws.ws_row;
+	}
+	if(cols<=0 || rows<=0) {
+		cols=80;
+		rows=24;
+	}
+	if(cols<80 || rows<24) {
+		for(;;) {
+			fd_set rfds;
+			struct timeval tv;
+
+			cls();
+			printf("\n\nTERMINAL TOO SMALL!\n");
+			printf("Current: %dx%d, Required: 80x24\n",cols,rows);
+			printf("Resize to continue. Q=quit, S=save\n");
+			fflush(stdout);
+
+			FD_ZERO(&rfds);
+			FD_SET(0,&rfds);
+			tv.tv_sec=0;
+			tv.tv_usec=200000;
+			if(select(1,&rfds,(fd_set *)0,(fd_set *)0,&tv)>0) {
+				int ch=getchar();
+				if(ch=='Q') { done1(0); return; }
+				if(ch=='S') { dosave(); return; }
 			}
-			return;
+			if(ioctl(0,TIOCGWINSZ,&ws)==0) {
+				cols=(int)ws.ws_col;
+				rows=(int)ws.ws_row;
+			}
+			if(cols>=80 && rows>=24) break;
 		}
 	}
-	resize_warned=0;
-	docrt();
+	if(cols!=last_cols || rows!=last_rows) {
+		docrt();
+		pline("[Terminal resized to %dx%d - display refreshed]",cols,rows);
+		last_cols=cols;
+		last_rows=rows;
+	}
+}
+
+static void poll_resize(void)
+{
+	struct winsize ws;
+	int cols=0, rows=0;
+
+	if(ioctl(0,TIOCGWINSZ,&ws)==0) {
+		cols=(int)ws.ws_col;
+		rows=(int)ws.ws_row;
+	}
+	if(cols<=0 || rows<=0) return;
+	if(cols!=last_cols || rows!=last_rows) resize_pending=1;
 }
 #endif
 #ifdef LOCKNUM
@@ -152,6 +190,14 @@ int main(void)
 		signal(SIGWINCH,handle_resize);
 #endif
 		startup(getenv("TERM"));
+		resize_pending=1; /* Modern: force size check after startup */
+		{
+			struct winsize ws;
+			if(ioctl(0,TIOCGWINSZ,&ws)==0) {
+				last_cols=(int)ws.ws_col;
+				last_rows=(int)ws.ws_row;
+			}
+		}
 		cls();
 		fflush(stdout);
 		if(fork()) wait(0);
@@ -171,6 +217,14 @@ int main(void)
 #endif
 		cbin();
 		startup(getenv("TERM"));
+		resize_pending=1; /* Modern: force size check after startup */
+		{
+			struct winsize ws;
+			if(ioctl(0,TIOCGWINSZ,&ws)==0) {
+				last_cols=(int)ws.ws_col;
+				last_rows=(int)ws.ws_row;
+			}
+		}
 #ifdef MAGIC
 		if((sfoo=getenv("MAGIC"))) {
 			lockcheck();
@@ -313,6 +367,10 @@ uwep->known=1;
 			}
 		}
 		flags.move=1;
+#ifdef SIGWINCH
+		poll_resize();
+		check_resize();
+#endif
 		if(handle_pending()) continue;
 		if(!multi) {
 			if(flags.dscr) nscr();

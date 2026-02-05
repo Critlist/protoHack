@@ -21,20 +21,20 @@ cmake --build build --parallel
 
 Outputs:
 
-- `build/hack-root`
-- `build/mklev-root`
+- `build/hack`
+- `build/mklev`
 - `build/hackdir/` (runtime data files)
 
 Run:
 
 ```sh
 cd build
-./hack-root
+./hack
 ```
 
 ## Notes
 
-- This is a two-binary design: `hack-root` execs `mklev-root`.
+- This is a two-binary design: `hack` execs `mklev`.
 - `original/` is never modified; all changes live under `src/`.
 
 ## License

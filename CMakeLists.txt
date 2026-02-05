@@ -30,8 +30,8 @@ endif()
 # =========================================================================
 #
 # Two binaries, per original design:
-#   hack-root  — the game
-#   mklev-root — level generator, exec'd by hack at runtime
+#   hack  — the game
+#   mklev — level generator, exec'd by hack at runtime
 #
 # READ_ME: "Because of the peculiar restraints on our system, I make mklev
 # a separate procedure execd by hack when needed."
@@ -49,9 +49,9 @@ set(HACK_ROOT_SOURCES
     src/root/rnd.c
 )
 
-add_executable(hack-root ${HACK_ROOT_SOURCES})
+add_executable(hack ${HACK_ROOT_SOURCES})
 
-target_include_directories(hack-root PRIVATE
+target_include_directories(hack PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/root
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CURSES_INCLUDE_DIR}
@@ -65,19 +65,19 @@ else()
     set(_HACKDIR_VALUE "${CMAKE_BINARY_DIR}/hackdir")
 endif()
 
-target_compile_definitions(hack-root PRIVATE
+target_compile_definitions(hack PRIVATE
     HACKDIR="${_HACKDIR_VALUE}"
     VTONL  # Modern: force ANSI cursor control to bypass termcap quirks
 )
 
 # K&R vintage code: remaining suppressions need proper headers/prototypes to remove
-target_compile_options(hack-root PRIVATE
+target_compile_options(hack PRIVATE
     -Wall
     -Wno-implicit-int              # K&R 'register x' without type in unconverted files
     -Wno-implicit-function-declaration  # cross-file calls lacking prototypes in hack.h
     -Wno-int-conversion            # alloc() returns char* used as struct pointers
     -Wno-incompatible-pointer-types # g_at() generic pointer casts
-    -fno-pie  # Modern: keep stable data addresses between hack-root and mklev-root
+    -fno-pie  # Modern: keep stable data addresses between hack and mklev
     $<$<C_COMPILER_ID:Clang>:-Wno-deprecated-non-prototype>
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
     $<$<C_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
@@ -85,35 +85,35 @@ target_compile_options(hack-root PRIVATE
     $<$<CONFIG:Release>:-O2>
 )
 
-target_link_options(hack-root PRIVATE
-    -no-pie  # Modern: keep stable data addresses between hack-root and mklev-root
+target_link_options(hack PRIVATE
+    -no-pie  # Modern: keep stable data addresses between hack and mklev
 )
 
-target_link_libraries(hack-root ${CURSES_LIBRARIES} ${CRYPT_LIB}) # crypt: domagic() uses crypt() for wizard password
+target_link_libraries(hack ${CURSES_LIBRARIES} ${CRYPT_LIB}) # crypt: domagic() uses crypt() for wizard password
 
 # mklev — standalone level generator
-add_executable(mklev-root
+add_executable(mklev
     src/root/mklev.c
     src/root/rnd.c
 )
 
-target_include_directories(mklev-root PRIVATE
+target_include_directories(mklev PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/root
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_compile_definitions(mklev-root PRIVATE
+target_compile_definitions(mklev PRIVATE
     HACKDIR="${_HACKDIR_VALUE}"
     MKLEV_BINARY  # mklev has its own savelev()/mkobj() with different signatures
 )
 
-target_compile_options(mklev-root PRIVATE
+target_compile_options(mklev PRIVATE
     -Wall
     -Wno-implicit-int
     -Wno-implicit-function-declaration
     -Wno-int-conversion
     -Wno-incompatible-pointer-types
-    -fno-pie  # Modern: keep stable data addresses between hack-root and mklev-root
+    -fno-pie  # Modern: keep stable data addresses between hack and mklev
     $<$<C_COMPILER_ID:Clang>:-Wno-deprecated-non-prototype>
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
     $<$<C_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
@@ -121,8 +121,8 @@ target_compile_options(mklev-root PRIVATE
     $<$<CONFIG:Release>:-O2>
 )
 
-target_link_options(mklev-root PRIVATE
-    -no-pie  # Modern: keep stable data addresses between hack-root and mklev-root
+target_link_options(mklev PRIVATE
+    -no-pie  # Modern: keep stable data addresses between hack and mklev
 )
 
 # =========================================================================
@@ -155,14 +155,11 @@ add_custom_target(setup_hackdir ALL
 )
 
 # Put mklev where hack can find it — hack.lev.c exec's "./mklev"
-add_custom_command(TARGET mklev-root POST_BUILD
+add_custom_command(TARGET mklev POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:mklev-root>
-        ${CMAKE_BINARY_DIR}/mklev
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:mklev-root>
+        $<TARGET_FILE:mklev>
         ${CMAKE_BINARY_DIR}/hackdir/mklev
     COMMENT "Copying mklev to build root and hackdir (hack exec's ./mklev)"
 )
 
-add_dependencies(hack-root setup_hackdir mklev-root)
+add_dependencies(hack setup_hackdir mklev)

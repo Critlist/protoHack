@@ -85,7 +85,7 @@ docker run --rm --network=host \
 #!/bin/sh
 chmod 664 hackdir/record hackdir/perm 2>/dev/null || true
 chmod 2775 hackdir/save 2>/dev/null || true
-exec ./hack-root "$@"
+exec ./hack "$@"
 RUNEOF
 
     chmod +x run-hack.sh
@@ -93,7 +93,7 @@ RUNEOF
     TAR=protoHack-static-$(date +%Y%m%d)-linux-x86_64.tar.gz
     cp /src/README-STATIC.md README.md
     tar --numeric-owner -czf "../$TAR" \
-      hack-root mklev hackdir run-hack.sh README.md
+      hack mklev hackdir run-hack.sh README.md
 
     echo "== fixing ownership =="
     chown -R '"$REAL_UID:$REAL_GID"' /src/static-build "/src/$TAR"
