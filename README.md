@@ -79,11 +79,35 @@ Requires: `ncurses`, `crypt` (libxcrypt on modern distros)
 Produces: `hack` and `mklev` in the build directory, plus a
 `hackdir/` with runtime data files.
 
-## Status
+## Static Binary (Release Archive)
+
+Some releases include a prebuilt static Linux binary. To run it:
+
+```sh
+./run-hack.sh
+```
+
+Archive contents:
+
+- `hack` — the game binary
+- `mklev` — level generator (invoked by hack)
+- `hackdir/` — runtime data (news, moves, record, perm, save/)
+- `run-hack.sh` — launcher
+
+If you see permission errors, make sure `hackdir/` and `hackdir/save/` are writable.
+
+## Restoration Status
 
 The restoration converts K&R C (1978-era function definitions, implicit
 types, V7 Unix system calls) to ANSI C with POSIX equivalents. All original
 logic, bugs, and behavior are preserved as faithfully as possible.
+
+The src/root/ tree corresponds to the original USENIX 82-1 submission and is
+fully playable after restoration. This is the historically significant version
+distributed on the tape.
+
+The src/exp1/ tree represents a later, experimental refactor by Fenlason
+and has not yet been converted; it is included for completeness and future work.
 
 ### src/root/ (USENIX tape submission)
 
