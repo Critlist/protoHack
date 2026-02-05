@@ -13,6 +13,7 @@ tar --numeric-owner -czf "$ROOT_DIR/$TAR_SRC" \
   -C "$ROOT_DIR" \
   original \
   src \
+  docs \
   CMakeLists.txt \
   README.md
 

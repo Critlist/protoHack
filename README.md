@@ -79,6 +79,17 @@ Requires: `ncurses`, `crypt` (libxcrypt on modern distros)
 Produces: `hack` and `mklev` in the build directory, plus a
 `hackdir/` with runtime data files.
 
+## Quick Start
+
+```sh
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+cd build
+./hack
+```
+
+Expected: the welcome screen with `Hack (JMJ) 1.0.0` and a `--More--` prompt.
+
 ## Static Binary (Release Archive)
 
 Some releases include a prebuilt static Linux binary. To run it:
@@ -95,6 +106,12 @@ Archive contents:
 - `run-hack.sh` — launcher
 
 If you see permission errors, make sure `hackdir/` and `hackdir/save/` are writable.
+
+## Troubleshooting
+
+- Terminal too small: the game requires at least 80x24.
+- Permission errors: ensure `hackdir/` and `hackdir/save/` are writable.
+- Save/restore issues: verify `hackdir/save/` exists and has group-writable perms (mode 2775 in packaged builds).
 
 ## Restoration Status
 
@@ -166,8 +183,6 @@ Fenlason Hack (1981-82, Lincoln-Sudbury)    <-- you are here
   |               +---> NetHack 1.3d (Jul 1987)
   |                       |
   |                       +---> ... all NetHack versions
-  |
-  +---> Quest (Brouwer, undistributed — lost)
 ```
 
 ## Related Projects
@@ -201,9 +216,12 @@ See `docs/research/` for historical analysis:
 ## License
 
 This source code was created primarily by Jay Fenlason, with additional
-contributions from Kenny Woodland, Mike Thome, and Jon Payne. It is being
-shared here under a CC-BY-NC-SA 4.0 license, as that is the closest modern
-license to the original distribution license.
+contributions from Kenny Woodland, Mike Thome, and Jon Payne.
+
+It is shared under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+International License (CC-BY-NC-SA 4.0), as specified by Jay Fenlason when the
+source was archived by the Snap!Hack project. A copy of the license is available at:
+https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 This repository preserves historical source code. Certain identifiers may
 reference third-party intellectual property and are retained solely for
