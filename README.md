@@ -90,15 +90,6 @@ cd build
 ./hack
 ```
 
-## Quick Start
-
-```sh
-cmake -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-cd build
-./hack
-```
-
 ## Static Binary (Release Archive)
 
 Some releases include a prebuilt static Linux binary. To run it:
@@ -106,7 +97,7 @@ Some releases include a prebuilt static Linux binary. To run it:
 ```sh
 mkdir -p ~/Games/restohack
 cd ~/Games/restohack
-tar -xzf restoHack-*-linux-x86_64-static.tar.gz
+tar -xzf protoHack-*-linux-x86_64-static.tar.gz
 ./run-hack.sh
 ```
 
