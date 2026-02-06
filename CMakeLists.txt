@@ -137,25 +137,22 @@ target_link_options(mklev PRIVATE
 # READ_ME step 4: make the directory 700 mode
 # READ_ME step 5: create perm (0 length regular file)
 
+set(_HACKDIR_PATH "${CMAKE_BINARY_DIR}/hackdir")
+file(MAKE_DIRECTORY "${_HACKDIR_PATH}")
+file(MAKE_DIRECTORY "${_HACKDIR_PATH}/save")
+file(TOUCH "${_HACKDIR_PATH}/perm")
+foreach(name IN ITEMS record news moves)
+    set(_src "${CMAKE_CURRENT_SOURCE_DIR}/original/${name}")
+    set(_dst "${_HACKDIR_PATH}/${name}")
+    file(REMOVE_RECURSE "${_dst}")
+    if(EXISTS "${_src}")
+        file(COPY "${_src}" DESTINATION "${_HACKDIR_PATH}")
+    else()
+        file(TOUCH "${_dst}")
+    endif()
+endforeach()
+
 add_custom_target(setup_hackdir ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/hackdir
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/hackdir/save
-    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/hackdir/perm
-    COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/hackdir/record
-    COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/hackdir/news
-    COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/hackdir/moves
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_SOURCE_DIR}/original/record
-        ${CMAKE_BINARY_DIR}/hackdir/record
-
-    # Copy game data files from original
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_SOURCE_DIR}/original/news
-        ${CMAKE_BINARY_DIR}/hackdir/news
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_SOURCE_DIR}/original/moves
-        ${CMAKE_BINARY_DIR}/hackdir/moves
-
     COMMENT "Setting up hackdir (READ_ME steps 2-5)"
     VERBATIM
 )
