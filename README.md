@@ -78,15 +78,17 @@ Lincoln-Sudbury Regional High School:
 
 ## Building
 
-```sh
-cmake -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-```
-
 Requires: `ncurses`, `crypt` (libxcrypt on modern distros)
 
 Produces: `hack` and `mklev` in the build directory, plus a
 `hackdir/` with runtime data files.
+
+```sh
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+cd build
+./hack
+```
 
 ## Quick Start
 
@@ -145,11 +147,11 @@ and has not yet been converted; it is included for completeness and future work.
 | mklev.c | Done | 19 functions, qsort/stdarg/signal fixes |
 | rnd.c | Done | 4 functions |
 | hack.h | Done | Modern prototypes |
-| hack.pri.c | In progress | Display/rendering, termcap calls |
-| hack.do.c | Not started | Player commands, pointer arithmetic issues |
-| hack.do1.c | Not started | More player commands |
-| hack.mon.c | Not started | Monster behavior |
-| hack.lev.c | Not started | Level file I/O, exec's mklev |
+| hack.pri.c | Done | Display/rendering, termcap calls |
+| hack.do.c | Done | Player commands, pointer arithmetic issues |
+| hack.do1.c | Done | More player commands |
+| hack.mon.c | Done | Monster behavior |
+| hack.lev.c | Done | Level file I/O, exec's mklev |
 
 ### src/exp1/ (experimental development branch)
 
