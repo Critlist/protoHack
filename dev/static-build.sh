@@ -91,7 +91,7 @@ RUNEOF
 
     chmod +x run-hack.sh
 
-    TAR=protoHack-static-'"$VERSION"'-linux-x86_64.tar.gz
+    TAR=protoHack-'"$VERSION"'-linux-x86_64-static.tar.gz
     cp /src/README.md README.md
     tar --numeric-owner -czf "../$TAR" \
       hack mklev hackdir run-hack.sh README.md

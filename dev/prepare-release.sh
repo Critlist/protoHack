@@ -25,7 +25,7 @@ mkdir -p "$RELEASE_DIR"
 # Build tarballs using existing helpers
 "$PROJECT_ROOT/dev/package-tarballs.sh" "$VERSION"
 
-BINARY_TAR="protoHack-static-${VERSION}-linux-x86_64.tar.gz"
+BINARY_TAR="protoHack-${VERSION}-linux-x86_64-static.tar.gz"
 SOURCE_TAR="protoHack-source-${VERSION}.tar.gz"
 
 # Move artifacts into release directory

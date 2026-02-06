@@ -116,6 +116,10 @@ If you see permission errors, make sure `hackdir/` and `hackdir/save/` are writa
 - Permission errors: ensure `hackdir/` and `hackdir/save/` are writable.
 - Save/restore issues: verify `hackdir/save/` exists and has group-writable perms (mode 2775 in packaged builds).
 
+## Known Issues
+
+- Occasionally the input buffer may get wedged. If that happens, close the window and remove `hackdir/game.lock`, then restart the game. This typically only happens in MAGIC mode; I’m working on it.
+
 ## Restoration Status
 
 The restoration converts K&R C (1978-era function definitions, implicit
