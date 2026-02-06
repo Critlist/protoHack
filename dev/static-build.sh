@@ -4,6 +4,7 @@ set -e
 REAL_UID="$(id -u)"
 REAL_GID="$(id -g)"
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+VERSION="${1:-$(date +%Y%m%d)}"
 
 # Clean previous build as root in container so host user does not need sudo.
 docker run --rm \
@@ -90,7 +91,7 @@ RUNEOF
 
     chmod +x run-hack.sh
 
-    TAR=protoHack-static-$(date +%Y%m%d)-linux-x86_64.tar.gz
+    TAR=protoHack-static-'"$VERSION"'-linux-x86_64.tar.gz
     cp /src/README.md README.md
     tar --numeric-owner -czf "../$TAR" \
       hack mklev hackdir run-hack.sh README.md
