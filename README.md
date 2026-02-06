@@ -15,7 +15,7 @@ further back to the original 1981-82 codebase.
 
 <figure>
   <img src="docs/media/rendering_works.png" alt="Gameplay" />
-  <figcaption>Dungeon rendering and status line working. Note the scroll labeled "Andova Begarin" — one of Fenlason's original randomized scroll names.</figcaption>
+  <figcaption>Dungeon rendering and status line working. Note the scroll labeled "Andova Begarin" — one of Fenlason's original scroll names.</figcaption>
 </figure>
 
 ## Lost and Found
@@ -102,6 +102,9 @@ cd build
 Some releases include a prebuilt static Linux binary. To run it:
 
 ```sh
+mkdir -p ~/Games/restohack
+cd ~/Games/restohack
+tar -xzf restoHack-*-linux-x86_64-static.tar.gz
 ./run-hack.sh
 ```
 
