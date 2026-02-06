@@ -8,12 +8,15 @@ pre-distribution working tree. This source predates every currently known distri
 Hack variant. While restoHack restored the 1985 release, protoHack reaches
 further back to the original 1981-82 codebase.
 
-![Welcome screen](docs/media/fenlason_welcome.png)
-*"Mail bugs to jf." — Jay Fenlason's welcome message, running on a modern terminal in 2026.*
+<figure>
+  <img src="docs/media/fenlason_welcome.png" alt="Welcome screen" />
+  <figcaption>"Mail bugs to jf." — Jay Fenlason's welcome message, running on a modern terminal in 2026.</figcaption>
+</figure>
 
-![Gameplay](docs/media/rendering_works.png)
-*Dungeon rendering and status line working. Note the scroll labeled "Andova Begarin" —
-one of Fenlason's original randomized scroll names.*
+<figure>
+  <img src="docs/media/rendering_works.png" alt="Gameplay" />
+  <figcaption>Dungeon rendering and status line working. Note the scroll labeled "Andova Begarin" — one of Fenlason's original randomized scroll names.</figcaption>
+</figure>
 
 ## Lost and Found
 
