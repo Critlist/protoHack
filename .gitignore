@@ -1,0 +1,166 @@
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dylib
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# Debug information files
+*.dwo
+
+# Static analysis
+*.sarif
+
+# Editor backups
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+*.code-workspace
+.claude/
+# CMake
+build/
+build-*/
+cmake-build-*/
+alp-build/
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+*-build/
+# Generated Makefiles (not our BSD Makefile)
+[Mm]akefile
+!Makefile
+
+# Autotools
+.deps/
+.libs/
+*.la
+*.lo
+aclocal.m4
+autom4te.cache/
+config.guess
+config.log
+config.status
+config.sub
+configure
+depcomp
+install-sh
+libtool
+ltmain.sh
+missing
+stamp-h1
+
+# pkg-config
+*.pc
+
+# Coverage files
+*.gcov
+*.gcno
+*.gcda
+lcov.info
+coverage/
+
+# Valgrind
+*.valgrind
+vgcore.*
+*logs/
+# Core dumps
+core
+core.*
+
+# Game-specific generated files
+hack.onames.h
+makedefs
+
+# Game executables and utilities
+hack
+hack.exe
+
+# Game runtime files
+save/
+bones*
+record
+record_lock
+safelock
+perm
+logfile
+paniclog
+hackdir/record_lock
+hackdir/safelock
+
+# Test outputs
+test_results/
+test_tarball/
+*.log
+
+# Package files
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.deb
+*.rpm
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+AGENTS.md
+CLAUDE.md
+EXP1_CONVERSION_PLAN.md
