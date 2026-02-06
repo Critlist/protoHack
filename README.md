@@ -220,6 +220,15 @@ See `docs/research/` for historical analysis:
   all known early Hack variants
 - **login_june-1982.pdf** — The *;login:* issue announcing the USENIX tape
 
+## Special Thanks
+
+- Jay Fenlason
+- Mike Thome
+- Jonathan Payne
+- Kenny Woodland
+- Brian Harvey
+- Dan Stornmont
+
 ## License
 
 This source code was created primarily by Jay Fenlason, with additional
