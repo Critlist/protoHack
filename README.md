@@ -92,7 +92,7 @@ cd build
 
 Verified builds: Arch Linux, Alpine Linux, macOS (thanks @karianna).
 
-## Static Binary (Release Archive)
+## Static Binary [(Release Archive)](https://github.com/Critlist/protoHack/releases)
 
 Some releases include a prebuilt static Linux binary. To run it:
 
