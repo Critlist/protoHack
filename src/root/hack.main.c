@@ -4,7 +4,7 @@
 #include "../compat.h"
 #include "hack.vars"
 
-char lock[11] = "alock";	/* long enough for login name */
+char lock[64] = "alock";	/* Modern: increased from 11 to fit longer usernames */
 /* note that lock is also used for temp file names */
 #ifdef SIGWINCH
 /* MODERN ADDITION (2026): Terminal resize protection for modern WM events

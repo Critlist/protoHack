@@ -77,7 +77,7 @@ target_compile_options(hack PRIVATE
     -Wno-implicit-function-declaration  # cross-file calls lacking prototypes in hack.h
     -Wno-int-conversion            # alloc() returns char* used as struct pointers
     -Wno-incompatible-pointer-types # g_at() generic pointer casts
-    -fno-pie  # Modern: keep stable data addresses between hack and mklev
+    $<$<NOT:$<PLATFORM_ID:Darwin>>:-fno-pie>  # non-PIE causes trace trap on macOS
     $<$<C_COMPILER_ID:Clang>:-Wno-deprecated-non-prototype>
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
     $<$<C_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
@@ -85,9 +85,10 @@ target_compile_options(hack PRIVATE
     $<$<CONFIG:Release>:-O2>
 )
 
-target_link_options(hack PRIVATE
-    -no-pie  # Modern: keep stable data addresses between hack and mklev
-)
+# non-PIE linker flag causes trace trap on macOS due to SIP/security enforcement
+if(NOT APPLE)
+    target_link_options(hack PRIVATE -no-pie)
+endif()
 
 target_link_libraries(hack ${CURSES_LIBRARIES})
 # Makes CRYPT_LIB linking conditional - only links it if found. This supports building on 
@@ -121,7 +122,7 @@ target_compile_options(mklev PRIVATE
     -Wno-implicit-function-declaration
     -Wno-int-conversion
     -Wno-incompatible-pointer-types
-    -fno-pie  # Modern: keep stable data addresses between hack and mklev
+    $<$<NOT:$<PLATFORM_ID:Darwin>>:-fno-pie>  # non-PIE causes trace trap on macOS
     $<$<C_COMPILER_ID:Clang>:-Wno-deprecated-non-prototype>
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
     $<$<C_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
@@ -129,9 +130,10 @@ target_compile_options(mklev PRIVATE
     $<$<CONFIG:Release>:-O2>
 )
 
-target_link_options(mklev PRIVATE
-    -no-pie  # Modern: keep stable data addresses between hack and mklev
-)
+# non-PIE linker flag causes trace trap on macOS due to SIP/security enforcement
+if(NOT APPLE)
+    target_link_options(mklev PRIVATE -no-pie)
+endif()
 
 # =========================================================================
 # hackdir setup — automates READ_ME steps 2-5
