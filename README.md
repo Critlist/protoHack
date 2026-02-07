@@ -90,6 +90,8 @@ cd build
 ./hack
 ```
 
+Verified builds: Arch Linux, Alpine Linux, macOS (thanks @karianna).
+
 ## Static Binary (Release Archive)
 
 Some releases include a prebuilt static Linux binary. To run it:
