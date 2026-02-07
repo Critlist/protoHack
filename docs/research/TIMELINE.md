@@ -2,10 +2,9 @@
 
 ## Corrected Chronology
 
-The NetHack Wiki incorrectly states that Hack development began "shortly after"
-the Summer 1982 USENIX conference. Primary source evidence from *;login:*
-(Vol. 7, No. 3, June 1982) shows the code was already complete and submitted
-for the distribution tapes **before** the conference took place.
+Primary source evidence from *;login:* (Vol. 7, No. 3, June 1982) shows the
+code was already complete and submitted for the distribution tapes **before**
+the Summer 1982 USENIX conference took place.
 
 ### Timeline
 
@@ -39,9 +38,11 @@ for the distribution tapes **before** the conference took place.
   — with Hack already on them — are distributed at the same conference.
 
 - **~1983/84** — **Michiel Huisjes** and **Fred de Wilde** at Vrije Universiteit,
-  Amsterdam expand Fenlason's Hack for the PDP-11/44 and PDP-11/45, adding
-  the vault, swamp, zoo, graveyard, raising max level to 40, and growing the
-  codebase from ~8 to ~45 source files.
+  Amsterdam produce a PDP-11 version based on pre-1.0 Hack that Andries
+  Brouwer later described (in an April 1985 Usenet reply) as copied from his
+  directory without permission while 1.0 was still in development; he noted it
+  was not in shape for distribution and lacked many features present in Hack
+  1.0.
 
 - **Dec 17, 1984** — **Andries Brouwer** at Stichting Mathematisch Centrum
   (CWI), Amsterdam distributes **Hack 1.0** to `net.sources` in 15 parts.
@@ -87,14 +88,13 @@ evidence seized in the 1990 Secret Service raids documented in Bruce Sterling's
 from Amsterdam to Denmark was silently discarded by a gateway for exceeding
 100 KB.
 
-## Key Correction
+## Key Evidence
 
-The NetHack Wiki claims Hack was inspired by the Toy/Arnold Rogue talk at the
-1982 USENIX conference. The *;login:* evidence shows this is impossible — Hack
-was already submitted for the distribution tapes before the conference. Jay
-likely encountered Rogue through the SFSU Logo Workshop (as stated in his
-Original_READ_ME: "This entire program would not have been possible without
-the SFSU Logo Workshop ... without whom I would never have seen Rogue").
+The *;login:* evidence shows Hack was already submitted for the distribution
+tapes before the conference. Jay likely encountered Rogue through the SFSU Logo
+Workshop (as stated in his Original_READ_ME: "This entire program would not have
+been possible without the SFSU Logo Workshop ... without whom I would never have
+seen Rogue").
 
 ## Licensing
 
@@ -125,6 +125,8 @@ Full license texts preserved in Brouwer's published account.
 - Brian Harvey, ["Computer Hacking and Ethics" — A Case Study: The Lincoln-Sudbury
   Regional High School](https://people.eecs.berkeley.edu/~bh/lsrhs.html) (appendix
   to ACM Select Panel on Hacking position paper, 1985)
+- Neozeed, "While hunting for Hack 1.0 in usenet" (reproduces Brouwer's 1985
+  Usenet response about the PDP-11 version)
 - Usenet archives via SuperGlobalMegaCorp Altavista Archive
 
 ## Lineage
