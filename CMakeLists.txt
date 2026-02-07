@@ -89,7 +89,12 @@ target_link_options(hack PRIVATE
     -no-pie  # Modern: keep stable data addresses between hack and mklev
 )
 
-target_link_libraries(hack ${CURSES_LIBRARIES} ${CRYPT_LIB}) # crypt: domagic() uses crypt() for wizard password
+target_link_libraries(hack ${CURSES_LIBRARIES})
+# Makes CRYPT_LIB linking conditional - only links it if found. This supports building on 
+# platforms such as macOS where crypt() is part of the standard C library, so no separate library is needed.
+if(CRYPT_LIB)
+    target_link_libraries(hack ${CRYPT_LIB}) # crypt: domagic() uses crypt() for wizard password
+endif()
 
 # mklev — standalone level generator
 add_executable(mklev
