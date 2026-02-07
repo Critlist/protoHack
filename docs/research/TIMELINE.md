@@ -102,7 +102,7 @@ Both original authors have issued BSD-type licenses allowing free
 redistribution and modification:
 
 **Jay Fenlason** (covers all code he wrote):
-> Copyright (c) 1982 Jay Fenlason — 3-clause BSD license
+> It is shared under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC-BY-NC-SA 4.0), as specified by Jay Fenlason when the source was archived by the Snap!Hack project. A copy of the license is available at: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 **CWI** (covers Brouwer's additions, formerly "Stichting Mathematisch
 Centrum"):
