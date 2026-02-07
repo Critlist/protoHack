@@ -26,7 +26,7 @@ mkdir -p "$RELEASE_DIR"
 "$PROJECT_ROOT/dev/package-tarballs.sh" "$VERSION"
 
 BINARY_TAR="protoHack-${VERSION}-linux-x86_64-static.tar.gz"
-SOURCE_TAR="protoHack-source-${VERSION}.tar.gz"
+SOURCE_TAR="protoHack-${VERSION}-source.tar.gz"
 
 # Move artifacts into release directory
 mv -f "$PROJECT_ROOT/$BINARY_TAR" "$RELEASE_DIR/"
@@ -60,41 +60,31 @@ if [ -f "$CHANGELOG_FILE" ]; then
 fi
 
 printf "%b\n" "${BLUE}[2/2] Writing release notes template...${NC}"
-cat > "$RELEASE_DIR/RELEASE_NOTES.md" << EOF
-# protoHack ${VERSION}
-
-## Downloads
-
-- **Linux Static Binary**: ${BINARY_TAR}
-  - Statically linked, runs on x86_64 Linux
-  - No dependencies required
-
-- **Source Code**: ${SOURCE_TAR}
-  - Full source for building on any platform
-  - Requires CMake, C compiler, and ncurses
-
-## Verification
-
-Verify downloads with SHA256 checksums:
-
-```bash
-sha256sum -c SHA256SUMS
-```
-
-## What's New
-
-${CHANGELOG_CONTENT:-"- See docs/CHANGELOG.md"}
-
-## Building from Source
-
-```bash
-tar xzf ${SOURCE_TAR}
-cd protoHack-${VERSION}
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-./build/hack
-```
-EOF
+{
+  printf "# protoHack %s\n\n" "$VERSION"
+  printf "## Downloads\n\n"
+  printf -- "- **Linux Static Binary**: %s\n" "$BINARY_TAR"
+  printf "  - Statically linked, runs on x86_64 Linux\n"
+  printf "  - No dependencies required\n\n"
+  printf -- "- **Source Code**: %s\n" "$SOURCE_TAR"
+  printf "  - Full source for building on any platform\n"
+  printf "  - Requires CMake, C compiler, and ncurses\n\n"
+  printf "## Verification\n\n"
+  printf "Verify downloads with SHA256 checksums:\n\n"
+  printf '%s\n' '```bash'
+  printf '%s\n' "sha256sum -c SHA256SUMS"
+  printf '%s\n\n' '```'
+  printf '%s\n\n' "## What's New"
+  printf '%s\n\n' "${CHANGELOG_CONTENT:-See docs/CHANGELOG.md}"
+  printf '%s\n\n' "## Building from Source"
+  printf '%s\n' '```bash'
+  printf 'tar xzf %s\n' "$SOURCE_TAR"
+  printf 'cd protoHack-%s\n' "$VERSION"
+  printf '%s\n' "cmake -B build -DCMAKE_BUILD_TYPE=Release"
+  printf '%s\n' "cmake --build build"
+  printf '%s\n' "./build/hack"
+  printf '%s\n' '```'
+} > "$RELEASE_DIR/RELEASE_NOTES.md"
 
 printf "%b\n" "${GREEN}=== Release Assets Created Successfully ===${NC}"
 printf "%b\n" "Release directory: ${BLUE}${RELEASE_DIR}/${NC}"

@@ -8,7 +8,7 @@ VERSION="${1:-$(date +%Y%m%d)}"
 "$ROOT_DIR/dev/static-build.sh" "$VERSION"
 
 # Source tarball for review/compilation.
-TAR_SRC="protoHack-source-$VERSION.tar.gz"
+TAR_SRC="protoHack-$VERSION-source.tar.gz"
 tar --numeric-owner -czf "$ROOT_DIR/$TAR_SRC" \
   -C "$ROOT_DIR" \
   original \

@@ -1,8 +1,19 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to protoHack will be documented in this file.
 
-## 2026-02-06
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [0.1.1] - 2026-02-07
+
+### Changed
+
+- macOS compatibility: disable non-PIE compile/link flags on Apple platforms to avoid trace traps.
+- Link `crypt` only when a separate `CRYPT_LIB` is found (supports platforms where `crypt()` is in libc).
+- Increased lock/save path buffer sizes to support longer usernames.
+- Increased directory buffer sizes to accommodate longer path components.
+
+## [0.1.0] - 2026-02-06
 
 ### Added
 
