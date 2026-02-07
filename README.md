@@ -215,8 +215,8 @@ Fenlason Hack (1981-82, Lincoln-Sudbury)    <-- you are here
 
 See `docs/research/` for historical analysis:
 
-- **TIMELINE.md** — Corrected chronology with primary sources
-- **COMPARISON.md** — Detailed monster table and feature comparison across
+- **[TIMELINE.md](docs/research/TIMELINE.md)** — Corrected chronology with primary sources
+- **[COMPARISON.md](docs/research/COMPARISON.md)** — Detailed monster table and feature comparison across
   all known early Hack variants
 - **login_june-1982.pdf** — The *;login:* issue announcing the USENIX tape
 
