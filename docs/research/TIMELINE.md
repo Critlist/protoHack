@@ -126,7 +126,7 @@ Full license texts preserved in Brouwer's published account.
   Regional High School](https://people.eecs.berkeley.edu/~bh/lsrhs.html) (appendix
   to ACM Select Panel on Hacking position paper, 1985)
 - Neozeed, "While hunting for Hack 1.0 in usenet" (reproduces Brouwer's 1985
-  Usenet response about the PDP-11 version)
+  Usenet response about the PDP-11 version) citeturn0search0
 - Usenet archives via SuperGlobalMegaCorp Altavista Archive
 
 ## Lineage
