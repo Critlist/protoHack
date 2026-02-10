@@ -135,7 +135,7 @@ hack.exe
 # Game runtime files
 save/
 bones*
-record
+
 record_lock
 safelock
 perm
