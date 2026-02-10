@@ -1,0 +1,162 @@
+name: macOS CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-interactive-test:
+    runs-on: macos-latest # Apple silicon only
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # macOS runners have cmake, make, and ncurses out of the box via Xcode CLT.
+    # No brew installs needed.
+
+    - name: Configure CMake
+      run: |
+        cmake -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_C_COMPILER=clang
+
+    - name: Build
+      run: |
+        cmake --build build --parallel
+
+    # Yes we use perl here, no apologies :-)
+    - name: Basic smoke test (startup does not crash)
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+
+        cd build
+        export TERM=vt100
+
+        echo "Verifying hack binary exists and is executable..."
+        test -x ./hack || { echo "❌ hack binary not found"; exit 1; }
+        test -x ./hackdir/mklev || { echo "❌ mklev not found in hackdir"; exit 1; }
+
+        echo "Running quick startup test (expect it to time out after 3s)..."
+        # macOS has no GNU timeout; use perl alarm as a portable substitute
+        set +e
+        out="$(perl -e 'alarm 3; exec @ARGV' ./hack 2>&1 | head -40)"
+        rc=$?
+        set -e
+        echo "$out" | sed 's/^/│ /'
+
+        if echo "$out" | grep -q "Cannot cd"; then
+          echo "❌ FAILED: hack could not chdir to HACKDIR"
+          exit 1
+        fi
+        echo "✓ Basic startup smoke test passed (rc=$rc)"
+
+    - name: Interactive map rendering test (expect)
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+
+        cd build
+        export TERM=vt100
+
+        LOGFILE="${RUNNER_TEMP}/hack-expect.log"
+
+        echo "Running interactive expect test..."
+
+        # Outer safety timeout (60s) in case expect itself hangs
+        set +e
+        perl -e 'alarm 60; exec @ARGV' \
+          expect -f "${GITHUB_WORKSPACE}/.github/workflows/hack-interactive-test.exp"
+        EXPECT_RC=$?
+        set -e
+
+        # Copy log to a stable location
+        if [ -f /tmp/hack-expect.log ]; then
+          cp /tmp/hack-expect.log "$LOGFILE" 2>/dev/null || true
+        fi
+
+        echo ""
+        echo "===== Expect session log ====="
+        if [ -f "$LOGFILE" ]; then
+          cat "$LOGFILE"
+        else
+          echo "(no log file found)"
+        fi
+        echo "===== End log ====="
+        echo ""
+
+        if [ "$EXPECT_RC" -ne 0 ]; then
+          echo "❌ Interactive test failed (expect exit code: $EXPECT_RC)"
+          exit 1
+        fi
+
+        echo "✓ Interactive test: game started successfully"
+
+    - name: Verify map was rendered
+      shell: bash
+      run: |
+        set -Eeuo pipefail
+
+        LOGFILE="${RUNNER_TEMP}/hack-expect.log"
+
+        if [ ! -f "$LOGFILE" ]; then
+          echo "❌ No expect log file — cannot verify map output"
+          exit 1
+        fi
+
+        PASS=true
+
+        echo "Checking expect log for map rendering evidence..."
+
+        # Check for player character
+        if grep -q '@' "$LOGFILE"; then
+          echo "  ✓ Found player character '@'"
+        else
+          echo "  ✗ Missing player character '@'"
+          PASS=false
+        fi
+
+        # Check for wall characters (horizontal or vertical)
+        if grep -qE '[-|]' "$LOGFILE"; then
+          echo "  ✓ Found wall characters"
+        else
+          echo "  ✗ Missing wall characters (- or |)"
+          PASS=false
+        fi
+
+        # Check for floor/corridor characters
+        if grep -qE '[.#]' "$LOGFILE"; then
+          echo "  ✓ Found floor/corridor characters"
+        else
+          echo "  ✗ Missing floor/corridor characters (. or #)"
+          PASS=false
+        fi
+
+        # Check for the quit prompt (proves game loop was running)
+        if grep -q 'Really quit?' "$LOGFILE"; then
+          echo "  ✓ Found 'Really quit?' prompt (game loop was responsive)"
+        else
+          echo "  ✗ Missing 'Really quit?' prompt"
+          PASS=false
+        fi
+
+        # Check for the welcome screen prompt
+        if grep -q 'Hit space to continue' "$LOGFILE"; then
+          echo "  ✓ Found welcome screen prompt"
+        else
+          echo "  ✗ Missing welcome screen prompt"
+          PASS=false
+        fi
+
+        echo ""
+        if [ "$PASS" = true ]; then
+          echo "✅ Map rendered successfully — found player (@), walls, floor/corridors, and interactive quit."
+        else
+          echo "❌ Map rendering verification failed. See log above for details."
+          echo ""
+          echo "===== Full expect log ====="
+          cat "$LOGFILE"
+          echo "===== End log ====="
+          exit 1
+        fi
