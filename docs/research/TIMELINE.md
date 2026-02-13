@@ -165,7 +165,7 @@ Full license texts preserved in Brouwer's published account.
 - Neozeed, "While hunting for Hack 1.0 in usenet" (reproduces Brouwer's 1985
   Usenet response about the PDP-11 version)
 - Usenet archives via SuperGlobalMegaCorp Altavista Archive
-
+ 
 ## Lineage
 
 ```
