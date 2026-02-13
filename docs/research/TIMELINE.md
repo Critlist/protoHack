@@ -11,14 +11,41 @@ the Summer 1982 USENIX conference took place.
 - **1980** — **Rogue** released for Unix by Michael Toy and Glenn Wichman at
   UC Santa Cruz, with later contributions by Ken Arnold.
 
-- **1981** — **Jay Fenlason** begins Hack development at Lincoln-Sudbury
-  Regional High School, with help from Kenny Woodland, Mike Thome, and Jon
-  Payne. The development environment is a PDP-11/70 running V7 Unix (alpha
-  test site for 2.9BSD), administered by a student-run Computer Center Users
-  Society with ~50 members who have keys and unsupervised access. The game is
-  an implementation of Rogue with 56 monster types (vs. Rogue's 26) and
-  expanded dungeon features. Jonathan Payne (JP), who contributed the lock
-  file system and CURS() to Hack, is also the author of JOVE.
+- **~Summer 1980** — Brian Harvey invites Lincoln-Sudbury students to
+  California for a summer class he is teaching at San Francisco State
+  University. During the trip, Jay Fenlason visits UC Berkeley and plays
+  *Rogue* for the first time: "The summer between my sophomore and junior
+  years, Brian [Harvey] invited some of us students to come out to California
+  to [work as teacher's assistants during] a summer class he was teaching at
+  San Francisco State University. While we were out there, we took a trip to
+  UC Berkeley, where I got to play *Rogue* for the first time." He is
+  immediately hooked: "I think I got a little bit obsessed then, and like any
+  obsessed person who'd been cut off, I decided to build my own." (Craddock,
+  pp. 92)
+
+- **~1980–81** — Fenlason creates the earliest version of Hack in **Logo**
+  (Turtle Graphics) on an **Apple II**. Once satisfied with the Logo
+  prototype, he migrates the game to C on the PDP-11/70 at Lincoln-Sudbury.
+  (Craddock, p. 94)
+
+- **1981–82** — **Jay Fenlason** develops Hack in C at Lincoln-Sudbury
+  Regional High School — his "first semester programming project" (READ_Me).
+  The development environment is a PDP-11/70 running V7 Unix (alpha test site
+  for 2.9BSD), administered by a student-run Computer Center Users Society
+  with ~50 members who have keys and unsupervised access. The game is an
+  implementation of Rogue with 56 monster types (vs. Rogue's 26) and expanded
+  dungeon features. Collaborators and their contributions:
+  - **Kenny Woodland** (KW) — Maze-generating code for the bottom level, the
+    original BUZZ() function, and "general random things" (READ_Me). Also
+    contributed code for a game called *Bombs*. (Craddock, p. 94)
+  - **Mike Thome** (MT) — Invented the chameleon, a monster that "could take
+    on the appearance and abilities of other types of monsters" (Craddock,
+    p. 94). Credited in READ_Me as "The original chamelian" [sic].
+  - **Jonathan Payne** (JP) — The lock file system and "the massive CURS()"
+    (READ_Me). Also the author of JOVE (Jonathan's Own Version of Emacs).
+    Payne and Fenlason had "a friendly rivalry going on as to whose program,
+    *JOVE* or *Hack*, could update the screen most efficiently" (Craddock,
+    p. 94). Both programs shipped on the same USENIX 82-1 tape.
 
 - **First half of 1982** — Brian Harvey, Computer Director at Lincoln-Sudbury
   (1979-1982), submits student projects — including Hack and JOVE — for
@@ -91,10 +118,15 @@ from Amsterdam to Denmark was silently discarded by a gateway for exceeding
 ## Key Evidence
 
 The *;login:* evidence shows Hack was already submitted for the distribution
-tapes before the conference. Jay likely encountered Rogue through the SFSU Logo
-Workshop (as stated in his Original_READ_ME: "This entire program would not have
-been possible without the SFSU Logo Workshop ... without whom I would never have
-seen Rogue").
+tapes before the conference. Jay encountered Rogue during a trip to UC Berkeley
+while attending Harvey's summer class at SFSU — confirming his READ_Me
+acknowledgment: "This entire program would not have been possible without the
+SFSU Logo Workshop ... without whom I would never have seen Rogue." The
+Craddock interview further reveals that the earliest version of Hack was
+written in Logo (Turtle Graphics) for the Apple II before being ported to C,
+explaining the depth of Fenlason's gratitude to the Logo Workshop: it provided
+not just the encounter with Rogue but also the first development environment
+for Hack itself.
 
 ## Licensing
 
@@ -115,6 +147,11 @@ Full license texts preserved in Brouwer's published account.
 
 ## Primary Sources
 
+- David L. Craddock, *Dungeon Hacks: How NetHack, Angband, and Other Roguelikes
+  Changed the Course of Video Games* (Press Start Press, 2015) — Contains
+  interview quotes from Jay Fenlason conducted via email in 2014. Pages 92 and
+  94 detail the origin of Hack: the encounter with Rogue at UC Berkeley, the
+  Logo prototype on Apple II, and the contributions of each collaborator.
 - *;login:* Vol. 7, No. 3 (June 1982) — USENIX distribution tape announcement
   - [Archive.org scan](https://archive.org/details/login_june-1982/page/n13/mode/2up)
   - [Full text](https://archive.org/stream/login_june-1982/login_june-1982_djvu.txt)
@@ -135,7 +172,10 @@ Full license texts preserved in Brouwer's published account.
 Rogue (1980, Toy/Wichman/Arnold)
   |
   v
-Fenlason Hack (1981-82, Lincoln-Sudbury)
+Hack in Logo (~1980-81, Apple II, Fenlason)
+  |
+  v
+Fenlason Hack in C (1981-82, PDP-11/70, Lincoln-Sudbury)
   |
   +---> PDP-11 Hack (~1983, Huisjes & de Wilde, VU Amsterdam)
   |       |
