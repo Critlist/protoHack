@@ -221,26 +221,82 @@ void docrt()
 	flags.botl=1;
 	bot();
 }
+/* Modern: track last displayed @ to keep redraws in sync on modern
+   terminals. File-scope (not function-local) so clearpru() below can
+   invalidate it from other files on a level change. */
+static char pudx = -1;
+static char pudy = -1;
+static char pudis = 0;
+
+/**
+ * MODERN ADDITION (2026): Invalidate pru()'s last-displayed-@ tracking
+ *
+ * WHY: pudx/pudy/pudis (above) have no notion of which level they
+ * belong to. After dodown()/doup() swap in a new level's levl[][],
+ * pudx/pudy still hold the *previous* level's last player position.
+ * The next pru() call (from setsee(), right after arriving) would then
+ * call newsym() on that stale coordinate against the new level's map,
+ * which is frequently unconnected rock (typ==0) — hitting newsym()'s
+ * default case and its original 1982 "Bad newsym" diagnostic on a
+ * position that was never actually displayed on this level (issue #5).
+ *
+ * HOW: dodown()/doup() call this right after moving the player onto
+ * the new level, clearing pudis so pru() has nothing stale to erase.
+ *
+ * PRESERVES: newsym()'s original 1982 "Bad newsym" diagnostic for
+ * genuinely unexpected room types within a level.
+ * ADDS: stops that diagnostic from firing on foreign, cross-level
+ * coordinates it was never meant to see.
+ */
+void clearpru(void)
+{
+	pudis = 0;
+}
+
 void pru()
 {
-	/* Modern: track last displayed @ to keep redraws in sync on modern terminals */
-	static char pudx = -1;
-	static char pudy = -1;
-	static char pudis = 0;
+	/* Modern: snapshot the previous tracking state locally before
+	   updating the statics below (see MODERN ADDITION comment). */
+	char old_pudx = pudx;
+	char old_pudy = pudy;
+	char old_pudis = pudis;
 
 	if(!mapok(u.ux,u.uy)) return;
-	if(pudis && (pudx!=u.ux || pudy!=u.uy) && mapok(pudx,pudy))
-		newsym(pudx,pudy);
 	if(!u.ublind) levl[u.ux][u.uy].cansee=1;
+	/**
+	 * MODERN ADDITION (2026): update pudx/pudy/pudis before calling
+	 * newsym() below, instead of after.
+	 *
+	 * WHY: newsym() can call pline() (its original 1982 "Bad newsym"
+	 * diagnostic), and pline() itself may call pru() again (also
+	 * original 1982 logic, hack.pri.c ~line 404). With the old
+	 * ordering, pudx/pudy/pudis were only updated *after* the newsym()
+	 * call returned, so a re-entrant pru() call during that call saw
+	 * the exact same stale state and repeated the exact same newsym()
+	 * call — an infinite pru()->newsym()->pline()->pru() recursion
+	 * (issue #5), regardless of clearpru() above.
+	 *
+	 * HOW: the statics are now updated for the *current* position
+	 * immediately, before newsym() can be called at all. A re-entrant
+	 * call therefore sees pudx==u.ux && pudy==u.uy and skips its own
+	 * newsym() call, breaking the cycle.
+	 *
+	 * PRESERVES: the original single "Bad newsym" diagnostic print
+	 * when it's genuinely warranted, and the original draw order
+	 * (erase old position, then draw '@' at the new one).
+	 * ADDS: makes the recursion structurally impossible.
+	 */
 	if(u.uinvis) {
-		prl(u.ux,u.uy);
 		pudis=0;
 	} else if(levl[u.ux][u.uy].scrsym!='@') {
-		atl(u.ux,u.uy,'@');
 		pudis=1;
 		pudx=u.ux;
 		pudy=u.uy;
 	}
+	if(old_pudis && (old_pudx!=u.ux || old_pudy!=u.uy) && mapok(old_pudx,old_pudy))
+		newsym(old_pudx,old_pudy);
+	if(u.uinvis) prl(u.ux,u.uy);
+	else if(levl[u.ux][u.uy].scrsym!='@') atl(u.ux,u.uy,'@');
 }
 void prl(x,y)
 {
