@@ -637,6 +637,7 @@ void dodown(void)
 	fclose(fp);
 	u.ux=xupstair;
 	u.uy=yupstair;
+	clearpru(); /* Modern: invalidate pru()'s stale previous-level tracking, see hack.pri.c */
 }
 void doup(void)
 {
