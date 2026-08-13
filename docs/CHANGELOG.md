@@ -4,6 +4,12 @@ All notable changes to protoHack will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.2] - 2026-08-12
+
+### Fixed
+
+- Fixed an infinite `pru()` -> `newsym()` -> `pline()` -> `pru()` recursion (stack overflow) that could occur when taking stairs. The modern "track last displayed @" redraw-sync logic in `pru()` retained state from the previous level, causing it to redraw a foreign, often-invalid coordinate on the new level; a diagnostic message triggered by that invalid coordinate could then re-enter `pru()` before its tracking state was updated, recursing indefinitely. (#5)
+
 ## [0.1.1] - 2026-02-07
 
 ### Changed
