@@ -41,8 +41,9 @@ Chain of custody:
 
 1. **Jay Fenlason** — original author, 1981-82 (with Kenny Woodland, Mike
    Thome, and Jon Payne)
-2. **Brian Harvey** — preserved from LSRHS PDP-11 backups, 1982-2024
-3. **Dan Stormont** — Snap!Hack project, 2024-present
+2. **Brian Harvey** — preserved from LSRHS PDP-11 backups, 1982-2025
+3. **Dan Stormont** — received in 2025 for the Snap!Hack project; published as
+   fenlason-hack
 
 ## What Makes This Hack Different
 
