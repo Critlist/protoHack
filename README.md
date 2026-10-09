@@ -25,7 +25,7 @@ the USENIX 82-1 distribution tape and, by his own account, "forgot about it."
 By the time he
 [spoke to Julie Bresnick in 2000](https://www.linux.com/news/train-life-nethacks-papa/),
 he had long since moved on; he still played his original version at home, but
-had "voluntarily avoided participation pretty much since spawning the original
+had, in Bresnick's words, "voluntarily avoided participation pretty much since spawning the original
 Hack almost 20 years ago." Andries Brouwer's near-total rewrite as Hack 1.0
 (1984) became the version the world knew, and Fenlason's original source
 largely dropped out of the historical record.
@@ -62,7 +62,7 @@ Lincoln-Sudbury Regional High School:
 - **Authentic misspellings** — "homonculous", "gelatenous cube" (preserved,
   not fixed)
 - **9 C source files** — the entire game, written on a PDP-11/70 running
-  V7 Unix (2.8BSD alpha test site)
+  V7 Unix (2.9BSD alpha test site)
 
 ## Goals
 
