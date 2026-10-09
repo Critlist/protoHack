@@ -25,7 +25,7 @@ the USENIX 82-1 distribution tape and, by his own account, "forgot about it."
 By the time he
 [spoke to Julie Bresnick in 2000](https://www.linux.com/news/train-life-nethacks-papa/),
 he had long since moved on; he still played his original version at home, but
-had "voluntarily avoided participation pretty much since spawning the original
+had, in Bresnick's words, "voluntarily avoided participation pretty much since spawning the original
 Hack almost 20 years ago." Andries Brouwer's near-total rewrite as Hack 1.0
 (1984) became the version the world knew, and Fenlason's original source
 largely dropped out of the historical record.
@@ -41,8 +41,9 @@ Chain of custody:
 
 1. **Jay Fenlason** — original author, 1981-82 (with Kenny Woodland, Mike
    Thome, and Jon Payne)
-2. **Brian Harvey** — preserved from LSRHS PDP-11 backups, 1982-2024
-3. **Dan Stormont** — Snap!Hack project, 2024-present
+2. **Brian Harvey** — preserved from LSRHS PDP-11 backups, 1982-2025
+3. **Dan Stormont** — received in 2025 for the Snap!Hack project; published as
+   fenlason-hack
 
 ## What Makes This Hack Different
 
@@ -60,8 +61,8 @@ Lincoln-Sudbury Regional High School:
   "ugod", "xerp", and "zelomp" that appear nowhere else
 - **Authentic misspellings** — "homonculous", "gelatenous cube" (preserved,
   not fixed)
-- **8 source files** — the entire game, written on a PDP-11/70 running
-  V7 Unix (2.8BSD alpha test site)
+- **9 C source files** — the entire game, written on a PDP-11/70 running
+  V7 Unix (2.9BSD alpha test site)
 
 ## Goals
 
@@ -94,12 +95,15 @@ Verified builds: Arch Linux, Alpine Linux, macOS (thanks @karianna).
 
 ## Static Binary [(Release Archive)](https://github.com/Critlist/protoHack/releases)
 
-Some releases include a prebuilt static Linux binary. To run it:
+Some releases include a prebuilt static Linux binary (x86_64). Download
+`protoHack-*-linux-x86_64-static.tar.gz` from the
+[Releases page](https://github.com/Critlist/protoHack/releases) (or with
+`gh release download -R Critlist/protoHack -p '*linux-x86_64-static.tar.gz'`), then:
 
 ```sh
-mkdir -p ~/Games/restohack
-cd ~/Games/restohack
-tar -xzf protoHack-*-linux-x86_64-static.tar.gz
+mkdir -p ~/Games/protohack
+cd ~/Games/protohack
+tar -xzf /path/to/protoHack-*-linux-x86_64-static.tar.gz
 ./run-hack.sh
 ```
 
@@ -161,10 +165,12 @@ formally packaged or distributed.
 
 ## How It Works
 
-This is a two-binary game, a consequence of PDP-11 memory constraints.
-`hack` is the main game. When it needs a new dungeon level, it `exec`s
-`mklev` as a separate process to generate the level file, then reads the
-result back. This architecture is preserved; the binaries are not merged.
+This is a two-binary game. Fenlason's READ_ME explains: "Because of the
+peculiar restraints on our system, I make mklev (create a level) a separate
+procedure execd by hack when needed." (The PDP-11's small address space is
+the likely constraint, but he doesn't say so.) `hack` is the main game.
+When it needs a new dungeon level, it `exec`s `mklev` as a separate process
+to generate the level file, then reads the result back. This architecture is preserved; the binaries are not merged.
 
 A `compat.h` shim handles the BSD-to-POSIX translation: `index` becomes
 `strchr`, `gtty`/`stty` become `tcgetattr`/`tcsetattr`, V7 variadic
@@ -229,7 +235,7 @@ See `docs/research/` for historical analysis:
 - Jonathan Payne
 - Kenny Woodland
 - Brian Harvey
-- Dan Stornmont
+- Dan Stormont
 
 ## License
 
