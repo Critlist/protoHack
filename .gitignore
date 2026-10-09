@@ -165,3 +165,6 @@ AGENTS.md
 CLAUDE.md
 EXP1_CONVERSION_PLAN.md
 release-*/
+# original/ is the unmodified 1982 tree: never ignore anything in it
+!/original/**/makefile
+!/original/perm
