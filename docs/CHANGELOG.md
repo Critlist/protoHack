@@ -13,6 +13,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - README: 2.8BSD → 2.9BSD (per Brian Harvey's account); Bresnick's narration no longer reads as a Fenlason quote.
 - TIMELINE: `READ_Me` → `READ_ME`; the 82-1 tape entry no longer asserts Harvey was the submitter (*;login:* doesn't say); licensing intro no longer calls CC-BY-NC-SA "BSD-type".
 
+### Documentation
+
+- COMPARISON.md audit (three source audits plus an adversarial review): fixed three repo line refs (:91-93), the "levels 1-4 identical in all variants" claim (Hack 1.0 changes leprechaun, nymph, killer bee), the Hack 1.0 monster count (62), the README-credits row, the step counts and ELBIB YLOH note; paired Hack 1.0 by letter; added umber hulk/demon damage rows, `mstole`, the full VU README list; tempered the NOWORM inference; added "Stat lines that survived" (48/56; displacer beast → large dog incl. attack code; reused slots into NetHack 3.6) and "Mechanics dated by the source" (bear traps, mklev merge in 1.0.2).
+- README: displacer beast / zelomp wording; the archived tree is Jay's working directory that matches the tape packaging, not the tape itself.
+- TIMELINE: Harvey's account of sending JOVE to USENIX (jonmacs/jove#34); Bresnick vs Craddock on Jay's school year.
+
 ## [0.1.2] - 2026-08-12
 
 ### Fixed
