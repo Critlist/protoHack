@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Maze levels (the bottom of the dungeon): `makemaz()` overflowed its fixed `int stack[200]` on about 7% of seeds (stack smashing / SIGABRT, or silent corruption). The maze grid has 8×37 = 296 cells, each pushed at most once, so the stack is now sized `8*37+1`. Maze output is byte-identical for every seed that didn't overflow.
 - Restored the 1982 `makefile`, `exp/makefile`, `exp/exp1/makefile` and empty `perm` to `original/`; `.gitignore` had silently dropped them when `hack/` was renamed. `original/` is again byte-identical to Sustainable-Games/fenlason-hack.
 - README: corrected Dan Stormont's name, the static-binary install path (`~/Games/protohack`) and download step, the source file count (9), the chain-of-custody dates (2025, per Dan Stormont), and attributed the mklev split to Fenlason's own words.
 - README: 2.8BSD → 2.9BSD (per Brian Harvey's account); Bresnick's narration no longer reads as a Fenlason quote.

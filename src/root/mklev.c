@@ -422,7 +422,17 @@ void makemaz(void)
 	int x,y,a,q,sp;
 	int dir,dirs[5];
 	register int zx,zy;
+#if 0
 	int stack[200];
+#endif
+	/* Modern: size the DFS stack for the worst case. Maze cells sit at odd
+	 * coordinates, 8 rows (3..17, see MAZY) by 37 columns (3..75, see MAZX),
+	 * so 296 cells. Each cell is pushed at most once (it is marked typ=2 as
+	 * soon as it reaches the top), and stack[0] is never used, so the deepest
+	 * path needs 8*37+1 entries. With 200, about 7% of maze levels ran past
+	 * the end of the array (measured: depth 90-232 over 3000 seeds) and
+	 * corrupted the stack. */
+	int stack[8*37+1];
 	struct obj *otmp;
 
 	for(x=2; x<19; x++)
