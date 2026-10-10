@@ -55,10 +55,12 @@ Lincoln-Sudbury Regional High School:
 - **Amulet of Frobozz** — not yet renamed to "Amulet of Yendor"
 - **No shops** — shopkeepers were added later by the Dutch developers
 - **No starting pet** — you're on your own down there
-- **Displacer beast** — appears to be the only known Hack variant to include one (the 'd' slot
-  was later reassigned to "dog" when pets were added)
-- **56 monsters** across 8 depth levels — including unique creatures like
-  "ugod", "xerp", and "zelomp" that appear nowhere else
+- **Displacer beast** — the only known Hack variant to include one. Brouwer's
+  large dog later reused its 'd' slot, its exact stat line (`6,15,4,2,4`) and
+  its attack code, and NetHack's large dog still has those numbers
+- **56 monsters** across 8 depth levels — including "ugod", "xerp", and
+  "zelomp", names that appear in no later variant (Brouwer reused their
+  slots; the zelomp's exact stat line became the zruty's)
 - **Authentic misspellings** — "homonculous", "gelatenous cube" (preserved,
   not fixed)
 - **9 C source files** — the entire game, written on a PDP-11/70 running
@@ -132,9 +134,11 @@ The restoration converts K&R C (1978-era function definitions, implicit
 types, V7 Unix system calls) to ANSI C with POSIX equivalents. All original
 logic, bugs, and behavior are preserved as faithfully as possible.
 
-The src/root/ tree corresponds to the original USENIX 82-1 submission and is
-fully playable after restoration. This is the historically significant version
-distributed on the tape.
+The src/root/ tree corresponds to the version packaged for the USENIX 82-1
+tape (it carries the READ_ME install steps and the tape's file set) and is
+fully playable after restoration. The archived tree itself is Jay's working
+directory (used high-score file, dotfiles, `nosave`), preserved in Brian
+Harvey's Lincoln-Sudbury backups.
 
 The src/exp1/ tree represents a later, experimental refactor by Fenlason
 and has not yet been converted; it is included for completeness and future work.
