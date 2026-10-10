@@ -15,6 +15,13 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Modern: force signed plain `char`, as on the PDP-11 this code was written for.
+# Linux aarch64 (and other ABIs) default to unsigned char, which breaks Jay's
+# negative-char assumptions, e.g. the `croom->hx = -1` end-of-rooms sentinel in
+# mklev.c: -1 becomes 255, `croom->hx>0` never stops, and mklev divides by zero
+# or segfaults. Same bug class as restoHack issue #15 (ARM64 schar crash).
+add_compile_options(-fsigned-char)
+
 # --- Find ncurses (provides termcap compatibility) ---
 find_package(Curses REQUIRED)
 message(STATUS "Using ncurses: ${CURSES_LIBRARIES}")
