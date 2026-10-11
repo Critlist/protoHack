@@ -18,10 +18,13 @@ char *kmsg[4]= {
 
 void movemon(void)
 {
-	register struct monst *mtmp;
+	register struct monst *mtmp,*nmtmp;
 
-	for(mtmp=fmon;mtmp;mtmp=mtmp->nmon) {
-		if(mtmp->mspeed!=MSLOW || !(moves%2)) dochug(mtmp);
+	for(mtmp=fmon;mtmp;mtmp=nmtmp) {
+		nmtmp=mtmp->nmon; /* Modern: dochug() may free mtmp, so fetch the link first */
+		if(mtmp->mspeed!=MSLOW || !(moves%2)) {
+			if(dochug(mtmp)) continue; /* freed itself; don't touch it again */
+		}
 		if(mtmp->mspeed==MFAST) dochug(mtmp);
 	}
 }
@@ -48,11 +51,13 @@ void youswld(struct monst *mtmp, int dam, int die)
 #endif
 	hits= -1;
 }
-void dochug(struct monst *mtmp)
+/* Modern: returns 1 if mtmp was freed (it self-destructed), else 0; callers must not touch it after 1 */
+int dochug(struct monst *mtmp)
 {
 	register struct permonst *mdat;
 	register int tmp;
 	char mdix,mdiy;
+	unsigned char mx,my;
 	struct stole *stmp;
 
 	if(mtmp->cham && !rn2(6)) newcham(mtmp,&mon[rn1(6,2)][rn2(8)]);
@@ -69,21 +74,21 @@ void dochug(struct monst *mtmp)
 	if((!moves%20 || index(mregen,mdat->mlet)) && mtmp->mhp<mtmp->orig_hp)
 		mtmp->mhp++; /* regenerate monsters. */
 	if(mtmp->mstat==MFROZ || mtmp->sinv)
-		return; /* frozen monsters don't do anything. */
+		return(0); /* frozen monsters don't do anything. */
 	if(mtmp->mstat==SLEEP) {/* wake up a monster, or get out of here. */
 		if(levl[mtmp->mx][mtmp->my].cansee && !u.ustelth && (!rn2(7) ||
 u.uagmon)) mtmp->mstat=0;
-		else return;
+		else return(0);
 	}
 	if(mdat->mmove>=rnd(12) && (mtmp->mstat==FLEE || abs(mtmp->mx-u.ux)>1 ||
 abs(mtmp->my-u.uy)>1) && m_move(mtmp) && mdat->mmove<=12)
-		return; /* move monsters and exit if rate<=12" */
+		return(0); /* move monsters and exit if rate<=12" */
 #ifndef SMALL
 	if(u.ustuck==mtmp && mdat->mlet=='B'){
 		k1("%s%s sucks more blood out of you!",mdat->mname);
 		u.uhp-=d(2,10);
 		if(u.uhp<1) killer=mdat->mname;
-		return;
+		return(0);
 	}
 #endif
 	if(u.uswallow) {
@@ -102,7 +107,7 @@ abs(mtmp->my-u.uy)>1) && m_move(mtmp) && mdat->mmove<=12)
 				youswld(mtmp,d(2,4),12);
 				break;
 			}
-		return;
+		return(0);
 	}
 	mdix=abs(mtmp->mx-u.ux);
 	mdiy=abs(mtmp->my-u.uy);
@@ -150,7 +155,7 @@ abs(mtmp->my-u.uy)>1) && m_move(mtmp) && mdat->mmove<=12)
 					u.ustuck = mtmp;
 				}
 				if(u.uhp<1) killer=mdat->mname;
-				return;
+				return(0);
 			}
 			break;
 #endif
@@ -197,7 +202,7 @@ abs(mtmp->my-u.uy)>1) && m_move(mtmp) && mdat->mmove<=12)
  mdat->mname);
 				nomul(-rn1(8,5));
 			}
-			return;
+			return(0);
 		case 'e': hitu(10,d(3,6),mdat->mname);
 			break;
 		case 'F':
@@ -216,11 +221,13 @@ abs(mtmp->my-u.uy)>1) && m_move(mtmp) && mdat->mmove<=12)
 				if(u.uhp<1) killer=mdat->mname;
 #endif
 			}
+			/* Modern: delmon() frees mtmp; use cached coordinates and stop using it */
+			mx=mtmp->mx;
+			my=mtmp->my;
 			delmon(mtmp);
-			hits= -1;
-			if(levl[mtmp->mx][mtmp->my].scrsym=='F')
-				newsym(mtmp->mx,mtmp->my);
-			break;
+			if(levl[mx][my].scrsym=='F')
+				newsym(mx,my);
+			return(1);
 		case 'g': if(!mtmp->mcan && hits && multi>=0 && !rn2(6)) {
 				mhit(mdat->mname);
 k1("You are frozen by %s%ss juices.",mdat->mname);
@@ -358,6 +365,10 @@ k1("You are frozen by %s%ss juices.",mdat->mname);
 		case 'W': if(!mtmp->mcan && hits && !rn2(5)) {
 				mhit(mdat->mname);
 				losexp();
+#ifndef SMALL
+				/* Modern: level drain can kill; 1982 code left killer NULL, crashing done() */
+				if(u.uhp<1) killer=mdat->mname;
+#endif
 			}
 			break;
 		case 'X':  for(tmp=0;tmp<3;tmp++)
@@ -365,16 +376,18 @@ k1("You are frozen by %s%ss juices.",mdat->mname);
 			break;
 		case 'y':
 			if(mtmp->mcan) break;
+			/* Modern: delmon() frees mtmp; use cached coordinates and stop using it */
+			mx=mtmp->mx;
+			my=mtmp->my;
 			delmon(mtmp);
-			if(levl[mtmp->mx][mtmp->my].cansee)
-				newsym(mtmp->mx,mtmp->my);
+			if(levl[mx][my].cansee)
+				newsym(mx,my);
 			if(!u.ublind) {
 				pline("A yellow light blinds you!");
 				u.ublind=d(4,12);
 				seeoff(0);
 			}
-			hits= -1;
-			break;
+			return(1);
 		case 'Y': hitu(4,rnd(6),mdat->mname);
 			break;
 		}
@@ -387,6 +400,7 @@ k1("You are frozen by %s%ss juices.",mdat->mname);
 		for(tmp=mdat->mmove-12;tmp > rnd(12);tmp-=12) m_move(mtmp);
 /* extra movement for fast monsters */
 	}
+	return(0);
 }
 void mhit(char *name)
 {
@@ -582,7 +596,7 @@ void steal(struct monst *mtmp)
 	}
 	strcpy(buf,"She stole ");
 	doname(otmp,&buf[10]);
-	pline(buf);
+	pline("%s",buf);
 	otmp->nobj=0;
 	for(stmp=fstole;stmp;stmp=stmp->nstole) {
 		if(stmp->smon==mtmp) {

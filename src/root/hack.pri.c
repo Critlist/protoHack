@@ -434,9 +434,11 @@ void pline(line,arg1,arg2,arg3,arg4)
 register char *line,*arg1,*arg2,*arg3,*arg4;
 {
 #ifdef SMALL
-	char pbuf[60];
+	/* Modern: 1982 pbuf[60] overflowed on any formatted message >=60 bytes;
+	   256 covers doname()'s buf[100] plus a prefix */
+	char pbuf[256];
 #else
-	static char *ptr=0,pbuf[60];
+	static char *ptr=0,pbuf[256];
 #endif
 
 	if(flags.topl==2) {
@@ -482,7 +484,7 @@ register char *line,*arg1,*arg2,*arg3,*arg4;
 	}
 #endif
 	if(index(line,'%')) {
-		sprintf(pbuf,line,arg1,arg2,arg3,arg4);
+		snprintf(pbuf,sizeof(pbuf),line,arg1,arg2,arg3,arg4);
 #ifndef SMALL
 		ptr=pbuf;
 #endif

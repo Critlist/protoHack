@@ -178,7 +178,7 @@ void rhack(char cmd)
 			for(otmp=invent;otmp && num;otmp=otmp->nobj,num--) ;
 			if(otmp) {
 				doname(otmp,buf);
-				pline(buf);
+				pline("%s",buf);
 			} else pline(DONTH);
 		}
 		flags.move=multi=0;
@@ -294,7 +294,7 @@ void rhack(char cmd)
 		}
 		strcpy(buf,"You dropped ");
 		doname(fobj,&buf[12]);
-		pline(buf);
+		pline("%s",buf);
 		break;
 	case 'p':
 		if(!(otmp=getobj("/","zap"))) {
@@ -581,7 +581,7 @@ void were(struct obj *otmp)
 {
 	strcpy(buf,"You were wearing ");
 	doname(otmp,&buf[17]);
-	pline(buf);
+	pline("%s",buf);
 }
 void drink1(struct obj *otmp)
 {
@@ -932,6 +932,6 @@ void set1(char *str)
 	} else if(!strncmp(str,"term=",5)) {
 		startup(str+5);
 		docrt();
-	} else pline("Unknown option '%s'",str);
+	} else pline("Unknown option '%.40s'",str); /* Modern: cap the echo so it fits on the top line */
 }
 #endif
