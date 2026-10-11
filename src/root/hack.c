@@ -990,6 +990,9 @@ void done(char *st1)
  u.urexp);
 #ifndef SMALL
 	if(*st1=='q') killer=st1;
+	/* Modern: any death path that forgot to set killer would crash in strcpy() below
+	   after the record was truncated; default it before the record is opened */
+	if(!killer) killer="mysterious force";
 	printf("and %u pieces of gold, after %u moves.\n",u.ugold,moves);
  printf("You were level %d with a maximum of %d hit points when you %s.\n",
  u.ulevel,u.uhpmax,st1);

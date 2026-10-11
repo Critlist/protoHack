@@ -358,6 +358,10 @@ k1("You are frozen by %s%ss juices.",mdat->mname);
 		case 'W': if(!mtmp->mcan && hits && !rn2(5)) {
 				mhit(mdat->mname);
 				losexp();
+#ifndef SMALL
+				/* Modern: level drain can kill; 1982 code left killer NULL, crashing done() */
+				if(u.uhp<1) killer=mdat->mname;
+#endif
 			}
 			break;
 		case 'X':  for(tmp=0;tmp<3;tmp++)
