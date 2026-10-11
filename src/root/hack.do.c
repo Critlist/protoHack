@@ -932,6 +932,6 @@ void set1(char *str)
 	} else if(!strncmp(str,"term=",5)) {
 		startup(str+5);
 		docrt();
-	} else pline("Unknown option '%s'",str);
+	} else pline("Unknown option '%.40s'",str); /* Modern: pbuf[60] in pline() */
 }
 #endif
