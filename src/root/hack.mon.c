@@ -596,7 +596,7 @@ void steal(struct monst *mtmp)
 	}
 	strcpy(buf,"She stole ");
 	doname(otmp,&buf[10]);
-	pline(buf);
+	pline("%s",buf);
 	otmp->nobj=0;
 	for(stmp=fstole;stmp;stmp=stmp->nstole) {
 		if(stmp->smon==mtmp) {

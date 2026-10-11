@@ -595,7 +595,7 @@ void doinv(register char *str)
 			sprintf(buf,"%c -  ",ilet);
 			doname(otmp,&buf[5]);
 #ifndef SMALL
-			if(flags.step) pline(buf);
+			if(flags.step) pline("%s",buf);
 			else {
 #endif
 				fputs(buf,stdout);

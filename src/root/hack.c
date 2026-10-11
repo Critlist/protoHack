@@ -712,12 +712,12 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				sprintf(buf,"%s at %d %d stole .",stmp->smon->
  data->mname,stmp->smon->mx,stmp->smon->my);
 				doname(stmp->sobj,index(buf,'.'));
-				pline(buf);
+				pline("%s",buf);
 				otmp=stmp->sobj;
 				while((otmp=otmp->nobj)) {
 					strcpy(buf,"and ");
 					doname(otmp,&buf[4]);
-					pline(buf);
+					pline("%s",buf);
 				}
 			}
 		}
@@ -735,7 +735,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 		for(;;) {
 			mkobj(tx);
 			doname(fobj,buf);
-			pline(buf);
+			pline("%s",buf);
 			flags.topl=1;
 			fflush(stdout);
 			if(getchar()=='y') break;
@@ -764,7 +764,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 		fobj->ox=u.ux;
 		fobj->oy=u.uy;
 		doname(fobj,buf);
-		pline(buf);
+		pline("%s",buf);
 		break;
 	case 'C':
 		for(mtmp=fmon;mtmp;mtmp=mtmp->nmon)
@@ -889,7 +889,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				sprintf(buf,"At %d, %d %c%d .",otmp->ox,
  otmp->oy,otmp->minus?'-':'+',otmp->spe);
 				doname(otmp,index(buf,'.'));
-				pline(buf);
+				pline("%s",buf);
 				curs(otmp->ox,otmp->oy+2);
 				putchar(otmp->olet);
 				curx++;
@@ -1256,7 +1256,8 @@ void prinv(struct obj *obj)
 		if(++ilet>'z') ilet='A';
 	sprintf(buf,"%c - ",ilet);
 	doname(otmp,&buf[4]);
-	pline(buf);
+	/* Modern: pass name as an argument; it holds player-typed text and pline() treats its first arg as a format */
+	pline("%s",buf);
 }
 int weight(struct obj *obj)
 {
