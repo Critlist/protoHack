@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Fixed a segfault on Ctrl-R (repeat last message) when there was no previous message: the 1982 `pline(0)` path fell through to `index(NULL,'%')`. Both the normal and SMALL builds now print "No message.". (#11)
 - A comma in the player name (set via `name=` in options) split the high-score record line and wiped the record file. Commas in names are now replaced with `_`, and the record reader bounds its fields to their buffers. (#11)
+- Fixed a crash at death from a wraith's level drain: the 1982 code never set `killer` there, so `done()` hit `strcpy(..., NULL)`. `done()` now also defaults `killer` for any other death path that misses it. (#12)
+- Fixed a use-after-free when a freezing sphere or a yellow light explodes: `dochug()` kept using the monster after `delmon()` freed it, and `movemon()` followed its freed `nmon` link. (#12)
+- `getlin()` no longer overflows its caller's 100-byte buffer: input stops at 99 characters, and EOF (a hung-up tty) takes the save-and-exit hangup path instead of being stored forever. (#12)
+- `pline()` formatted into a 60-byte buffer with `sprintf`; it now uses a 256-byte buffer and `snprintf`. (#12)
+- Object names containing `%` (user-named items, or the player's name) were passed to `pline()` as the format string; every `pline(buf)` call now uses `pline("%s",buf)`. (#12)
 - Restored the 1982 `makefile`, `exp/makefile`, `exp/exp1/makefile` and empty `perm` to `original/`; `.gitignore` had silently dropped them when `hack/` was renamed. `original/` is again byte-identical to Sustainable-Games/fenlason-hack.
 - README: corrected Dan Stormont's name, the static-binary install path (`~/Games/protohack`) and download step, the source file count (9), the chain-of-custody dates (2025, per Dan Stormont), and attributed the mklev split to Fenlason's own words.
 - README: 2.8BSD → 2.9BSD (per Brian Harvey's account); Bresnick's narration no longer reads as a Fenlason quote.
