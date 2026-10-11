@@ -1002,7 +1002,8 @@ void done(char *st1)
 		memset(rec, 0, sizeof(rec));
 		buf[0] = '\0';
 		for(t1=rec;t1<&rec[10];t1++) {
- if(fscanf(rfile,"%d %u %[^,],%[^\n]",&t1->level,&t1->points,buf,t1->death) < 4) break;
+			/* Modern: bound the fields to buf[100] and death[20] so a malformed line can't overflow them */
+ if(fscanf(rfile,"%d %u %99[^,],%19[^\n]%*[^\n]",&t1->level,&t1->points,buf,t1->death) < 4) break;
 			t1->str=alloc(strlen(buf)+1);
 			strcpy(t1->str,buf);
 		}
