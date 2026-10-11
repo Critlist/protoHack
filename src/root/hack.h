@@ -290,7 +290,7 @@ void mkobj(int let);
 void movemon(void);
 void justswld(struct monst *);
 void youswld(struct monst *, int, int);
-void dochug(struct monst *);
+int dochug(struct monst *);
 void mhit(char *);
 void inrange(struct monst *);
 int m_move(struct monst *);
