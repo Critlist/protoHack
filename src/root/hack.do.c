@@ -927,6 +927,8 @@ void set1(char *str)
 		if(uname) mfree(uname);
 		uname=alloc(strlen(str)+1);
 		strcpy(uname,str);
+		/* Modern: ',' separates the name from the death in the record file */
+		for(str=uname;*str;str++) if(*str==',') *str='_';
 	} else if(!strncmp(str,"term=",5)) {
 		startup(str+5);
 		docrt();
