@@ -1,0 +1,9 @@
+[project]
+name = "protohack-dev"
+version = "0.1.0"
+description = "protoHack sanitizer and soak test harness"
+requires-python = ">=3.11"
+dependencies = [
+    "pexpect>=4.9.0",
+    "pyte>=0.8.2",
+]
