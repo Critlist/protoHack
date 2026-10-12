@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `dev/` sanitizer and soak harness, ported from restoHack: ASan, UBSan, ASan+UBSan and hardened lanes (`dev/run-all.py`), seeded and replayable (`--seed-offset`, `--only-run`). protoHack's runner explores toward the stairs and aims at the S1 fixes (^R, option and naming input, save/hangup and restore, resize). Test builds (`-DHACK_TEST_SEED`) seed the RNG from `HACK_SEED`; release builds don't.
+
 ### Fixed
 
 - After the "TERMINAL TOO SMALL" screen, the map wasn't redrawn if the terminal went back to the same size it had before the shrink (`check_resize()` only redrew on a size change), so the warning stayed on screen. It now always redraws after that screen.

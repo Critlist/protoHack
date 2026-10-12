@@ -182,6 +182,21 @@ int main(void)
 		exit(3);
 	}
  	srand(getpid());
+#ifdef HACK_TEST_SEED
+	/* Modern: test builds only (dev/soak.py defines HACK_TEST_SEED).
+	   HACK_SEED=<n> makes the dungeon reproducible so a failing soak run
+	   can be replayed; never compiled into release builds. */
+	{
+		char *s=getenv("HACK_SEED"),*end;
+		unsigned long v;
+
+		if(s && *s) {
+			errno=0;
+			v=strtoul(s,&end,10);
+			if(errno==0 && *end=='\0') srand((unsigned)v);
+		}
+	}
+#endif
 	atexit(cleanup_tty);
 #ifndef SMALL
 	setbuf(stdout,obuf);
