@@ -29,6 +29,7 @@ static void check_resize(void)
 {
 	struct winsize ws;
 	int cols=0, rows=0;
+	int was_small=0; /* Modern: the TOO SMALL screen overwrote the map */
 
 	if(!resize_pending) return;
 	resize_pending=0;
@@ -41,6 +42,7 @@ static void check_resize(void)
 		rows=24;
 	}
 	if(cols<80 || rows<24) {
+		was_small=1;
 		for(;;) {
 			fd_set rfds;
 			struct timeval tv;
@@ -67,7 +69,9 @@ static void check_resize(void)
 			if(cols>=80 && rows>=24) break;
 		}
 	}
-	if(cols!=last_cols || rows!=last_rows) {
+	/* Modern: also redraw after the TOO SMALL screen even if the size is back
+	   to what it was before the shrink, or that screen stays up */
+	if(was_small || cols!=last_cols || rows!=last_rows) {
 		docrt();
 		pline("[Terminal resized to %dx%d - display refreshed]",cols,rows);
 		last_cols=cols;
