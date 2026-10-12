@@ -136,14 +136,23 @@ class HackGameRunner:
             return False, -1
 
     def _quit(self) -> Tuple[bool, int]:
-        """Q, y, then page through the score list until the game exits."""
-        for attempt in range(8):
-            self._send("\x1b\r ", settle=0.1)     # end any text prompt or pager
-            self._send("Q", settle=0.2)
-            if "Really quit" in self.screen.display[0]:
-                break
+        """Q, y, then page through the score list until the game exits.
+
+        Reads the screen before each key: a blind ' ' or '\\r' can count as
+        a command, pass a turn and raise a new --More-- (a monster attacks),
+        which then swallows the 'Q'."""
+        for attempt in range(40):
             if not self.child.isalive():
                 return True, self._exit_status()
+            top = self.screen.display[0].rstrip()
+            if "Really quit" in top:
+                break
+            if "--More--" in top or "Hit space" in "\n".join(self.screen.display):
+                self._send(" ", settle=0.1)       # dismiss the pager
+            elif top.endswith("?") or top.endswith(":"):
+                self._send("\x1b", settle=0.1)    # cancel the prompt
+            else:
+                self._send("Q", settle=0.2)
         else:
             self.fail_reason = "no quit prompt after retries"
             self.child.terminate(force=True)
