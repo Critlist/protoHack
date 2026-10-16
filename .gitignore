@@ -168,3 +168,7 @@ release-*/
 # original/ is the unmodified 1982 tree: never ignore anything in it
 !/original/**/makefile
 !/original/perm
+
+# dev/ harness logs
+dev/test-logs/
+dev/.venv/

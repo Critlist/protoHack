@@ -29,6 +29,7 @@ static void check_resize(void)
 {
 	struct winsize ws;
 	int cols=0, rows=0;
+	int was_small=0; /* Modern: the TOO SMALL screen overwrote the map */
 
 	if(!resize_pending) return;
 	resize_pending=0;
@@ -41,6 +42,7 @@ static void check_resize(void)
 		rows=24;
 	}
 	if(cols<80 || rows<24) {
+		was_small=1;
 		for(;;) {
 			fd_set rfds;
 			struct timeval tv;
@@ -67,7 +69,9 @@ static void check_resize(void)
 			if(cols>=80 && rows>=24) break;
 		}
 	}
-	if(cols!=last_cols || rows!=last_rows) {
+	/* Modern: also redraw after the TOO SMALL screen even if the size is back
+	   to what it was before the shrink, or that screen stays up */
+	if(was_small || cols!=last_cols || rows!=last_rows) {
 		docrt();
 		pline("[Terminal resized to %dx%d - display refreshed]",cols,rows);
 		last_cols=cols;
@@ -178,6 +182,21 @@ int main(void)
 		exit(3);
 	}
  	srand(getpid());
+#ifdef HACK_TEST_SEED
+	/* Modern: test builds only (dev/soak.py defines HACK_TEST_SEED).
+	   HACK_SEED=<n> makes the dungeon reproducible so a failing soak run
+	   can be replayed; never compiled into release builds. */
+	{
+		char *s=getenv("HACK_SEED"),*end;
+		unsigned long v;
+
+		if(s && *s) {
+			errno=0;
+			v=strtoul(s,&end,10);
+			if(errno==0 && *end=='\0') srand((unsigned)v);
+		}
+	}
+#endif
 	atexit(cleanup_tty);
 #ifndef SMALL
 	setbuf(stdout,obuf);
