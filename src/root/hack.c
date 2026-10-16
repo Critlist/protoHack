@@ -712,12 +712,12 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				sprintf(buf,"%s at %d %d stole .",stmp->smon->
  data->mname,stmp->smon->mx,stmp->smon->my);
 				doname(stmp->sobj,index(buf,'.'));
-				pline(buf);
+				pline("%s",buf);
 				otmp=stmp->sobj;
 				while((otmp=otmp->nobj)) {
 					strcpy(buf,"and ");
 					doname(otmp,&buf[4]);
-					pline(buf);
+					pline("%s",buf);
 				}
 			}
 		}
@@ -735,7 +735,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 		for(;;) {
 			mkobj(tx);
 			doname(fobj,buf);
-			pline(buf);
+			pline("%s",buf);
 			flags.topl=1;
 			fflush(stdout);
 			if(getchar()=='y') break;
@@ -764,7 +764,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 		fobj->ox=u.ux;
 		fobj->oy=u.uy;
 		doname(fobj,buf);
-		pline(buf);
+		pline("%s",buf);
 		break;
 	case 'C':
 		for(mtmp=fmon;mtmp;mtmp=mtmp->nmon)
@@ -889,7 +889,7 @@ case 'p': pline("daminc=%d blind=%d fast=%d confused=%d",
 				sprintf(buf,"At %d, %d %c%d .",otmp->ox,
  otmp->oy,otmp->minus?'-':'+',otmp->spe);
 				doname(otmp,index(buf,'.'));
-				pline(buf);
+				pline("%s",buf);
 				curs(otmp->ox,otmp->oy+2);
 				putchar(otmp->olet);
 				curx++;
@@ -990,6 +990,9 @@ void done(char *st1)
  u.urexp);
 #ifndef SMALL
 	if(*st1=='q') killer=st1;
+	/* Modern: any death path that forgot to set killer would crash in strcpy() below
+	   after the record was truncated; default it before the record is opened */
+	if(!killer) killer="mysterious force";
 	printf("and %u pieces of gold, after %u moves.\n",u.ugold,moves);
  printf("You were level %d with a maximum of %d hit points when you %s.\n",
  u.ulevel,u.uhpmax,st1);
@@ -1002,7 +1005,8 @@ void done(char *st1)
 		memset(rec, 0, sizeof(rec));
 		buf[0] = '\0';
 		for(t1=rec;t1<&rec[10];t1++) {
- if(fscanf(rfile,"%d %u %[^,],%[^\n]",&t1->level,&t1->points,buf,t1->death) < 4) break;
+			/* Modern: bound the fields to buf[100] and death[20] so a malformed line can't overflow them */
+ if(fscanf(rfile,"%d %u %99[^,],%19[^\n]%*[^\n]",&t1->level,&t1->points,buf,t1->death) < 4) break;
 			t1->str=alloc(strlen(buf)+1);
 			strcpy(t1->str,buf);
 		}
@@ -1252,7 +1256,8 @@ void prinv(struct obj *obj)
 		if(++ilet>'z') ilet='A';
 	sprintf(buf,"%c - ",ilet);
 	doname(otmp,&buf[4]);
-	pline(buf);
+	/* Modern: pass name as an argument; it holds player-typed text and pline() treats its first arg as a format */
+	pline("%s",buf);
 }
 int weight(struct obj *obj)
 {
@@ -1272,23 +1277,37 @@ int weight(struct obj *obj)
 		return(0);
 	}
 }
+#define GETLIN_MAX 99 /* Modern: max chars getlin stores; buf[] is 100 bytes */
 void getlin(char *str)
 {			/* also note that only delete will delete chars (BUG) */
 	register char *ostr=str;
+	int ch;
 
 	flags.topl=1;
 	fflush(stdout);
 	for(;;) {
-		*str=getchar();
-		if(*str=='\177') {
+		ch=getchar();
+		/* Modern: EOF (tty hangup) used to be stored forever, overflowing
+		   the caller's buffer; take the hangup path (save and exit) */
+		if(ch==EOF) {
+			if(errno==EINTR) { clearerr(stdin); continue; }
+			*str=0;
+			hangup(0);
+			return;
+		}
+		if(ch=='\177') {
 			if(str!=ostr) {
 				str--;
 				write(1,"\b \b",3);
 			} else write(1,"\007",1);
-		} else if(*str=='\n' || *str=='\033' || *str=='\r') {
+		} else if(ch=='\n' || ch=='\033' || ch=='\r') {
 			*str=0;
 			return;
+		} else if(str-ostr>=GETLIN_MAX) {
+			/* Modern: callers pass buf[100]; keep room for the NUL */
+			write(1,"\007",1);
 		} else {
+			*str=ch;
 			write(1,str,1);
 			str++;
 			curx++;
