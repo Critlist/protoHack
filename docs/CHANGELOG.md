@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Linux ARM64 (and any unsigned-`char` ABI): `mklev` crashed with SIGFPE/SIGSEGV on every normal level because Jay's `croom->hx = -1` end-of-rooms sentinel became 255. The build now passes `-fsigned-char`, matching the PDP-11's signed `char`. Same bug class as restoHack #15.
 - After the "TERMINAL TOO SMALL" screen, the map wasn't redrawn if the terminal went back to the same size it had before the shrink (`check_resize()` only redrew on a size change), so the warning stayed on screen. It now always redraws after that screen.
 - Fixed a segfault on Ctrl-R (repeat last message) when there was no previous message: the 1982 `pline(0)` path fell through to `index(NULL,'%')`. Both the normal and SMALL builds now print "No message.". (#11)
 - A comma in the player name (set via `name=` in options) split the high-score record line and wiped the record file. Commas in names are now replaced with `_`, and the record reader bounds its fields to their buffers. (#11)
