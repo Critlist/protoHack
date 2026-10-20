@@ -257,6 +257,10 @@ void mklev(void)
 	else *buf='a';
 	*(buf+1)='\0';
 	sprintf(buf+2,"%d",dlevel);
+
+#ifdef __EMSCRIPTEN__
+	wasm_mklev(lock,buf,buf+2);
+#else
 	switch(fork()){
 	case 0:
 		execl("./mklev","mklev",lock,buf,buf+2,(char *)NULL);
@@ -277,6 +281,7 @@ void mklev(void)
 		}
 		break;
 	}
+#endif
 }
 void mkobj(int let)
 {

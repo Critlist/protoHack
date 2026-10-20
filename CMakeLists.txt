@@ -22,12 +22,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # or segfaults. Same bug class as restoHack issue #15 (ARM64 schar crash).
 add_compile_options(-fsigned-char)
 
-# --- Find ncurses (provides termcap compatibility) ---
-find_package(Curses REQUIRED)
-message(STATUS "Using ncurses: ${CURSES_LIBRARIES}")
-
-# --- Find crypt (optional on musl; required on glibc) ---
-find_library(CRYPT_LIB crypt)
+# Browser assets are preloaded at /; native builds use system libraries.
+if(EMSCRIPTEN)
+    set(HACKDIR_OVERRIDE "/")
+else()
+    # ncurses provides termcap compatibility; crypt is optional on musl.
+    find_package(Curses REQUIRED)
+    message(STATUS "Using ncurses: ${CURSES_LIBRARIES}")
+    find_library(CRYPT_LIB crypt)
+endif()
 if(CRYPT_LIB)
     message(STATUS "Using crypt: ${CRYPT_LIB}")
 endif()
@@ -84,7 +87,7 @@ target_compile_options(hack PRIVATE
     -Wno-implicit-function-declaration  # cross-file calls lacking prototypes in hack.h
     -Wno-int-conversion            # alloc() returns char* used as struct pointers
     -Wno-incompatible-pointer-types # g_at() generic pointer casts
-    $<$<NOT:$<PLATFORM_ID:Darwin>>:-fno-pie>  # non-PIE causes trace trap on macOS
+    $<$<AND:$<NOT:$<PLATFORM_ID:Darwin>>,$<NOT:$<BOOL:${EMSCRIPTEN}>>>:-fno-pie>  # non-PIE causes trace trap on macOS
     $<$<C_COMPILER_ID:Clang>:-Wno-deprecated-non-prototype>
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
     $<$<C_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
@@ -93,7 +96,7 @@ target_compile_options(hack PRIVATE
 )
 
 # non-PIE linker flag causes trace trap on macOS due to SIP/security enforcement
-if(NOT APPLE)
+if(NOT APPLE AND NOT EMSCRIPTEN)
     target_link_options(hack PRIVATE -no-pie)
 endif()
 
@@ -129,7 +132,7 @@ target_compile_options(mklev PRIVATE
     -Wno-implicit-function-declaration
     -Wno-int-conversion
     -Wno-incompatible-pointer-types
-    $<$<NOT:$<PLATFORM_ID:Darwin>>:-fno-pie>  # non-PIE causes trace trap on macOS
+    $<$<AND:$<NOT:$<PLATFORM_ID:Darwin>>,$<NOT:$<BOOL:${EMSCRIPTEN}>>>:-fno-pie>  # non-PIE causes trace trap on macOS
     $<$<C_COMPILER_ID:Clang>:-Wno-deprecated-non-prototype>
     $<$<C_COMPILER_ID:Clang>:-Wno-knr-promoted-parameter>
     $<$<C_COMPILER_ID:GNU>:-Wno-maybe-uninitialized>
@@ -138,7 +141,7 @@ target_compile_options(mklev PRIVATE
 )
 
 # non-PIE linker flag causes trace trap on macOS due to SIP/security enforcement
-if(NOT APPLE)
+if(NOT APPLE AND NOT EMSCRIPTEN)
     target_link_options(mklev PRIVATE -no-pie)
 endif()
 
@@ -172,6 +175,7 @@ add_custom_target(setup_hackdir ALL
 )
 
 # Put mklev where hack can find it — hack.lev.c exec's "./mklev"
+if(NOT EMSCRIPTEN)
 add_custom_command(TARGET mklev POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:mklev>
@@ -179,4 +183,12 @@ add_custom_command(TARGET mklev POST_BUILD
     COMMENT "Copying mklev to build root and hackdir (hack exec's ./mklev)"
 )
 
-add_dependencies(hack setup_hackdir mklev)
+endif()
+
+add_dependencies(hack setup_hackdir)
+
+if(EMSCRIPTEN)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/wasm/protohack.cmake)
+else()
+    add_dependencies(hack mklev)
+endif()

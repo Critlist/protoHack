@@ -31,4 +31,8 @@
 #define rindex strrchr
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include "protohack.h"
+#endif
+
 #endif /* COMPAT_H */

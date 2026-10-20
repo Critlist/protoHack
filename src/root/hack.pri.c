@@ -48,7 +48,7 @@ void nocm();
 void on();
 void prl();
 void newsym();
-void pline();
+void pline(char *, ...);
 void nscr();
 void bot();
 
@@ -137,12 +137,14 @@ register char *nam;
 }
 #endif
 /*VARARGS1*/
-void panic(str,a1,a2,a3,a4,a5,a6)
-char *str;
+void panic(char *str, ...)
 {
+	va_list ap;
 	cls();
 	fputs("ERROR:  ",stdout);
-	printf(str,a1,a2,a3,a4,a5,a6);
+	va_start(ap,str);
+	vprintf(str,ap);
+	va_end(ap);
 	cbout();
 	exit(100);
 }
@@ -430,8 +432,7 @@ register x,y;
 	}
 }
 /*VARARGS1*/
-void pline(line,arg1,arg2,arg3,arg4)
-register char *line,*arg1,*arg2,*arg3,*arg4;
+void pline(char *line, ...)
 {
 #ifdef SMALL
 	/* Modern: 1982 pbuf[60] overflowed on any formatted message >=60 bytes;
@@ -484,7 +485,10 @@ register char *line,*arg1,*arg2,*arg3,*arg4;
 	}
 #endif
 	if(index(line,'%')) {
-		snprintf(pbuf,sizeof(pbuf),line,arg1,arg2,arg3,arg4);
+		va_list ap;
+		va_start(ap,line);
+		vsnprintf(pbuf,sizeof(pbuf),line,ap);
+		va_end(ap);
 #ifndef SMALL
 		ptr=pbuf;
 #endif

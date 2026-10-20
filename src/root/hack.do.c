@@ -112,6 +112,9 @@ void rhack(char cmd)
 		break;
 #ifndef SMALL
 	case '?':
+#ifdef __EMSCRIPTEN__
+		wasm_page("moves",1);
+#else
 		if(fork()) wait(0);
 		else {
 			char *pager;
@@ -128,11 +131,15 @@ void rhack(char cmd)
 			pline("No pager available.");
 			exit(1);
 		}
+#endif
 		cbin();	/* guess why */
 		getret();
 		docrt();
 		break;
 	case '!':
+#ifdef __EMSCRIPTEN__
+		pline("No shell is available in the browser.");
+#else
 		switch(fork()) {
 		case -1:
 			pline("Fork failed.");
@@ -164,6 +171,7 @@ void rhack(char cmd)
 			docrt();
 			break;
 		}
+#endif
 		multi=flags.move=0;
 		break;
 	case 'I':

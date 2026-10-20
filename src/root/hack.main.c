@@ -230,8 +230,12 @@ int main(void)
 		}
 		cls();
 		fflush(stdout);
+#ifdef __EMSCRIPTEN__
+		wasm_page("news",0);
+#else
 		if(fork()) wait(0);
 		else execl("/bin/cat","cat","news",(char *)NULL); /* Modern: execl() list terminator for 64-bit safety */
+#endif
 		cbin();
 		getret();
 	} else {
