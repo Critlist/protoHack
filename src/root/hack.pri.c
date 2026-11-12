@@ -137,6 +137,10 @@ register char *nam;
 }
 #endif
 /*VARARGS1*/
+/* Original 1982:
+panic(str,a1,a2,a3,a4,a5,a6)
+char *str;
+*/
 void panic(char *str, ...)
 {
 	va_list ap;
@@ -432,6 +436,10 @@ register x,y;
 	}
 }
 /*VARARGS1*/
+/* Original 1982:
+pline(line,arg1,arg2,arg3,arg4)
+register char *line,*arg1,*arg2,*arg3,*arg4;
+*/
 void pline(char *line, ...)
 {
 #ifdef SMALL

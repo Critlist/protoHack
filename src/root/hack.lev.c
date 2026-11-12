@@ -258,6 +258,11 @@ void mklev(void)
 	*(buf+1)='\0';
 	sprintf(buf+2,"%d",dlevel);
 
+	/* Modern: the native build forks the separate mklev binary on purpose,
+	   the original PDP-11 memory design that keeps the generator's state
+	   and level-file layout out of the game. The browser has no fork/exec,
+	   so the wasm build runs the same generator in a fresh module and
+	   copies the resulting level file into the game's filesystem. */
 #ifdef __EMSCRIPTEN__
 	wasm_mklev(lock,buf,buf+2);
 #else

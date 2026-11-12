@@ -230,6 +230,7 @@ int main(void)
 		}
 		cls();
 		fflush(stdout);
+		/* Modern: no /bin/cat in the browser; page the news file in-process */
 #ifdef __EMSCRIPTEN__
 		wasm_page("news",0);
 #else

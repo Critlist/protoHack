@@ -31,6 +31,8 @@
 #define rindex strrchr
 #endif
 
+/* Modern: browser-only stand-ins for the login, level-generation and paging
+ * processes the wasm build cannot fork/exec; see wasm/protohack.h */
 #ifdef __EMSCRIPTEN__
 #include "protohack.h"
 #endif

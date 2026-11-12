@@ -112,6 +112,7 @@ void rhack(char cmd)
 		break;
 #ifndef SMALL
 	case '?':
+		/* Modern: no external pager in the browser; page "moves" in-process */
 #ifdef __EMSCRIPTEN__
 		wasm_page("moves",1);
 #else
@@ -137,6 +138,7 @@ void rhack(char cmd)
 		docrt();
 		break;
 	case '!':
+		/* Modern: no shell to escape to in the browser */
 #ifdef __EMSCRIPTEN__
 		pline("No shell is available in the browser.");
 #else
