@@ -13,9 +13,7 @@ name: WebAssembly build & Pages deploy
 
 on:
   push:
-    # "wasm-port" is temporary: it lets the port be built and published
-    # before it is merged into main.
-    branches: ["main", "wasm-port"]
+    branches: ["main"]
     tags: ["v*"]
   workflow_dispatch:
 
