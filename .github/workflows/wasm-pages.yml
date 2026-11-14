@@ -1,0 +1,72 @@
+name: WebAssembly build & Pages deploy
+
+# Builds the browser bundle (see wasm/README.md) with the Emscripten SDK
+# pinned in wasm/utw/wasm/emsdk-version and publishes it to GitHub Pages,
+# served at https://neuhaus.github.io/protoHack/.
+#
+# It runs for every push to main and for every release tag, so the browser
+# build never falls behind the source, and can also be started by hand for
+# the current branch.
+#
+# Requires: Settings -> Pages -> Build and deployment -> Source:
+# "GitHub Actions".
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # Only wasm/utw is needed; fetching every submodule is slower and would
+      # fail if the tree ever carries a gitlink without a .gitmodules entry.
+      - name: Fetch the browser template submodule
+        run: git submodule update --init wasm/utw
+
+      - name: Read the pinned Emscripten version
+        id: emsdk-version
+        run: echo "version=$(cat wasm/utw/wasm/emsdk-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Install the pinned Emscripten SDK
+        uses: emscripten-core/setup-emsdk@v16
+        with:
+          version: ${{ steps.emsdk-version.outputs.version }}
+
+      # Host cc, cmake, curl and node are all present on ubuntu-latest; the
+      # script fetches the checksum-pinned xterm assets itself.
+      - name: Build the browser bundle
+        run: ./wasm/build-wasm.sh
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: build/wasm
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

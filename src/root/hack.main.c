@@ -230,8 +230,13 @@ int main(void)
 		}
 		cls();
 		fflush(stdout);
+		/* Modern: no /bin/cat in the browser; page the news file in-process */
+#ifdef __EMSCRIPTEN__
+		wasm_page("news",0);
+#else
 		if(fork()) wait(0);
 		else execl("/bin/cat","cat","news",(char *)NULL); /* Modern: execl() list terminator for 64-bit safety */
+#endif
 		cbin();
 		getret();
 	} else {

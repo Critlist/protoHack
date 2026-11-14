@@ -18,6 +18,12 @@ further back to the original 1981-82 codebase.
   <figcaption>Dungeon rendering and status line working. Note the scroll labeled "Andova Begarin" — one of Fenlason's original scroll names.</figcaption>
 </figure>
 
+## Browser (wasm) build
+
+Run `./wasm/build-wasm.sh` with Emscripten 6.0.13, then serve
+`build/wasm/` over HTTP. See [wasm/README.md](wasm/README.md) for setup,
+controls, and persistent saves.
+
 ## Lost and Found
 
 This source was widely considered lost for over 40 years. Jay Fenlason put Hack on

@@ -347,3 +347,26 @@ void doup(void);
 void docall(struct obj *);
 void more(void);
 void dodr1(struct obj *);
+
+/* Explicit display signatures are required by WebAssembly's typed calls. */
+#ifndef MKLEV_BINARY
+void curs(int, int);
+void cls(void);
+void home(void);
+void atl(int, int, int);
+void at(int, int, int);
+void on(int, int);
+void docrt(void);
+void clearpru(void);
+void pru(void);
+void prl(int, int);
+void newsym(int, int);
+void prl1(int, int);
+void nose1(int, int);
+void swallowed(void);
+void pmon(struct monst *);
+void nscr(void);
+void bot(void);
+void panic(char *, ...);
+void pline(char *, ...);
+#endif
